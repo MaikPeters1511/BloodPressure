@@ -1,0 +1,47 @@
+﻿@page "/api"
+@using Newtonsoft.Json
+@using CleanArchitecture.Domain.Entities
+@inject HttpClient Http
+
+<h1>Blutdruckwerte</h1>
+
+<ul>
+    @if (bloodPressures == null)
+    {
+        <li>Lade Daten...</li>
+    }
+    else
+    {
+        @foreach (var bloodPressure in bloodPressures)
+        {
+            <li>
+                ID: @bloodPressure.Id,
+                Systolisch: @bloodPressure.Systolisch mmHg,
+                Diastolisch: @bloodPressure.Diastolisch mmHg,
+                Puls: @bloodPressure.Pulse Schläge/Minute
+                Datum: @bloodPressure.DateTime
+            </li>
+        }
+    }
+</ul>
+
+
+@code {
+    private List<BloodPressure>? bloodPressures;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // HttpClient erstellen
+        var client = new HttpClient();
+        client.BaseAddress = new Uri("https://localhost:5000");
+        // GET-Anfrage an API senden
+        var response = await client.GetAsync("/api/BloodPressure");
+
+        if (response.IsSuccessStatusCode)
+        {
+            var jsonData = await response.Content.ReadAsStringAsync();
+            // Deserialisierung
+            bloodPressures = JsonConvert.DeserializeObject<List<BloodPressure>>(jsonData);
+        }
+    }
+}
