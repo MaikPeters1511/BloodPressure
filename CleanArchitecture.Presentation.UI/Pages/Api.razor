@@ -4,27 +4,41 @@
 @inject HttpClient Http
 
 <h1>Blutdruckwerte</h1>
+@if (bloodPressures == null)
+{
+    <li class="loading loading-spinner loading-lg">Lade Daten vom Server...</li>
+}
+else
+{
+        <div class="overflow-x-auto">
+            <table class="table table-zebra">
+                <!-- head -->
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Systolisch</th>
+                    <th>Diastolisch</th>
+                    <th>Puls</th>
+                    <th>Datum</th>
+                </tr>
+                </thead>
+                <tbody>
 
-<ul>
-    @if (bloodPressures == null)
-    {
-        <li>Lade Daten...</li>
-    }
-    else
-    {
-        @foreach (var bloodPressure in bloodPressures)
-        {
-            <li>
-                ID: @bloodPressure.Id,
-                Systolisch: @bloodPressure.Systolisch mmHg,
-                Diastolisch: @bloodPressure.Diastolisch mmHg,
-                Puls: @bloodPressure.Pulse Schläge/Minute
-                Datum: @bloodPressure.DateTime
-            </li>
+                @foreach (var bloodPressure in bloodPressures)
+                {
+                    <tr>
+                        <td>@bloodPressure.Id</td>
+                        <td>@bloodPressure.Systolisch mmHg</td>
+                        <td>@bloodPressure.Diastolisch mmHg</td>
+                        <td>@bloodPressure.Pulse Schläge/Minute</td>
+                        <td>@bloodPressure.DateTime</td>
+                    </tr>
+                }
+
+                </tbody>
+            </table>
+        </div>
         }
-    }
-</ul>
-
 
 @code {
     private List<BloodPressure>? bloodPressures;
@@ -44,4 +58,5 @@
             bloodPressures = JsonConvert.DeserializeObject<List<BloodPressure>>(jsonData);
         }
     }
+
 }
