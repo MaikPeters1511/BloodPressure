@@ -4,7 +4,6 @@ namespace CleanArchitecture.Domain.Entities;
 
 public class BloodPressure
 {
-    [Key]
     public int Id { get; set; }
 
     [MaxLength(3)]
