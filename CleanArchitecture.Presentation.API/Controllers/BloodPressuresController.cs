@@ -49,8 +49,7 @@ public class BloodPressureController : ControllerBase
     public async Task<ActionResult<BloodPressure>> CreateBloodPressure(BloodPressure bloodPressure)
     {
         await _bloodPressureRepository.AddAsync(bloodPressure);
-
-        return CreatedAtAction(nameof(GetBloodPressure), new { id = bloodPressure.Id }, bloodPressure);
+        return CreatedAtAction("GetBloodPressure", new { id = bloodPressure.Id },bloodPressure);
     }
 
     // PUT: api/BloodPressure/5
