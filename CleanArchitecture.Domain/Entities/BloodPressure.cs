@@ -4,21 +4,20 @@ namespace CleanArchitecture.Domain.Entities;
 
 public class BloodPressure
 {
-    [Key]
     public int Id { get; set; }
 
-    [MaxLength(3)]
+    [Range(0,500)]
     public int Systolisch { get; set; }
 
-    [MaxLength(3)]
+    [Range(0,500)]
     public int Diastolisch { get; set; }
 
     public DateTime DateTime { get; set; } = new DateTime();
 
-    [MaxLength(3)]
+    [Range(0,500)]
     public int Pulse { get; set; }
 
-    [MaxLength(3)]
+    [Range(0,100)]
     public int Oxygen { get; set; }
 
 }

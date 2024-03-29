@@ -34,19 +34,15 @@ namespace CleanArchitecture.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Diastolisch")
-                        .HasMaxLength(3)
                         .HasColumnType("integer");
 
                     b.Property<int>("Oxygen")
-                        .HasMaxLength(3)
                         .HasColumnType("integer");
 
                     b.Property<int>("Pulse")
-                        .HasMaxLength(3)
                         .HasColumnType("integer");
 
                     b.Property<int>("Systolisch")
-                        .HasMaxLength(3)
                         .HasColumnType("integer");
 
                     b.HasKey("Id");

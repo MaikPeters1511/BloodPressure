@@ -1,8 +1,15 @@
-using CleanArchitecture.Application;
+﻿using CleanArchitecture.Application;
+using CleanArchitecture.Domain.IRepository;
+using CleanArchitecture.Domain.Repository;
 using CleanArchitecture.Infrastructure;
-using CleanArchitecture.Presentation.API;
+using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<AddPostgresSqlDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'APIContext' not found.")));
+builder.Services.AddScoped<IBloodPressureRepository, BloodPressureRepository>();
 
 // Add services to the container.
 builder.Services.AddControllers();

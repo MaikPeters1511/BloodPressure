@@ -1,8 +1,12 @@
-@CleanArchitecture.Presentation.API_HostAddress = http://localhost:5156
+@CleanArchitecture.Presentation.API_HostAddress = https://localhost:5000
 
-GET {{CleanArchitecture.Presentation.API_HostAddress}}/api/radio/
+GET {{CleanArchitecture.Presentation.API_HostAddress}}/api/BloodPressures
 Accept: application/json
 
 ###
-GET {{CleanArchitecture.Presentation.API_HostAddress}}/api/seeder/
-Accept: application/json
+POST {{CleanArchitecture.Presentation.API_HostAddress}}/api/BloodPressures
+Content-Type: application/json
+
+{
+  
+}

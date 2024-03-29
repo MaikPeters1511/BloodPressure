@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CleanArchitecture.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDatabase : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,11 +18,11 @@ namespace CleanArchitecture.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Systolisch = table.Column<int>(type: "integer", maxLength: 3, nullable: false),
-                    Diastolisch = table.Column<int>(type: "integer", maxLength: 3, nullable: false),
+                    Systolisch = table.Column<int>(type: "integer", nullable: false),
+                    Diastolisch = table.Column<int>(type: "integer", nullable: false),
                     DateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Pulse = table.Column<int>(type: "integer", maxLength: 3, nullable: false),
-                    Oxygen = table.Column<int>(type: "integer", maxLength: 3, nullable: false)
+                    Pulse = table.Column<int>(type: "integer", nullable: false),
+                    Oxygen = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
