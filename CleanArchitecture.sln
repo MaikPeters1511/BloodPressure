@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Presentat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Presentation.WPF", "CleanArchitecture.Presentation.WPF\CleanArchitecture.Presentation.WPF.csproj", "{D40CA80B-A4B6-4514-A6E7-359D396FFAA3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Presentation.MAUI", "CleanArchitecture.Presentation.MAUI\CleanArchitecture.Presentation.MAUI.csproj", "{2C8F4296-0A42-4FE6-B3C2-5BE434EE044A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{D40CA80B-A4B6-4514-A6E7-359D396FFAA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D40CA80B-A4B6-4514-A6E7-359D396FFAA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D40CA80B-A4B6-4514-A6E7-359D396FFAA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C8F4296-0A42-4FE6-B3C2-5BE434EE044A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C8F4296-0A42-4FE6-B3C2-5BE434EE044A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C8F4296-0A42-4FE6-B3C2-5BE434EE044A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C8F4296-0A42-4FE6-B3C2-5BE434EE044A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,5 +66,6 @@ Global
 		{2220C524-BDD3-4E2D-A072-E367DF9A7DF0} = {DC4CDD19-6719-469E-82B8-100CFE5CCFB6}
 		{12B72ADD-1678-43E0-BE1D-E694588A0E6E} = {DC4CDD19-6719-469E-82B8-100CFE5CCFB6}
 		{D40CA80B-A4B6-4514-A6E7-359D396FFAA3} = {DC4CDD19-6719-469E-82B8-100CFE5CCFB6}
+		{2C8F4296-0A42-4FE6-B3C2-5BE434EE044A} = {DC4CDD19-6719-469E-82B8-100CFE5CCFB6}
 	EndGlobalSection
 EndGlobal
