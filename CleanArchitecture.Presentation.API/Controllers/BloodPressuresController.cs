@@ -68,7 +68,13 @@ public class BloodPressureController : ControllerBase
             return NotFound();
         }
 
-        await _bloodPressureRepository.UpdateAsync(bloodPressure);
+        bloodPressureToUpdate.Id = bloodPressure.Id;
+        bloodPressureToUpdate.Systolisch = bloodPressure.Systolisch;
+        bloodPressureToUpdate.Diastolisch = bloodPressure.Diastolisch;
+        bloodPressureToUpdate.DateTime = bloodPressure.DateTime;
+        bloodPressureToUpdate.Pulse = bloodPressure.Pulse;
+        bloodPressureToUpdate.Oxygen = bloodPressure.Oxygen;
+        await _bloodPressureRepository.UpdateAsync(bloodPressureToUpdate);
 
         return NoContent();
     }
