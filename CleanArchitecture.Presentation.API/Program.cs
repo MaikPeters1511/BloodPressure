@@ -1,8 +1,8 @@
 ﻿using CleanArchitecture.Application;
 using CleanArchitecture.Domain.IRepository;
-using CleanArchitecture.Domain.Repository;
 using CleanArchitecture.Infrastructure;
 using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
+using CleanArchitecture.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

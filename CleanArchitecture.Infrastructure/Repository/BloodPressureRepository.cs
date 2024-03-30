@@ -3,7 +3,7 @@ using CleanArchitecture.Domain.IRepository;
 using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 
-namespace CleanArchitecture.Domain.Repository;
+namespace CleanArchitecture.Infrastructure.Repository;
 
 public class BloodPressureRepository : IBloodPressureRepository
 {
