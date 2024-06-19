@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Presentat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Presentation.UI", "CleanArchitecture.Presentation.UI\CleanArchitecture.Presentation.UI.csproj", "{12B72ADD-1678-43E0-BE1D-E694588A0E6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Presentation.Maui", "CleanArchitecture.Presentation.Maui\CleanArchitecture.Presentation.Maui.csproj", "{766D26D4-682B-4912-BE47-E9CC42FD76D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{12B72ADD-1678-43E0-BE1D-E694588A0E6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12B72ADD-1678-43E0-BE1D-E694588A0E6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12B72ADD-1678-43E0-BE1D-E694588A0E6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{766D26D4-682B-4912-BE47-E9CC42FD76D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{766D26D4-682B-4912-BE47-E9CC42FD76D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{766D26D4-682B-4912-BE47-E9CC42FD76D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{766D26D4-682B-4912-BE47-E9CC42FD76D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,5 +59,6 @@ Global
 		{4C65A44D-C8D2-4A86-9577-59CE1B7D5C7D} = {DC4CDD19-6719-469E-82B8-100CFE5CCFB6}
 		{2220C524-BDD3-4E2D-A072-E367DF9A7DF0} = {DC4CDD19-6719-469E-82B8-100CFE5CCFB6}
 		{12B72ADD-1678-43E0-BE1D-E694588A0E6E} = {DC4CDD19-6719-469E-82B8-100CFE5CCFB6}
+		{766D26D4-682B-4912-BE47-E9CC42FD76D0} = {DC4CDD19-6719-469E-82B8-100CFE5CCFB6}
 	EndGlobalSection
 EndGlobal
