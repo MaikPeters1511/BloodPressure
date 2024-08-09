@@ -44,14 +44,16 @@ jobs:
             "frequency_penalty": 0,
             "presence_penalty": 0
           }')
+          
         RESPONSE=$(curl -s http://localhost:1234/v1/chat/completions \
           -H "Content-Type: application/json" \
           -d "$JSON_PAYLOAD")
           
         echo "OpenAI Response: $RESPONSE"
           
-        LABEL=$(echo $RESPONSE | jq -r .choices[0].message.content | tr -d '\n')
+        LABEL=$(echo "$RESPONSE" | jq -r .choices[0].message.content | tr -d '\n')
         echo "LABEL=$LABEL" >> $GITHUB_ENV
+    
     - name: Add label to issue
       if: env.LABEL != ''
       uses: actions/github-script@v3
@@ -64,6 +66,7 @@ jobs:
             repo: context.repo.repo,
             labels: [process.env.LABEL]
           })
+    
     - name: Dispatch Question Label Workflow
       if: env.LABEL == 'question'
       uses: actions/github-script@v3
