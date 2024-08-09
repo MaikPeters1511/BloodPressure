@@ -43,10 +43,14 @@ jobs:
             "frequency_penalty": 0,
             "presence_penalty": 0
           }')
-        RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+        RESPONSE=$(curl -s http://localhost:1234/v1/chat/completions \
           -H "Content-Type: application/json" \
-          -H "Authorization: Bearer ${{secrets.OPENAI_API_KEY}}" \
-          -d "$JSON_PAYLOAD")
+          -d {
+              "model": "MaziyarPanahi/gemma-2-2b-it-GGUF",
+              "temperature": 0.7, 
+              "max_tokens": -1,
+              "stream": true,
+              "$JSON_PAYLOAD")
           
         echo "OpenAI Response: $RESPONSE"
           
@@ -70,7 +74,7 @@ jobs:
       with:
         github-token: ${{secrets.GHPROJECT_TOKEN}}
         script: |
-          github.actions.createWorkflowDispatch({
+          github.action.createWorkflowDispatch({
             owner: context.repo.owner,
             repo: context.repo.repo,
             workflow_id: 'question_label_workflow.yml',
