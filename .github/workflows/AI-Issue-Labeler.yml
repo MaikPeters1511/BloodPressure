@@ -6,8 +6,8 @@ on:
 
 jobs:
   label_and_add_to_project:
-#    runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+#    runs-on: self-hosted
     permissions:
         issues: write
         pull-requests: write
