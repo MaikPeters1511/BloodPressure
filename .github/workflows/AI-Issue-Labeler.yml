@@ -1,4 +1,4 @@
-name: OpenAI Issue Labeler
+name: Issue Classification and Labelling Workflow
 
 on:
   issues:
@@ -14,10 +14,10 @@ jobs:
         contents: read
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-    - name: Label issue
+    - name: Classify and Label the Issue
       run: |
         ISSUE_TITLE=$(echo "${{ github.event.issue.title }}" | jq -Rs .)
         ISSUE_BODY=$(echo "${{ github.event.issue.body }}" | jq -Rs .)
@@ -54,9 +54,9 @@ jobs:
         LABEL=$(echo "$RESPONSE" | jq -r .choices[0].message.content | tr -d '\n')
         echo "LABEL=$LABEL" >> $GITHUB_ENV
     
-    - name: Add label to issue
+    - name: Apply Label to Issue
       if: env.LABEL != ''
-      uses: actions/github-script@v3
+      uses: actions/github-script@v7
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
@@ -67,9 +67,9 @@ jobs:
             labels: [process.env.LABEL]
           })
     
-    - name: Dispatch Question Label Workflow
+    - name: Trigger Question Label Workflow
       if: env.LABEL == 'question'
-      uses: actions/github-script@v3
+      uses: actions/github-script@v7
       with:
         github-token: ${{secrets.GHPROJECT_TOKEN}}
         script: |
