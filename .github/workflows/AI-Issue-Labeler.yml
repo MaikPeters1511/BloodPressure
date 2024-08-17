@@ -27,7 +27,7 @@ jobs:
           --arg system_content "Du bist ein Produktmanager für Software. Du bewertest GitHub Issue Text ob dieser ein Bug, Feature oder eine Frage ist. Dabei antwortest du ausschließlich mit 'bug', 'feature' oder 'question' ohne weiteren Text. Kannst du gar nichts zuordnen, antworte ausschließlich mit einer leeren Antwort." \
           --arg user_content "$COMBINED_CONTENT" \
           '{
-            "model": "MaziyarPanahi/gemma-2-2b-it-GGUF",
+            "model": "lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF",
             "messages": [
               {
                 "role": "system",
@@ -45,7 +45,7 @@ jobs:
             "presence_penalty": 0
           }')
           
-        RESPONSE=$(curl -s http://maiki.dns.army/:1234/v1/chat/completions \
+        RESPONSE=$(curl -s http://maiki.dns.army:1234/v1/chat/completions \
           -H "Content-Type: application/json" \
           -d "$JSON_PAYLOAD")
           
