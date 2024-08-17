@@ -1,0 +1,76 @@
+name: OpenAI Code Review on Push to Main
+
+# Dies wird ausgelöst, wenn ein Push zum 'main'-Branch erfolgt
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  review_code:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Send code to OpenAI for review
+        id: openai_review
+        run: |
+          git fetch origin
+          LAST_COMMIT=$(git log -1 --pretty=format:%H)
+          DIFF_CONTENT=$(git show $LAST_COMMIT --unified=0)
+          ESCAPED_CONTENT=$(printf '%s' "$DIFF_CONTENT" | jq -Rs .)
+          echo "ESCAPED_CONTENT: $ESCAPED_CONTENT"
+          
+          REVIEW_RESPONSE=$(jq -n \
+                              --arg content "$ESCAPED_CONTENT" \
+                              '{
+                                  "model": "lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF",
+                                  "messages": [
+                                      {
+                                          "role": "system",
+                                          "content": "Du bist Developer Security Experte und Developer Performance Experte. Analysiere den geänderten Sourcecode. Beschreibe ausführlich, was für Probleme du finden konntest die deine Schwerpunkte betreffen. Zeige zusätzlich einen Lösungsweg. Wenn du keine Probleme oder Auffälligkeiten gefunden hast, antworte ausschließlich exakt mit dem Text: Ich gebe den PR frei. Bei keinen ernsthaften Problemen, füge am Ende von deiner Antwort den exakt den Text: Ich gebe den PR frei. Wenn ernsthafte Schwierigkeiten entdeckt wurden, schreibe auf keinen Fall den Text: Ich gebe den PR frei. Antworte im Format GitHub Flavored Markdown (GFM) und halte die Antwort kurz."
+                                      },
+                                      {
+                                          "role": "user",
+                                          "content": $content
+                                      }
+                                  ],
+                                  "temperature": 1,
+                                  "max_tokens": 4096,
+                                  "top_p": 1,
+                                  "frequency_penalty": 0,
+                                  "presence_penalty": 0
+                              }' | \
+          curl -X POST http://maiki.dns.army:1234/v1/chat/completions \
+               -H "Content-Type: application/json" \
+               -d @-)
+          
+          REVIEW_MESSAGE=$(echo $REVIEW_RESPONSE | jq -r .choices[0].message.content)
+          REVIEW_MESSAGE_ESCAPED=$(echo "$REVIEW_MESSAGE" | sed ':a;N;$!ba;s/\n/__NEWLINE__/g')
+          echo "REVIEW_MESSAGE=$REVIEW_MESSAGE_ESCAPED" >> $GITHUB_ENV
+          if [ -z "$REVIEW_MESSAGE" ]; then
+            REVIEW_MESSAGE="Es gab ein Problem bei der Überprüfung des Codes durch AI. Bitte überprüfen Sie manuell."
+          fi
+
+      - name: Comment on commit with OpenAI's review
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const sha = context.sha;
+            let reviewMessage = process.env.REVIEW_MESSAGE;
+            reviewMessage = reviewMessage.split('__NEWLINE__').join('\n');
+            await github.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: sha,
+              body: reviewMessage
+            });
+
+      - name: Fail if review is not positive
+        if: ${{ !contains(env.REVIEW_MESSAGE, 'Ich gebe den PR frei') }}
+        run: |
+          echo "Review nicht bestanden. Der Push in main wird möglicherweise abgelehnt."
+          exit 1
