@@ -4,7 +4,7 @@
 @inject HttpClient Http
 
 <h1>Blutdruckwerte</h1>
-@if (bloodPressures == null)
+@if (_bloodPressures == null)
 {
     <li class="loading loading-spinner loading-lg">Lade Daten vom Server...</li>
 }
@@ -24,7 +24,7 @@ else
                 </thead>
                 <tbody>
 
-                @foreach (var bloodPressure in bloodPressures)
+                @foreach (var bloodPressure in _bloodPressures)
                 {
                     <tr>
                         <td>@bloodPressure.Id</td>
@@ -41,7 +41,7 @@ else
         }
 
 @code {
-    private List<BloodPressure>? bloodPressures;
+    private List<BloodPressure>? _bloodPressures;
 
     protected override async Task OnInitializedAsync()
     {
@@ -55,7 +55,7 @@ else
         {
             var jsonData = await response.Content.ReadAsStringAsync();
             // Deserialisierung
-            bloodPressures = JsonConvert.DeserializeObject<List<BloodPressure>>(jsonData);
+            _bloodPressures = JsonConvert.DeserializeObject<List<BloodPressure>>(jsonData);
         }
     }
 
