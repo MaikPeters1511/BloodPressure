@@ -72,5 +72,5 @@ jobs:
         ACTION_MAIL: bewerbung@maikpeters.org
         ACTION_NAME: MaikPeters
         OWNER: ${{ github.repository_owner }}
-        REPO_NAME: ai-dev-process-sample
+        REPO_NAME: BloodPressure
         MD_FOLDER: documentation
