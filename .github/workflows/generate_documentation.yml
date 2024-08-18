@@ -1,0 +1,76 @@
+name: Generate Documentation with OpenAI and Update Wiki
+
+# on:
+#   repository_dispatch:
+#     types: [pull_request_merged]
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  generate_documentation:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        ref: 'main'
+
+    - name: Ermittle Inhalte und erstelle Dokumentation mit OpenAI
+      run: |
+        PR_NUMBER=${{ github.event.pull_request.number }}
+        echo "PR_NUMBER: $PR_NUMBER"
+        
+        git fetch origin main
+        git fetch origin pull/$PR_NUMBER/head:pr-$PR_NUMBER
+        git checkout pr-$PR_NUMBER
+
+        CHANGED_CONTENT=""
+        FILES=$(find . -type f -not -path "./.github/*" -not -path "./.git/*")
+        for file in $FILES; do
+          CHANGED_CONTENT+=$(printf "\n\n### Datei: $file\n\n ")
+          CHANGED_CONTENT+=$(cat $file)
+        done
+        ESCAPED_CONTENT=$(printf '%s' "$CHANGED_CONTENT" | jq -Rs .)
+        echo "ESCAPED_CONTENT: $ESCAPED_CONTENT"
+
+        DOC_RESPONSE=$(jq -n \
+                            --arg content "$ESCAPED_CONTENT" \
+                            '{
+                                "model": "gpt-4",
+                                "messages": [
+                                    {
+                                        "role": "system",
+                                        "content": "Du bist ein Software-Dokumentations-Experte. Erstelle eine Dokumentation basierend auf dem gegebenen Sourcecode. Erkläre dabei nicht den Inhalt vom Sourcecode selbst, sondern wie dieser Code verwendet werden kann. Antworte im Format GitHub Flavored Markdown (GFM). Antworte immer in deutsch."
+                                    },
+                                    {
+                                        "role": "user",
+                                        "content": $content
+                                    }
+                                ],
+                                "temperature": 1,
+                                "max_tokens": 4096,
+                                "top_p": 1,
+                                "frequency_penalty": 0,
+                                "presence_penalty": 0
+                            }' | \
+        curl -X POST http://maiki.dns.army:1234/v1/chat/completions \
+             -H "Content-Type: application/json" \
+             -d @-)
+        
+        DOCUMENTATION=$(echo $DOC_RESPONSE | jq -r .choices[0].message.content)
+        mkdir -p documentation
+        echo "$DOCUMENTATION" > documentation/Home.md
+
+    - name: Aktualisiere Wiki mit Dokumentation
+      uses: docker://decathlon/wiki-page-creator-action:latest
+      env:
+        GH_PAT: ${{ secrets.GHPROJECT_TOKEN }}
+        ACTION_MAIL: bewerbung@maikpeters.org
+        ACTION_NAME: MaikPeters
+        OWNER: ${{ github.repository_owner }}
+        REPO_NAME: ai-dev-process-sample
+        MD_FOLDER: documentation

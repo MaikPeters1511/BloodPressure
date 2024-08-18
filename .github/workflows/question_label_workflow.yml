@@ -1,0 +1,118 @@
+name: Question Label Workflow
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue Number'
+        required: true
+
+jobs:
+  handle_question:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.label.name == 'question')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install Python Dependencies
+        run: |
+          pip install beautifulsoup4 requests transformers torch
+
+      - name: Get Issue Number
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "ISSUE_NUMBER=${{ github.event.inputs.issue_number }}" >> $GITHUB_ENV
+
+      - name: Get First Issue Message
+        id: get_issue_message
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let issueNumber;
+            if (context.eventName === 'workflow_dispatch') {
+              issueNumber = ${{ github.event.inputs.issue_number }};
+            } else {
+              issueNumber = context.issue.number;
+            }
+            const issue = await github.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            return issue.data.body;
+      
+      - name: Get Wiki Summary
+        id: get_wiki_summary
+        run: python .github/workflows/summarize_wiki.py
+
+      - name: Send Issue Message and Wiki Summary to OpenAI
+        id: openai_response
+        run: |
+          ISSUE_MESSAGE=${{ steps.get_issue_message.outputs.result }}
+          WIKI_SUMMARY=${{ steps.get_wiki_summary.outputs.summary }}
+          ESCAPED_ISSUE_MESSAGE=$(printf '%s' "$ISSUE_MESSAGE" | jq -Rs . | base64)
+          ESCAPED_WIKI_SUMMARY=$(printf '%s' "$WIKI_SUMMARY" | jq -Rs . | base64)
+          echo "Escaped Issue Message: $ESCAPED_ISSUE_MESSAGE"
+          echo "Escaped Wiki Summary: $ESCAPED_WIKI_SUMMARY"
+      
+          RESPONSE=$(jq -n \
+                          --arg issueMessage "$ESCAPED_ISSUE_MESSAGE" \
+                          --arg wikiSummary "$ESCAPED_WIKI_SUMMARY" \
+                          '{
+                              "model": "gpt-4",
+                              "messages": [
+                                  {
+                                      "role": "system",
+                                      "content": "Du bist ein Softwareentwickler. Antworte persönlich in du formulierung. Die folgende Frage kommt aus einem Issue von GitHub zu unserem Beispielprojekt. Versuche die Frage basierend auf der Zusammenfassung der Wiki-Seite zu beantworten: $wikiSummary. Wenn die notwendigen Informationen nicht enthalten sind, antworte ausschließlich an den User @GregorBiswanger und frage ihn ob er hierbei helfen kann. Antworte mir immer in deutsch"
+                                  },
+                                  {
+                                      "role": "user",
+                                      "content": $issueMessage
+                                  }
+                              ],
+                              "temperature": 1,
+                              "max_tokens": 4096,
+                              "top_p": 1,
+                              "frequency_penalty": 0,
+                              "presence_penalty": 0
+                          }' | \
+          curl -X POST http://maiki.dns.army:1234/v1/chat/completions \
+               -H "Content-Type: application/json" \
+               -d @-)
+          
+          echo "Response: $RESPONSE"
+          ANSWER=$(echo $RESPONSE | jq -r .choices[0].message.content)
+          if [ -z "$ANSWER" ]; then
+            echo "Die Antwort von OpenAI ist leer oder ungültig."
+            exit 1
+          fi
+          ESCAPED_ANSWER=$(echo "$ANSWER" | sed ':a;N;$!ba;s/\n/__NEWLINE__/g')
+          echo "ANSWER=$ESCAPED_ANSWER" >> $GITHUB_ENV
+
+      - name: Escape Answer
+        run: |
+          ESCAPED_ANSWER=$(printf '%s' "$ANSWER" | jq -Rs .)
+          echo "ESCAPED_ANSWER=${ESCAPED_ANSWER}" >> $GITHUB_ENV
+        
+      - name: Comment on Issue with OpenAI's Response
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = process.env.ISSUE_NUMBER;
+            let responseText = process.env.ESCAPED_ANSWER;
+            responseText = responseText.split('__NEWLINE__').join('\n');
+            github.issues.createComment({
+              issue_number: issueNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: responseText
+            });
