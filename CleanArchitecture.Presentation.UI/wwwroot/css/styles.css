@@ -305,3 +305,15 @@ main  {
 
 /* Auswahlfelder erreichen auch am Desktop die Mindest-Zielgröße. */
 select { min-height: 2.5rem; }
+
+/* Auswahlfelder: Farben explizit setzen, sonst hängen sie von der Plattform ab (unter Linux unlesbar im dunklen Schema). */
+:root { --field-bg: #2b3035; --field-fg: #f1f3f5; }
+
+@media (prefers-color-scheme: light) {
+    :root { --field-bg: #ffffff; --field-fg: #212529; }
+}
+
+select, select option {
+    background-color: var(--field-bg);
+    color: var(--field-fg);
+}
