@@ -1,6 +1,6 @@
 # Epic 1: Authentifizierung und Benutzerbezug
 
-> **Status:** proposed · **Priorität:** 1 (Grundlage) · **Abhängigkeiten:** keine · **Agenten:** sec-agent, backend-agent, architect-agent
+> **Status:** in-progress · **Priorität:** 1 (Grundlage) · **Abhängigkeiten:** keine · **Agenten:** sec-agent, backend-agent, architect-agent
 > Ablage: `UserStories/epics/epic-01-auth-benutzerbezug.openspec.md`
 
 ## 1. Proposal (Why & What)
@@ -18,7 +18,7 @@
 ### ADDED Requirements
 
 #### Requirement: Authentifizierung per Bearer-Token
-Das System SHALL Registrierung, Login und Token-Refresh über Microsoft Identity (ASP.NET Core Identity API, PostgreSQL-Store) anbieten. Alle Endpunkte SHALL standardmäßig `[Authorize]` sein (Fallback-Policy); Ausnahmen (`/health`, Login, Registrierung) SHALL explizit `[AllowAnonymous]` sein.
+Das System SHALL Registrierung, Login und Token-Refresh über Microsoft Identity (ASP.NET Core Identity API, PostgreSQL-Store) anbieten. Jeder Controller SHALL `[Authorize]` oder `[AllowAnonymous]` explizit deklarieren (durch einen Test erzwungen); Ausnahmen (`/health`, Login, Registrierung) sind anonym. Eine globale Fallback-Policy wird bewusst nicht verwendet, da sie die Identity-Endpunkte (Registrierung/Login) mit sperren würde.
 
 ##### Scenario: Anfrage ohne Token
 - **GIVEN** kein Authorization-Header
@@ -44,12 +44,17 @@ Das System SHALL jede Messung mit der `UserId` des angemeldeten Nutzers speicher
 - **THEN** enthält sie nur seine eigene Messung
 
 #### Requirement: Bestehende Daten bleiben nutzbar
-Das System SHALL die Migration so ausführen, dass vorhandene Messungen ohne Datenverlust einem festgelegten Besitzer zugeordnet werden (siehe offene Frage).
+Das System SHALL die Migration so ausführen, dass vorhandene Messungen ohne Datenverlust erhalten bleiben (`UserId` = `null`) und unmittelbar nach der Registrierung des ersten Nutzers diesem zugeordnet werden. Gibt es bereits mehrere Nutzer, bleiben sie ohne Besitzer und sind nicht abrufbar.
 
 ##### Scenario: Migration auf gefüllter Datenbank
 - **GIVEN** eine Datenbank mit Messungen ohne `UserId`
 - **WHEN** die Migration angewendet wird
-- **THEN** schlägt sie nicht fehl und jede Messung hat danach einen Besitzer
+- **THEN** schlägt sie nicht fehl und die Messungen bleiben erhalten (ohne Besitzer)
+
+##### Scenario: Erster Nutzer übernimmt Altdaten
+- **GIVEN** Messungen ohne Besitzer und noch kein Benutzer
+- **WHEN** sich der erste Nutzer registriert
+- **THEN** gehören die Altdaten ihm; ein später registrierter zweiter Nutzer sieht sie nicht
 
 ### MODIFIED Requirements
 _`IBloodPressureApi` (Refit) SHALL ein Token über einen `DelegatingHandler` mitsenden; Fehler 401 wird als `ApiException` gemeldet._
@@ -61,16 +66,16 @@ _`IBloodPressureApi` (Refit) SHALL ein Token über einen `DelegatingHandler` mit
 - ASP.NET Core Identity mit `MapIdentityApi<TUser>()` und Bearer-Tokens (passt für Blazor WASM und MAUI ohne Cookies); Alternative: externer IdP (Keycloak/Entra ID) – Entscheidung per ADR in `docs/adr/`.
 - `UserId` aus dem Claim `sub`/`NameIdentifier`; Wolverine-Messages tragen die UserId explizit (kein HttpContext in Handlern).
 - Risiken: Brute-Force (Lockout aktivieren), Token-Lebensdauer, Passwort-Policy.
-- **Offene Frage:** Wem gehören Altdaten (Seed-Nutzer „legacy“, erster registrierter Nutzer oder Löschung)?
+- **Entschieden:** Altdaten gehören dem ersten registrierten Nutzer (Zuordnung direkt nach der Registrierung über einen Endpoint-Filter).
 
 ## 5. Tasks
-- [ ] T1.1 (architect) ADR: Identity-API vs. externer IdP
-- [ ] T1.2 (backend) Tests aus den Scenarios (TUnit, `WebApplicationFactory` mit Testtoken) – Red
-- [ ] T1.3 (backend) `UserId` in Domain/Repository, Filter in Handlern, Migration mit Altdaten-Strategie
-- [ ] T1.4 (sec) Identity einrichten, Fallback-Policy, Lockout, Secrets nur aus Konfiguration
-- [ ] T1.5 (backend) Refit-`DelegatingHandler` für Token in `Contracts`
-- [ ] T1.6 (qa) Zugriffstests (401/404, Mandantentrennung)
-- [ ] T1.7 (doc) OpenAPI mit Security Scheme
+- [x] T1.1 (architect) ADR: Identity-API vs. externer IdP (`docs/adr/0001-identity-api.md`)
+- [x] T1.2 (backend) Tests aus den Scenarios (TUnit, `WebApplicationFactory` mit Testtoken) – Red
+- [x] T1.3 (backend) `UserId` in Domain/Repository, Filter in Handlern, Migration mit Altdaten-Strategie
+- [x] T1.4 (sec) Identity einrichten, Fallback-Policy, Lockout, Secrets nur aus Konfiguration
+- [x] T1.5 (backend) Refit-`DelegatingHandler` für Token in `Contracts`
+- [x] T1.6 (qa) Zugriffstests (401/404, Mandantentrennung)
+- [x] T1.7 (doc) OpenAPI mit Security Scheme
 
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Scenarios als Tests grün; kein Endpunkt außer den ausdrücklich freigegebenen ist anonym erreichbar.

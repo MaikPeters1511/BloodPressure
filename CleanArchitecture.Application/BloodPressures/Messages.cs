@@ -1,10 +1,12 @@
 namespace CleanArchitecture.Application.BloodPressures;
 
+// Alle Messages tragen die UserId des angemeldeten Nutzers (aus dem Token, nie aus dem Request).
+
 // Queries
-public sealed record GetBloodPressures;
-public sealed record GetBloodPressureById(int Id);
+public sealed record GetBloodPressures(string UserId);
+public sealed record GetBloodPressureById(string UserId, int Id);
 
 // Commands
-public sealed record CreateBloodPressure(int Systolisch, int Diastolisch, DateTime DateTime, int Pulse, int Oxygen);
-public sealed record UpdateBloodPressure(int Id, int Systolisch, int Diastolisch, DateTime DateTime, int Pulse, int Oxygen);
-public sealed record DeleteBloodPressure(int Id);
+public sealed record CreateBloodPressure(string UserId, int Systolisch, int Diastolisch, DateTime DateTime, int Pulse, int Oxygen);
+public sealed record UpdateBloodPressure(string UserId, int Id, int Systolisch, int Diastolisch, DateTime DateTime, int Pulse, int Oxygen);
+public sealed record DeleteBloodPressure(string UserId, int Id);

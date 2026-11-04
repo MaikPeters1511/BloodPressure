@@ -1,3 +1,4 @@
+using CleanArchitecture.Application;
 using CleanArchitecture.Domain.IRepository;
 using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
 using CleanArchitecture.Infrastructure.Repository;
@@ -20,6 +21,8 @@ public static class DependencyInjection
     {
         builder.AddNpgsqlDbContext<AddPostgresSqlDbContext>(DatabaseName);
         builder.Services.AddScoped<IBloodPressureRepository, BloodPressureRepository>();
+        builder.Services.AddScoped<ILegacyDataClaimer, LegacyDataClaimer>();
+
         return builder;
     }
 }

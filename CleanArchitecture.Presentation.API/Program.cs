@@ -3,7 +3,11 @@ using CleanArchitecture.Application.BloodPressures;
 using CleanArchitecture.Infrastructure;
 using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
 using CleanArchitecture.Presentation.API.Infrastructure;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using Wolverine;
 using JasperFx.CodeGeneration.Model;
 
@@ -21,8 +25,29 @@ builder.Host.UseWolverine(options =>
     options.ServiceLocationPolicy = ServiceLocationPolicy.AllowedButWarn;
 });
 
+builder.Services
+    .AddIdentityApiEndpoints<IdentityUser>(options =>
+    {
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+        options.Lockout.AllowedForNewUsers = true;
+    })
+    .AddEntityFrameworkStores<AddPostgresSqlDbContext>();
+builder.Services.AddAuthorization();
+
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
+{
+    document.Components ??= new OpenApiComponents();
+    document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+    document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        Description = "Access-Token aus POST /api/auth/login"
+    };
+    return Task.CompletedTask;
+}));
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
@@ -63,9 +88,30 @@ else
 }
 
 app.UseCors();
+app.UseAuthentication();
 app.UseAuthorization();
 
+
 app.MapDefaultEndpoints();
+app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>()
+    .AddEndpointFilter(async (invocation, next) =>
+    {
+        var result = await next(invocation);
+
+        // Altdaten ohne Besitzer gehören dem ersten registrierten Nutzer.
+        var http = invocation.HttpContext;
+        if (http.Request.Path.Value?.EndsWith("/register", StringComparison.OrdinalIgnoreCase) == true
+            && (result is INestedHttpResult { Result: var inner } ? inner : result) is IStatusCodeHttpResult { StatusCode: >= 200 and < 300 }
+            && invocation.Arguments.OfType<RegisterRequest>().FirstOrDefault() is { } registration
+            && await http.RequestServices.GetRequiredService<UserManager<IdentityUser>>()
+                .FindByEmailAsync(registration.Email) is { } user)
+        {
+            await http.RequestServices.GetRequiredService<ILegacyDataClaimer>()
+                .ClaimForFirstUserAsync(user.Id, http.RequestAborted);
+        }
+
+        return result;
+    });
 app.MapControllers();
 
 app.Run();

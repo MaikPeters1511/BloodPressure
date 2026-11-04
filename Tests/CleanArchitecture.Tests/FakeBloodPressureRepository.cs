@@ -8,11 +8,11 @@ public sealed class FakeBloodPressureRepository : IBloodPressureRepository
     private readonly List<BloodPressure> _items = [];
     private int _nextId = 1;
 
-    public Task<IReadOnlyList<BloodPressure>> GetAllAsync(CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<BloodPressure>>(_items.ToList());
+    public Task<IReadOnlyList<BloodPressure>> GetAllAsync(string userId, CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<BloodPressure>>(_items.Where(i => i.UserId == userId).ToList());
 
-    public Task<BloodPressure?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-        => Task.FromResult(_items.FirstOrDefault(i => i.Id == id));
+    public Task<BloodPressure?> GetByIdAsync(int id, string userId, CancellationToken cancellationToken = default)
+        => Task.FromResult(_items.FirstOrDefault(i => i.Id == id && i.UserId == userId));
 
     public Task AddAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default)
     {
@@ -28,4 +28,7 @@ public sealed class FakeBloodPressureRepository : IBloodPressureRepository
         _items.Remove(bloodPressure);
         return Task.CompletedTask;
     }
+
+    /// <summary>Direktzugriff für Prüfungen in Tests (ohne Besitzerfilter).</summary>
+    public BloodPressure? Find(int id) => _items.FirstOrDefault(i => i.Id == id);
 }

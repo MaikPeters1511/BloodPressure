@@ -1,5 +1,6 @@
 using CleanArchitecture.Application.BloodPressures;
 using CleanArchitecture.Contracts;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Wolverine;
@@ -8,17 +9,21 @@ namespace CleanArchitecture.Presentation.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[AllowAnonymous] // Auth ist noch nicht eingerichtet (siehe sec-agent); bewusst explizit anonym.
+[Authorize]
 public class BloodPressureController(IMessageBus bus) : ControllerBase
 {
+    // Die UserId kommt immer aus dem Token, nie aus dem Request.
+    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? throw new InvalidOperationException("Angemeldeter Benutzer ohne NameIdentifier-Claim.");
+
     [HttpGet]
     public async Task<IReadOnlyList<BloodPressureDto>> GetBloodPressures(CancellationToken ct)
-        => await bus.InvokeAsync<IReadOnlyList<BloodPressureDto>>(new GetBloodPressures(), ct);
+        => await bus.InvokeAsync<IReadOnlyList<BloodPressureDto>>(new GetBloodPressures(UserId), ct);
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<BloodPressureDto>> GetBloodPressure(int id, CancellationToken ct)
     {
-        var result = await bus.InvokeAsync<BloodPressureDto?>(new GetBloodPressureById(id), ct);
+        var result = await bus.InvokeAsync<BloodPressureDto?>(new GetBloodPressureById(UserId, id), ct);
         return result is null ? NotFound() : result;
     }
 
@@ -26,7 +31,7 @@ public class BloodPressureController(IMessageBus bus) : ControllerBase
     public async Task<ActionResult<BloodPressureDto>> CreateBloodPressure(BloodPressureRequest request, CancellationToken ct)
     {
         var created = await bus.InvokeAsync<BloodPressureDto>(
-            new CreateBloodPressure(request.Systolisch, request.Diastolisch, request.DateTime, request.Pulse, request.Oxygen), ct);
+            new CreateBloodPressure(UserId, request.Systolisch, request.Diastolisch, request.DateTime, request.Pulse, request.Oxygen), ct);
         return CreatedAtAction(nameof(GetBloodPressure), new { id = created.Id }, created);
     }
 
@@ -34,14 +39,14 @@ public class BloodPressureController(IMessageBus bus) : ControllerBase
     public async Task<IActionResult> UpdateBloodPressure(int id, BloodPressureRequest request, CancellationToken ct)
     {
         var found = await bus.InvokeAsync<bool>(
-            new UpdateBloodPressure(id, request.Systolisch, request.Diastolisch, request.DateTime, request.Pulse, request.Oxygen), ct);
+            new UpdateBloodPressure(UserId, id, request.Systolisch, request.Diastolisch, request.DateTime, request.Pulse, request.Oxygen), ct);
         return found ? NoContent() : NotFound();
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteBloodPressure(int id, CancellationToken ct)
     {
-        var found = await bus.InvokeAsync<bool>(new DeleteBloodPressure(id), ct);
+        var found = await bus.InvokeAsync<bool>(new DeleteBloodPressure(UserId, id), ct);
         return found ? NoContent() : NotFound();
     }
 }

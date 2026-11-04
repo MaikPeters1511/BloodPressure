@@ -7,11 +7,14 @@ namespace CleanArchitecture.Infrastructure.Repository;
 
 public class BloodPressureRepository(AddPostgresSqlDbContext context) : IBloodPressureRepository
 {
-    public async Task<IReadOnlyList<BloodPressure>> GetAllAsync(CancellationToken cancellationToken = default)
-        => await context.BloodPressures.AsNoTracking().OrderBy(b => b.DateTime).ToListAsync(cancellationToken);
+    public async Task<IReadOnlyList<BloodPressure>> GetAllAsync(string userId, CancellationToken cancellationToken = default)
+        => await context.BloodPressures.AsNoTracking()
+            .Where(b => b.UserId == userId)
+            .OrderBy(b => b.DateTime)
+            .ToListAsync(cancellationToken);
 
-    public async Task<BloodPressure?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-        => await context.BloodPressures.FindAsync([id], cancellationToken);
+    public async Task<BloodPressure?> GetByIdAsync(int id, string userId, CancellationToken cancellationToken = default)
+        => await context.BloodPressures.FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId, cancellationToken);
 
     public async Task AddAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default)
     {

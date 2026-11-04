@@ -16,7 +16,7 @@ public class BloodPressureApiClientTests
     public void Setup()
     {
         _factory = new ApiFactory();
-        _api = RestService.For<IBloodPressureApi>(_factory.CreateClient());
+        _api = RestService.For<IBloodPressureApi>(_factory.CreateClientFor("user-a"));
     }
 
     [After(Test)]
@@ -49,7 +49,7 @@ public class BloodPressureApiClientTests
         await _api.UpdateAsync(created.Id, new BloodPressureRequest(130, 85, Measured, 70, 97));
         await _api.DeleteAsync(created.Id);
 
-        await Assert.That(await _factory.Repository.GetByIdAsync(created.Id)).IsNull();
+        await Assert.That(_factory.Repository.Find(created.Id)).IsNull();
     }
 
     [Test]
