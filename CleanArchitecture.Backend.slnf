@@ -1,0 +1,15 @@
+{
+  "solution": {
+    "path": "CleanArchitecture.sln",
+    "projects": [
+      "CleanArchitecture.AppHost\\CleanArchitecture.AppHost.csproj",
+      "CleanArchitecture.Application\\CleanArchitecture.Application.csproj",
+      "CleanArchitecture.Contracts\\CleanArchitecture.Contracts.csproj",
+      "CleanArchitecture.Domain\\CleanArchitecture.Domain.csproj",
+      "CleanArchitecture.Infrastructure\\CleanArchitecture.Infrastructure.csproj",
+      "CleanArchitecture.Presentation.API\\CleanArchitecture.Presentation.API.csproj",
+      "CleanArchitecture.ServiceDefaults\\CleanArchitecture.ServiceDefaults.csproj",
+      "Tests\\CleanArchitecture.Tests\\CleanArchitecture.Tests.csproj"
+    ]
+  }
+}
