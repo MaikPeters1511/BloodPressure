@@ -1,4 +1,6 @@
 using CleanArchitecture.Application;
+using CleanArchitecture.Application.Export;
+using CleanArchitecture.Infrastructure.Export;
 using CleanArchitecture.Domain.IRepository;
 using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
 using CleanArchitecture.Infrastructure.Repository;
@@ -22,6 +24,8 @@ public static class DependencyInjection
         builder.AddNpgsqlDbContext<AddPostgresSqlDbContext>(DatabaseName);
         builder.Services.AddScoped<IBloodPressureRepository, BloodPressureRepository>();
         builder.Services.AddScoped<ILegacyDataClaimer, LegacyDataClaimer>();
+        builder.Services.AddSingleton<IExportWriter, CsvExportWriter>();
+        builder.Services.AddSingleton<IExportWriter, PdfExportWriter>();
 
         return builder;
     }

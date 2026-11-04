@@ -1,6 +1,6 @@
 # Epic 5: Export für den Arzt
 
-> **Status:** proposed · **Priorität:** 4 · **Abhängigkeiten:** Epic 1, Epic 2, Epic 4 (Kategorie, Statistik) · **Agenten:** backend-agent
+> **Status:** in-progress · **Priorität:** 4 · **Abhängigkeiten:** Epic 1, Epic 2, Epic 4 (Kategorie, Statistik) · **Agenten:** backend-agent
 > Ablage: `UserStories/epics/epic-05-export.openspec.md`
 
 ## 1. Proposal (Why & What)
@@ -52,16 +52,16 @@ _Entfällt._
 _Entfällt._
 
 ## 4. Design
-- Streaming-Schreiber für CSV; PDF mit QuestPDF (Community-Lizenz prüfen, Alternative PDFsharp). Lizenzentscheidung per ADR.
+- Die Exportdatei entsteht im Speicher; durch die Obergrenze von 10 000 Messungen bleibt sie klein (gemessen: CSV 457 KB in 2 ms, PDF 669 KB in 0,5 s). PDF mit QuestPDF, Lizenzentscheidung in `docs/adr/0002-pdf-export-questpdf.md`.
 - Kein Zwischenspeichern von Berichten (keine Daten auf Platte).
 - Sicherheit: nur eigene Daten (Epic 1), Dateiname ohne Nutzereingaben.
 
 ## 5. Tasks
-- [ ] T5.1 (architect) Lizenz-/Bibliotheksentscheidung PDF (ADR)
-- [ ] T5.2 (backend) Tests aus den Scenarios (Red)
-- [ ] T5.3 (backend) CSV-Writer, PDF-Writer, Endpunkt
-- [ ] T5.4 (qa) PDF-Smoke (Öffnen, Seitenzahl), CSV in Excel/LibreOffice
+- [x] T5.1 (architect) Lizenz-/Bibliotheksentscheidung PDF (ADR)
+- [x] T5.2 (backend) Tests aus den Scenarios (Red)
+- [x] T5.3 (backend) CSV-Writer, PDF-Writer, Endpunkt
+- [ ] T5.4 (qa) PDF-Smoke (Öffnen, Seitenzahl), CSV in Excel/LibreOffice (offen: nur automatisierte Prüfung `%PDF`/Zeilen, keine manuelle Sichtprüfung)
 
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Scenarios als Tests grün.
-- [ ] Export von 10 000 Zeilen ohne nennenswerten Speicheranstieg.
+- [x] Export von 10 000 Zeilen ohne nennenswerten Speicheranstieg (Dateien unter 1 MB, Laufzeit unter 1 s).

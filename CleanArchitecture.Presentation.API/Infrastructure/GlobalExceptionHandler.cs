@@ -1,3 +1,4 @@
+using CleanArchitecture.Application.Export;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +13,16 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
         ProblemDetails problem;
-        if (exception is ArgumentOutOfRangeException)
+        if (exception is ExportLimitExceededException)
+        {
+            problem = new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Export zu groß",
+                Detail = exception.Message
+            };
+        }
+        else if (exception is ArgumentOutOfRangeException)
         {
             problem = new ProblemDetails
             {
