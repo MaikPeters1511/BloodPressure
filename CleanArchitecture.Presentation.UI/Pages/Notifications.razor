@@ -1,0 +1,115 @@
+@page "/notifications"
+@using System.Globalization
+@using System.Net
+@using CleanArchitecture.Contracts
+@using CleanArchitecture.Presentation.UI.Services
+@using Microsoft.Extensions.Localization
+@using Refit
+@inject INotificationApi Api
+@inject NotificationCounter Counter
+@inject AuthSession Session
+@inject NavigationManager Navigation
+@inject TimeProvider Time
+@inject IStringLocalizer<SharedResource> L
+@inject ILogger<Notifications> Logger
+
+<PageTitle>@L["Notifications_Title"]</PageTitle>
+
+<h1>@L["Notifications_Title"]</h1>
+<p class="text-muted">@L["Disclaimer_Medical"]</p>
+
+@if (_message is not null)
+{
+    <div role="alert" class="alert alert-warning">@_message</div>
+}
+
+<section aria-busy="@(_loading ? "true" : "false")">
+    @if (!_loading && _message is null && _items.Count == 0)
+    {
+        <p id="notifications-empty">@L["Notifications_Empty"]</p>
+    }
+    <ul class="list-unstyled">
+        @foreach (var n in _items)
+        {
+            var critical = n.Type == "CriticalReading";
+            var time = TimeZoneInfo.ConvertTimeFromUtc(n.CreatedAt.ToUniversalTime(), Time.LocalTimeZone).ToString("g", CultureInfo.CurrentCulture);
+            <li @key="n.Id" class="card mb-2 notification @(n.IsRead ? "read" : "unread") @(critical ? "border-danger" : "")"
+                role="@(critical && !n.IsRead ? "alert" : null)">
+                <div class="card-body">
+                    <p class="mb-1">
+                        <strong>@(critical ? L["Notifications_Warning"] : L["Notifications_Reminder"])</strong>
+                        @if (n.Category is not null)
+                        {
+                            <CategoryBadge Category="@n.Category" Class="ms-2" />
+                        }
+                        @if (!n.IsRead)
+                        {
+                            <span class="badge text-bg-primary ms-2">@L["Notifications_New"]</span>
+                        }
+                    </p>
+                    <p class="mb-1">@n.Message</p>
+                    <p class="mb-2 text-muted small">@time</p>
+                    @if (!n.IsRead)
+                    {
+                        <button type="button" class="btn btn-outline-secondary btn-sm mark-read"
+                                aria-label="@L["Notifications_MarkReadAria", time]" @onclick="() => MarkReadAsync(n)">@L["Notifications_MarkRead"]</button>
+                    }
+                </div>
+            </li>
+        }
+    </ul>
+</section>
+
+@code {
+    private IReadOnlyList<NotificationDto> _items = [];
+    private bool _loading = true;
+    private string? _message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.IsAuthenticated)
+        {
+            Navigation.NavigateTo("login");
+            return;
+        }
+
+        try
+        {
+            _items = (await Api.GetAllAsync()).OrderByDescending(n => n.CreatedAt).ToList();
+            Counter.Set(_items.Count(n => !n.IsRead));
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await Session.SignOutToLoginAsync(Navigation);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Hinweise konnten nicht geladen werden");
+            _message = L["Error_Generic"].Value;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task MarkReadAsync(NotificationDto notification)
+    {
+        _message = null;
+        try
+        {
+            await Api.MarkAsReadAsync(notification.Id);
+            _items = _items.Select(n => n.Id == notification.Id ? n with { IsRead = true } : n).ToList();
+            Counter.Set(_items.Count(n => !n.IsRead));
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await Session.SignOutToLoginAsync(Navigation);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Hinweis konnte nicht als gelesen markiert werden");
+            _message = L["Error_Generic"].Value;
+        }
+    }
+}

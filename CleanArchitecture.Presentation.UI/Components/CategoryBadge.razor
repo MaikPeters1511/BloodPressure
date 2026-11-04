@@ -1,0 +1,28 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> L
+
+<span class="badge @CssClass category-badge @Class">@Name</span>
+
+@code {
+    [Parameter, EditorRequired] public string Category { get; set; } = "";
+    [Parameter] public string? Class { get; set; }
+
+    // Der Text trägt die Information; die Farbe verstärkt sie nur.
+    private string Name
+    {
+        get
+        {
+            var name = L[$"Category_{Category}"];
+            return name.ResourceNotFound ? Category : name.Value;
+        }
+    }
+
+    private string CssClass => Category switch
+    {
+        "Optimal" or "Normal" => "text-bg-success",
+        "HighNormal" => "text-bg-info",
+        "Grade1" => "text-bg-warning",
+        "Grade2" or "Grade3" => "text-bg-danger",
+        _ => "text-bg-secondary"
+    };
+}

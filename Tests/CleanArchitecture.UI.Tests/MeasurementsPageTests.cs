@@ -247,3 +247,22 @@ public class MeasurementsPageTests
         await Assert.That(host.Api.ListCalls.Count).IsEqualTo(2);
     }
 }
+
+[Category("Unit")]
+public class MeasurementsCategoryTests
+{
+    [Test]
+    public async Task Category_IsShownAsTextBadge()
+    {
+        using var host = new UiHost();
+        host.Api.Items.Add(FakeBloodPressureApi.Make(1, 165, 100, category: "Grade2"));
+        await host.SignInAsync();
+
+        var cut = host.Context.Render<Measurements>();
+        cut.WaitForState(() => cut.FindAll("[aria-busy=true]").Count == 0);
+
+        var badge = cut.Find(".category-badge");
+        await Assert.That(badge.TextContent).IsEqualTo("Hypertonie Grad 2");
+        await Assert.That(badge.ClassList).Contains("text-bg-danger");
+    }
+}

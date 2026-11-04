@@ -50,4 +50,54 @@
   <data name="Category_Grade2" xml:space="preserve"><value>Hypertonie Grad 2</value></data>
   <data name="Category_Grade3" xml:space="preserve"><value>Hypertonie Grad 3</value></data>
   <data name="Nav_Menu" xml:space="preserve"><value>Hauptnavigation</value></data>
+  <data name="Nav_Statistics" xml:space="preserve"><value>Auswertung</value></data>
+  <data name="Nav_Export" xml:space="preserve"><value>Export</value></data>
+  <data name="Nav_Reminders" xml:space="preserve"><value>Erinnerungen</value></data>
+  <data name="Nav_Notifications" xml:space="preserve"><value>Hinweise</value></data>
+  <data name="Nav_UnreadAria" xml:space="preserve"><value>{0} ungelesene Hinweise</value></data>
+  <data name="Disclaimer_Medical" xml:space="preserve"><value>Diese Anwendung ersetzt keine ärztliche Beratung. Besprich auffällige Werte mit deiner Ärztin oder deinem Arzt.</value></data>
+  <data name="Range_From" xml:space="preserve"><value>Von</value></data>
+  <data name="Range_To" xml:space="preserve"><value>Bis</value></data>
+  <data name="Range_Apply" xml:space="preserve"><value>Anwenden</value></data>
+  <data name="Range_Order" xml:space="preserve"><value>„Von“ darf nicht nach „Bis“ liegen.</value></data>
+  <data name="Range_Invalid" xml:space="preserve"><value>Bitte gib gültige Datumswerte an.</value></data>
+  <data name="Stats_Title" xml:space="preserve"><value>Auswertung</value></data>
+  <data name="Stats_Filter" xml:space="preserve"><value>Zeitraum und Intervall</value></data>
+  <data name="Stats_Interval" xml:space="preserve"><value>Intervall</value></data>
+  <data name="Interval_Day" xml:space="preserve"><value>Tag</value></data>
+  <data name="Interval_Week" xml:space="preserve"><value>Woche</value></data>
+  <data name="Interval_Month" xml:space="preserve"><value>Monat</value></data>
+  <data name="Stats_Empty" xml:space="preserve"><value>Für diesen Zeitraum gibt es keine Messungen.</value></data>
+  <data name="Stats_ChartLabel" xml:space="preserve"><value>Verlauf der Durchschnittswerte für systolisch, diastolisch und Puls. Die Werte stehen in der Tabelle darunter.</value></data>
+  <data name="Stats_Caption" xml:space="preserve"><value>Kennzahlen je Zeitabschnitt</value></data>
+  <data name="Stats_Period" xml:space="preserve"><value>Zeitraum</value></data>
+  <data name="Stats_Count" xml:space="preserve"><value>Anzahl</value></data>
+  <data name="Stats_Legend" xml:space="preserve"><value>Angezeigt sind Durchschnitt (Minimum–Maximum) je Zeitabschnitt.</value></data>
+  <data name="Export_Title" xml:space="preserve"><value>Export</value></data>
+  <data name="Export_Hint" xml:space="preserve"><value>Lade deine Messungen als Datei herunter (höchstens {0} Messungen). Ohne Datum werden alle Messungen exportiert.</value></data>
+  <data name="Export_Format" xml:space="preserve"><value>Format</value></data>
+  <data name="Export_Download" xml:space="preserve"><value>Herunterladen</value></data>
+  <data name="Export_Busy" xml:space="preserve"><value>Datei wird erstellt …</value></data>
+  <data name="Export_Done" xml:space="preserve"><value>Die Datei {0} wurde heruntergeladen.</value></data>
+  <data name="Export_TooMany" xml:space="preserve"><value>Der Zeitraum enthält zu viele Messungen (mehr als {0}). Bitte wähle einen kleineren Zeitraum.</value></data>
+  <data name="Reminders_Title" xml:space="preserve"><value>Erinnerungen</value></data>
+  <data name="Reminders_Hint" xml:space="preserve"><value>Tägliche Erinnerungen, bis zu {0} Uhrzeiten.</value></data>
+  <data name="Reminders_Zone" xml:space="preserve"><value>Zeitzone</value></data>
+  <data name="Reminders_ZoneHelp" xml:space="preserve"><value>IANA-Name, z. B. Europe/Berlin.</value></data>
+  <data name="Reminders_Times" xml:space="preserve"><value>Uhrzeiten</value></data>
+  <data name="Reminders_TimeN" xml:space="preserve"><value>Uhrzeit {0}</value></data>
+  <data name="Reminders_Remove" xml:space="preserve"><value>Uhrzeit {0} entfernen</value></data>
+  <data name="Reminders_None" xml:space="preserve"><value>Es sind keine Erinnerungen eingestellt.</value></data>
+  <data name="Reminders_Add" xml:space="preserve"><value>Uhrzeit hinzufügen</value></data>
+  <data name="Reminders_Saved" xml:space="preserve"><value>Die Erinnerungen wurden gespeichert.</value></data>
+  <data name="Reminders_ZoneMissing" xml:space="preserve"><value>Bitte gib eine Zeitzone an.</value></data>
+  <data name="Reminders_TimeInvalid" xml:space="preserve"><value>Bitte gib alle Uhrzeiten im Format HH:mm an.</value></data>
+  <data name="Reminders_TimeDuplicate" xml:space="preserve"><value>Jede Uhrzeit darf nur einmal vorkommen.</value></data>
+  <data name="Notifications_Title" xml:space="preserve"><value>Hinweise</value></data>
+  <data name="Notifications_Empty" xml:space="preserve"><value>Es liegen keine Hinweise vor.</value></data>
+  <data name="Notifications_Warning" xml:space="preserve"><value>Warnung</value></data>
+  <data name="Notifications_Reminder" xml:space="preserve"><value>Erinnerung</value></data>
+  <data name="Notifications_New" xml:space="preserve"><value>Neu</value></data>
+  <data name="Notifications_MarkRead" xml:space="preserve"><value>Als gelesen markieren</value></data>
+  <data name="Notifications_MarkReadAria" xml:space="preserve"><value>Hinweis vom {0} als gelesen markieren</value></data>
 </root>

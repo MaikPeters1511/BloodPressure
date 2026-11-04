@@ -107,8 +107,32 @@ public sealed class FakeBloodPressureApi : IBloodPressureApi
 
     public Task<BloodPressureDto> GetByIdAsync(int id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     public Task UpdateAsync(int id, BloodPressureRequest request, string? ifMatch = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
-    public Task<IReadOnlyList<StatisticsBucketDto>> GetStatisticsAsync(DateTime? from = null, DateTime? to = null, string? interval = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
-    public Task<Stream> ExportAsync(string? format = null, DateTime? from = null, DateTime? to = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+    public List<StatisticsBucketDto> Buckets { get; } = [];
+    public List<(DateTime? From, DateTime? To, string? Interval)> StatisticsCalls { get; } = [];
+    public Exception? StatisticsFailWith { get; set; }
+
+    public Task<IReadOnlyList<StatisticsBucketDto>> GetStatisticsAsync(DateTime? from = null, DateTime? to = null, string? interval = null, CancellationToken cancellationToken = default)
+    {
+        StatisticsCalls.Add((from, to, interval));
+        return StatisticsFailWith is not null
+            ? Task.FromException<IReadOnlyList<StatisticsBucketDto>>(StatisticsFailWith)
+            : Task.FromResult<IReadOnlyList<StatisticsBucketDto>>(Buckets.ToList());
+    }
+
+    public List<(string? Format, DateTime? From, DateTime? To)> ExportCalls { get; } = [];
+    public Exception? ExportFailWith { get; set; }
+    public Task<Stream>? ExportGate { get; set; }
+
+    public async Task<Stream> ExportAsync(string? format = null, DateTime? from = null, DateTime? to = null, CancellationToken cancellationToken = default)
+    {
+        ExportCalls.Add((format, from, to));
+        if (ExportGate is not null)
+        {
+            await ExportGate;
+        }
+
+        return ExportFailWith is not null ? throw ExportFailWith : new MemoryStream("a;b"u8.ToArray());
+    }
 
     public static BloodPressureDto Make(int id, int sys = 120, int dia = 80, DateTime? at = null, int pulse = 65, int oxygen = 98, string category = "Normal", uint version = 7)
         => new(id, sys, dia, at ?? new DateTime(2026, 10, 1, 8, 0, 0, DateTimeKind.Utc).AddMinutes(id), pulse, oxygen, category, version);
@@ -143,4 +167,57 @@ public static class ApiExceptions
             status = 400,
             errors = new Dictionary<string, string[]> { [field] = [message] }
         }));
+}
+
+
+public sealed class FakeReminderApi : IReminderApi
+{
+    public ReminderSettingsDto Stored { get; set; } = new("UTC", []);
+    public Exception? PutFailWith { get; set; }
+    public List<ReminderSettingsDto> Puts { get; } = [];
+
+    public Task<ReminderSettingsDto> GetAsync(CancellationToken cancellationToken = default) => Task.FromResult(Stored);
+
+    public Task<ReminderSettingsDto> PutAsync(ReminderSettingsDto settings, CancellationToken cancellationToken = default)
+    {
+        Puts.Add(settings);
+        if (PutFailWith is not null)
+        {
+            return Task.FromException<ReminderSettingsDto>(PutFailWith);
+        }
+
+        Stored = settings;
+        return Task.FromResult(settings);
+    }
+}
+
+public sealed class FakeNotificationApi : INotificationApi
+{
+    public List<NotificationDto> Items { get; } = [];
+    public List<Guid> MarkedRead { get; } = [];
+
+    public Task<IReadOnlyList<NotificationDto>> GetAllAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<NotificationDto>>(Items.ToList());
+
+    public Task MarkAsReadAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        MarkedRead.Add(id);
+        var index = Items.FindIndex(n => n.Id == id);
+        Items[index] = Items[index] with { IsRead = true };
+        return Task.CompletedTask;
+    }
+}
+
+public sealed class FakeBrowser : IBrowserInterop
+{
+    public string? TimeZone { get; set; } = "Europe/Berlin";
+    public List<(string Name, string Content)> Downloads { get; } = [];
+
+    public async Task DownloadAsync(string fileName, Stream content)
+    {
+        using var reader = new StreamReader(content);
+        Downloads.Add((fileName, await reader.ReadToEndAsync()));
+    }
+
+    public Task<string?> GetTimeZoneAsync() => Task.FromResult(TimeZone);
 }

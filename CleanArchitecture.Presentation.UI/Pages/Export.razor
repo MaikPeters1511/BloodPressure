@@ -1,0 +1,105 @@
+@page "/export"
+@using System.Globalization
+@using System.Net
+@using CleanArchitecture.Contracts
+@using CleanArchitecture.Presentation.UI.Services
+@using Microsoft.Extensions.Localization
+@using Refit
+@inject IBloodPressureApi Api
+@inject IBrowserInterop Browser
+@inject AuthSession Session
+@inject NavigationManager Navigation
+@inject TimeProvider Time
+@inject IStringLocalizer<SharedResource> L
+@inject ILogger<Export> Logger
+
+<PageTitle>@L["Export_Title"]</PageTitle>
+
+<h1>@L["Export_Title"]</h1>
+<p class="text-muted">@L["Export_Hint", ExportQuery.MaxMeasurements]</p>
+
+<form id="export-form" @onsubmit="DownloadAsync" aria-label="@L["Export_Title"]" aria-busy="@(_busy ? "true" : "false")">
+    <div class="mb-3">
+        <label for="export-from" class="form-label">@L["Range_From"]</label>
+        <input id="export-from" type="date" class="form-control" value="@_from" @onchange="e => _from = e.Value?.ToString() ?? string.Empty" />
+    </div>
+    <div class="mb-3">
+        <label for="export-to" class="form-label">@L["Range_To"]</label>
+        <input id="export-to" type="date" class="form-control" value="@_to" @onchange="e => _to = e.Value?.ToString() ?? string.Empty" />
+    </div>
+    <div class="mb-3">
+        <label for="export-format" class="form-label">@L["Export_Format"]</label>
+        <select id="export-format" class="form-select" value="@_format" @onchange="e => _format = e.Value?.ToString() ?? ExportQuery.Csv">
+            <option value="csv">CSV</option>
+            <option value="pdf">PDF</option>
+        </select>
+    </div>
+    <button id="export-button" type="submit" class="btn btn-primary" disabled="@_busy">@L["Export_Download"]</button>
+</form>
+
+@if (_busy)
+{
+    <p role="status" id="export-busy">@L["Export_Busy"]</p>
+}
+@if (_error is not null)
+{
+    <div role="alert" class="alert alert-warning mt-3">@_error</div>
+}
+@if (_done is not null)
+{
+    <p role="status" id="export-done" class="mt-3">@_done</p>
+}
+
+@code {
+    private string _from = "";
+    private string _to = "";
+    private string _format = ExportQuery.Csv;
+    private bool _busy;
+    private string? _error;
+    private string? _done;
+
+    protected override void OnInitialized()
+    {
+        if (!Session.IsAuthenticated)
+        {
+            Navigation.NavigateTo("login");
+        }
+    }
+
+    private async Task DownloadAsync()
+    {
+        _error = _done = null;
+        var parsed = DateRangeParser.TryParse(_from, _to, Time.LocalTimeZone, out var from, out var to);
+        if (parsed != DateRangeParser.Result.Ok)
+        {
+            _error = L[parsed == DateRangeParser.Result.FromAfterTo ? "Range_Order" : "Range_Invalid"].Value;
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            await using var content = await Api.ExportAsync(_format, from, to);
+            var name = $"blutdruck-{(string.IsNullOrWhiteSpace(_from) ? "alle" : _from)}-{(string.IsNullOrWhiteSpace(_to) ? "alle" : _to)}.{_format}";
+            await Browser.DownloadAsync(name, content);
+            _done = L["Export_Done", name].Value;
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await Session.SignOutToLoginAsync(Navigation);
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
+        {
+            _error = L["Export_TooMany", ExportQuery.MaxMeasurements].Value;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Export fehlgeschlagen");
+            _error = L["Error_Generic"].Value;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

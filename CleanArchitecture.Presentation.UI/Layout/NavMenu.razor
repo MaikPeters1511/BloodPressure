@@ -2,6 +2,7 @@
 @using Microsoft.Extensions.Localization
 @implements IDisposable
 @inject AuthSession Session
+@inject NotificationCounter Counter
 @inject NavigationManager Navigation
 @inject IStringLocalizer<SharedResource> L
 
@@ -25,6 +26,24 @@
                 <NavLink class="btn btn-ghost text-xl" href="measurements">@L["Nav_Measurements"]</NavLink>
             </div>
             <div class="nav-item px-3">
+                <NavLink class="btn btn-ghost text-xl" href="statistics">@L["Nav_Statistics"]</NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="btn btn-ghost text-xl" href="export">@L["Nav_Export"]</NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="btn btn-ghost text-xl" href="reminders">@L["Nav_Reminders"]</NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="btn btn-ghost text-xl" href="notifications">
+                    @L["Nav_Notifications"]
+                    @if (Counter.Unread > 0)
+                    {
+                        <span class="badge text-bg-danger unread-count" aria-label="@L["Nav_UnreadAria", Counter.Unread]">@Counter.Unread</span>
+                    }
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
                 <button type="button" class="btn btn-ghost text-xl" @onclick="SignOutAsync">@L["Nav_Logout"]</button>
             </div>
         }
@@ -42,9 +61,30 @@
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    protected override void OnInitialized() => Session.Changed += OnSessionChanged;
+    protected override async Task OnInitializedAsync()
+    {
+        Session.Changed += OnSessionChanged;
+        Session.Changed += OnSessionChangedRefresh;
+        Counter.Changed += OnSessionChanged;
+        if (Session.IsAuthenticated)
+        {
+            await Counter.RefreshAsync();
+        }
+    }
 
     private void OnSessionChanged() => InvokeAsync(StateHasChanged);
+
+    private async Task OnSignedInAsync()
+    {
+        if (Session.IsAuthenticated)
+        {
+            await Counter.RefreshAsync();
+        }
+        else
+        {
+            Counter.Set(0);
+        }
+    }
 
     private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
 
@@ -54,5 +94,12 @@
         Navigation.NavigateTo("login");
     }
 
-    public void Dispose() => Session.Changed -= OnSessionChanged;
+    private void OnSessionChangedRefresh() => _ = InvokeAsync(OnSignedInAsync);
+
+    public void Dispose()
+    {
+        Session.Changed -= OnSessionChanged;
+        Session.Changed -= OnSessionChangedRefresh;
+        Counter.Changed -= OnSessionChanged;
+    }
 }
