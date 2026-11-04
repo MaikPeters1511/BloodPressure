@@ -28,6 +28,7 @@ public sealed class ApiFactory(string? connectionString = null) : WebApplication
         builder.UseSetting("ConnectionStrings:bloodpressuredb",
             connectionString ?? "Host=localhost;Database=unused;Username=unused;Password=unused");
 
+        builder.UseSetting("Reminders:WorkerEnabled", "false");
         builder.ConfigureLogging(logging => logging.AddProvider(Logs));
 
         if (connectionString is not null)

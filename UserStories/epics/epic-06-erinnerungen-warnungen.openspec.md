@@ -1,6 +1,6 @@
 # Epic 6: Erinnerungen und Warnungen
 
-> **Status:** proposed · **Priorität:** 5 · **Abhängigkeiten:** Epic 1, Epic 4 · **Agenten:** backend-agent, architect-agent, frontend-agent (Anzeige/Push)
+> **Status:** in-progress · **Priorität:** 5 · **Abhängigkeiten:** Epic 1, Epic 4 · **Agenten:** backend-agent, architect-agent, frontend-agent (Anzeige/Push)
 > Ablage: `UserStories/epics/epic-06-erinnerungen-warnungen.openspec.md`
 
 ## 1. Proposal (Why & What)
@@ -17,7 +17,7 @@
 ### ADDED Requirements
 
 #### Requirement: Warnung bei kritischem Wert
-Das System SHALL beim Anlegen einer Messung der Kategorie „Hypertonie Grad 3“ ein Domain Event `CriticalReadingRecorded` auslösen und daraus eine Benachrichtigung für den Nutzer erzeugen. Der Hinweis SHALL einen Haftungshinweis enthalten und keine Diagnose stellen.
+Das System SHALL beim Anlegen einer Messung der Kategorie „Hypertonie Grad 3“ in derselben Datenbanktransaktion eine Benachrichtigung für den Nutzer speichern (kein separates asynchrones Event; siehe ADR 0003). Der Hinweis SHALL einen Haftungshinweis enthalten und keine Diagnose stellen.
 
 ##### Scenario: Kritischer Wert
 - **GIVEN** ein angemeldeter Nutzer
@@ -42,6 +42,11 @@ Das System SHALL pro Nutzer bis zu 5 tägliche Erinnerungszeiten (lokale Uhrzeit
 - **WHEN** 08:00 erreicht ist
 - **THEN** wird keine Benachrichtigung erzeugt
 
+##### Scenario: Morgenmessung unterdrückt die Abenderinnerung nicht
+- **GIVEN** Erinnerung 20:00 und eine Messung um 08:10
+- **WHEN** 20:00 erreicht ist
+- **THEN** wird eine Benachrichtigung erzeugt
+
 #### Requirement: Benachrichtigungen abrufen
 Das System SHALL `GET /api/notifications` (nur eigene, ungelesene zuerst) und `POST /api/notifications/{id}/read` bereitstellen.
 
@@ -57,18 +62,18 @@ _Entfällt._
 _Entfällt._
 
 ## 4. Design
-- Domain Event wird in der Application über Wolverine publiziert (Outbox mit PostgreSQL-Persistenz prüfen, damit nichts verloren geht); Kanal hinter `INotificationSender` (zuerst Datenbank, später Push).
-- Erinnerungen: Wolverine Scheduled Messages oder `BackgroundService` mit `IServiceScopeFactory` (keine Captive Dependency); Zeitzonen mit `TimeZoneInfo`/NodaTime-Entscheidung per ADR.
+- Kritische Werte: Hinweis und Messung in einer Transaktion (kein Verlust, kein Outbox-Betrieb nötig); die Benachrichtigungen werden in der Datenbank gehalten, Push kommt später als weiterer Kanal.
+- Erinnerungen: `BackgroundService` mit `IServiceScopeFactory` (keine Captive Dependency), Zeitzonen mit `TimeZoneInfo`; Entscheidung in `docs/adr/0003-reminders-and-notifications.md`.
 - Datenschutz: Benachrichtigungstext enthält Kategorie, keine Rohwerte (Push-Vorschau auf Sperrbildschirm).
 
 ## 5. Tasks
-- [ ] T6.1 (architect) ADR: Scheduler, Outbox, Zeitzonen
-- [ ] T6.2 (backend) Tests (Red), Domain Event, Handler, Migration
-- [ ] T6.3 (backend) Reminder-Endpunkte und Scheduler
-- [ ] T6.4 (backend) Benachrichtigungs-Endpunkte, Refit
+- [x] T6.1 (architect) ADR: Scheduler, transaktionale Warnung, Zeitzonen (ADR 0003)
+- [x] T6.2 (backend) Tests (Red), Domain Event, Handler, Migration
+- [x] T6.3 (backend) Reminder-Endpunkte und Scheduler
+- [x] T6.4 (backend) Benachrichtigungs-Endpunkte, Refit
 - [ ] T6.5 (frontend, Folge-Spec) Anzeige und Push-Registrierung
 
 ## 6. Acceptance Criteria (DoD)
-- [ ] Alle Scenarios als Tests grün (Zeit über `TimeProvider` kontrollierbar).
-- [ ] Kein Nachrichtenverlust bei Neustart während der Verarbeitung (Test).
+- [x] Alle Scenarios als Tests grün (Zeit über `TimeProvider` kontrollierbar).
+- [x] Kein Nachrichtenverlust bei Neustart: Messung und Hinweis teilen sich eine Transaktion; Erinnerungen werden über `LastFiredOn` höchstens einmal verarbeitet (Prozessortests). Ein verteilter Mehrinstanzbetrieb ist nicht abgedeckt (siehe ADR).
 - [ ] Texte i18n-fähig (DE/EN), Haftungshinweis vorhanden.

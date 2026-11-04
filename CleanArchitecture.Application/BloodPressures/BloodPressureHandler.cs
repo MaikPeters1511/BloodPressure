@@ -44,7 +44,7 @@ public static class BloodPressureHandler
     }
 
     public static async Task<BloodPressureDto> Handle(
-        CreateBloodPressure command, IBloodPressureRepository repository, CancellationToken ct)
+        CreateBloodPressure command, IBloodPressureRepository repository, TimeProvider timeProvider, CancellationToken ct)
     {
         var entity = new BloodPressure
         {
@@ -55,7 +55,9 @@ public static class BloodPressureHandler
             Pulse = command.Pulse,
             Oxygen = command.Oxygen
         };
-        await repository.AddAsync(entity, ct);
+        // Kritische Werte erzeugen in derselben Transaktion eine Benachrichtigung (kein Verlust bei Abbruch).
+        var notification = Notification.ForCriticalReading(entity, timeProvider.GetUtcNow().UtcDateTime);
+        await repository.AddAsync(entity, notification, ct);
         return BloodPressureMapping.ToDto(entity);
     }
 

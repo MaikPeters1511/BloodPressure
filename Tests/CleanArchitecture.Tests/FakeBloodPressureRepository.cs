@@ -8,6 +8,9 @@ public sealed class FakeBloodPressureRepository : IBloodPressureRepository
     private readonly List<BloodPressure> _items = [];
     private int _nextId = 1;
 
+    /// <summary>Gemeinsam mit Messungen gespeicherte Benachrichtigungen.</summary>
+    public List<Notification> Notifications { get; } = [];
+
     public Task<PagedList<BloodPressure>> GetPageAsync(string userId, BloodPressureFilter filter, CancellationToken cancellationToken = default)
     {
         var query = _items.Where(i => i.UserId == userId
@@ -38,8 +41,13 @@ public sealed class FakeBloodPressureRepository : IBloodPressureRepository
     public Task<BloodPressure?> GetByIdAsync(int id, string userId, CancellationToken cancellationToken = default)
         => Task.FromResult(_items.FirstOrDefault(i => i.Id == id && i.UserId == userId));
 
-    public Task AddAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default)
+    public Task AddAsync(BloodPressure bloodPressure, Notification? notification = null, CancellationToken cancellationToken = default)
     {
+        if (notification is not null)
+        {
+            Notifications.Add(notification);
+        }
+
         bloodPressure.Id = _nextId++;
         _items.Add(bloodPressure);
         return Task.CompletedTask;

@@ -35,6 +35,12 @@ builder.Services
     .AddEntityFrameworkStores<AddPostgresSqlDbContext>();
 builder.Services.AddAuthorization();
 
+// Der Scheduler für Erinnerungen läuft im Hintergrund; per Konfiguration abschaltbar (z. B. in Tests).
+if (builder.Configuration.GetValue("Reminders:WorkerEnabled", true))
+{
+    builder.Services.AddHostedService<ReminderWorker>();
+}
+
 builder.Services.AddControllers(options => options.Filters.Add<ValidateRequestFilter>());
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
 {

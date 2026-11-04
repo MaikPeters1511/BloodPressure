@@ -2,6 +2,27 @@ using Refit;
 
 namespace CleanArchitecture.Contracts;
 
+/// <summary>Erinnerungen des angemeldeten Nutzers.</summary>
+public interface IReminderApi
+{
+    [Get("/api/reminders")]
+    Task<ReminderSettingsDto> GetAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Ersetzt alle Erinnerungen (höchstens 5).</summary>
+    [Put("/api/reminders")]
+    Task<ReminderSettingsDto> PutAsync([Body] ReminderSettingsDto settings, CancellationToken cancellationToken = default);
+}
+
+/// <summary>Benachrichtigungen des angemeldeten Nutzers.</summary>
+public interface INotificationApi
+{
+    [Get("/api/notifications")]
+    Task<IReadOnlyList<NotificationDto>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    [Post("/api/notifications/{id}/read")]
+    Task MarkAsReadAsync(Guid id, CancellationToken cancellationToken = default);
+}
+
 /// <summary>Typisierter Client für <c>/api/BloodPressure</c>. Fehlerantworten (400/404) werden als <see cref="ApiException"/> geworfen.</summary>
 public interface IBloodPressureApi
 {

@@ -10,6 +10,8 @@ public class AddPostgresSqlDbContext(DbContextOptions<AddPostgresSqlDbContext> o
     : IdentityDbContext<IdentityUser>(options)
 {
     public DbSet<BloodPressure> BloodPressures => Set<BloodPressure>();
+    public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<Reminder> Reminders => Set<Reminder>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,6 +28,28 @@ public class AddPostgresSqlDbContext(DbContextOptions<AddPostgresSqlDbContext> o
             entity.Property(e => e.Oxygen);
             entity.Property(e => e.UserId).HasMaxLength(450);
             entity.HasIndex(e => new { e.UserId, e.DateTime });
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.ToTable("Notification");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).HasMaxLength(450);
+            entity.Property(e => e.Type).HasConversion<string>().HasMaxLength(50);
+            entity.Property(e => e.Category).HasMaxLength(50);
+            entity.Property(e => e.Message).HasMaxLength(500);
+            // Wird die Messung gelöscht, bleibt der Hinweis ohne Verweis bestehen.
+            entity.HasOne(e => e.BloodPressure).WithMany().HasForeignKey(e => e.BloodPressureId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(e => new { e.UserId, e.ReadAt, e.CreatedAt });
+        });
+
+        modelBuilder.Entity<Reminder>(entity =>
+        {
+            entity.ToTable("Reminder");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).HasMaxLength(450);
+            entity.Property(e => e.TimeZoneId).HasMaxLength(100);
+            entity.HasIndex(e => new { e.UserId, e.TimeOfDay }).IsUnique();
         });
     }
 }

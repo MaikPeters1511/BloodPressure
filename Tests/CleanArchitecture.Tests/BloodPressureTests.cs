@@ -31,7 +31,7 @@ public class BloodPressureTests
         var repo = new FakeBloodPressureRepository();
 
         var dto = await BloodPressureHandler.Handle(
-            new CreateBloodPressure("u1", 120, 80, DateTime.UtcNow, 65, 98), repo, CancellationToken.None);
+            new CreateBloodPressure("u1", 120, 80, DateTime.UtcNow, 65, 98), repo, TimeProvider.System, CancellationToken.None);
 
         await Assert.That(dto.Id).IsEqualTo(1);
         await Assert.That(dto.Systolisch).IsEqualTo(120);
@@ -51,7 +51,7 @@ public class BloodPressureTests
     {
         var repo = new FakeBloodPressureRepository();
         var created = await BloodPressureHandler.Handle(
-            new CreateBloodPressure("u1", 120, 80, DateTime.UtcNow, 65, 98), repo, CancellationToken.None);
+            new CreateBloodPressure("u1", 120, 80, DateTime.UtcNow, 65, 98), repo, TimeProvider.System, CancellationToken.None);
 
         var ok = await BloodPressureHandler.Handle(
             new UpdateBloodPressure("u1", created.Id, 130, 85, DateTime.UtcNow, 70, 97), repo, CancellationToken.None);

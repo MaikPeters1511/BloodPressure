@@ -56,6 +56,79 @@ namespace CleanArchitecture.Infrastructure.Migrations
                     b.ToTable("BloodPressure", (string)null);
                 });
 
+            modelBuilder.Entity("CleanArchitecture.Domain.Entities.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("BloodPressureId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BloodPressureId");
+
+                    b.HasIndex("UserId", "ReadAt", "CreatedAt");
+
+                    b.ToTable("Notification", (string)null);
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Domain.Entities.Reminder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("LastFiredOn")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly>("TimeOfDay")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<string>("TimeZoneId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "TimeOfDay")
+                        .IsUnique();
+
+                    b.ToTable("Reminder", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -250,6 +323,16 @@ namespace CleanArchitecture.Infrastructure.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("CleanArchitecture.Domain.Entities.BloodPressure", "BloodPressure")
+                        .WithMany()
+                        .HasForeignKey("BloodPressureId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("BloodPressure");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

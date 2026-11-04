@@ -58,9 +58,16 @@ public class BloodPressureRepository(AddPostgresSqlDbContext context) : IBloodPr
     public async Task<BloodPressure?> GetByIdAsync(int id, string userId, CancellationToken cancellationToken = default)
         => await context.BloodPressures.FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId, cancellationToken);
 
-    public async Task AddAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default)
+    public async Task AddAsync(BloodPressure bloodPressure, Notification? notification = null, CancellationToken cancellationToken = default)
     {
         context.BloodPressures.Add(bloodPressure);
+        if (notification is not null)
+        {
+            // Eine Transaktion: Messung und Hinweis werden gemeinsam gespeichert oder gar nicht.
+            notification.BloodPressure = bloodPressure;
+            context.Notifications.Add(notification);
+        }
+
         await context.SaveChangesAsync(cancellationToken);
     }
 
