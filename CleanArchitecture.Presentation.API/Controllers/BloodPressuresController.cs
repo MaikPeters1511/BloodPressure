@@ -1,98 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using CleanArchitecture.Application.BloodPressures;
+using CleanArchitecture.Presentation.API.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CleanArchitecture.Domain.Entities;
-using CleanArchitecture.Domain.IRepository;
-using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
+using Wolverine;
 
 namespace CleanArchitecture.Presentation.API.Controllers;
 
-
 [Route("api/[controller]")]
 [ApiController]
-public class BloodPressureController : ControllerBase
+[AllowAnonymous] // Auth ist noch nicht eingerichtet (siehe sec-agent); bewusst explizit anonym.
+public class BloodPressureController(IMessageBus bus) : ControllerBase
 {
-    private readonly IBloodPressureRepository _bloodPressureRepository;
-
-    public BloodPressureController(IBloodPressureRepository bloodPressureRepository)
-    {
-        _bloodPressureRepository = bloodPressureRepository;
-    }
-
-    // GET: api/BloodPressure
     [HttpGet]
-    public async Task<IEnumerable<BloodPressure>> GetBloodPressures()
+    public async Task<IReadOnlyList<BloodPressureDto>> GetBloodPressures(CancellationToken ct)
+        => await bus.InvokeAsync<IReadOnlyList<BloodPressureDto>>(new GetBloodPressures(), ct);
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<BloodPressureDto>> GetBloodPressure(int id, CancellationToken ct)
     {
-        return await _bloodPressureRepository.GetAllAsync();
+        var result = await bus.InvokeAsync<BloodPressureDto?>(new GetBloodPressureById(id), ct);
+        return result is null ? NotFound() : result;
     }
 
-    // GET: api/BloodPressure/5
-    [HttpGet("{id}")]
-    public async Task<ActionResult<BloodPressure>> GetBloodPressure(int id)
-    {
-        var bloodPressure = await _bloodPressureRepository.GetByIdAsync(id);
-
-        if (bloodPressure == null)
-        {
-            return NotFound();
-        }
-
-        return bloodPressure;
-    }
-
-    // POST: api/BloodPressure
     [HttpPost]
-    public async Task<ActionResult<BloodPressure>> CreateBloodPressure(BloodPressure bloodPressure)
+    public async Task<ActionResult<BloodPressureDto>> CreateBloodPressure(BloodPressureRequest request, CancellationToken ct)
     {
-        await _bloodPressureRepository.AddAsync(bloodPressure);
-        return CreatedAtAction("GetBloodPressure", new { id = bloodPressure.Id },bloodPressure);
+        var created = await bus.InvokeAsync<BloodPressureDto>(
+            new CreateBloodPressure(request.Systolisch, request.Diastolisch, request.DateTime, request.Pulse, request.Oxygen), ct);
+        return CreatedAtAction(nameof(GetBloodPressure), new { id = created.Id }, created);
     }
 
-    // PUT: api/BloodPressure/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateBloodPressure(int id, BloodPressure bloodPressure)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> UpdateBloodPressure(int id, BloodPressureRequest request, CancellationToken ct)
     {
-        if (id != bloodPressure.Id)
-        {
-            return BadRequest();
-        }
-
-        var bloodPressureToUpdate = await _bloodPressureRepository.GetByIdAsync(id);
-
-        if (bloodPressureToUpdate == null)
-        {
-            return NotFound();
-        }
-
-        bloodPressureToUpdate.Id = bloodPressure.Id;
-        bloodPressureToUpdate.Systolisch = bloodPressure.Systolisch;
-        bloodPressureToUpdate.Diastolisch = bloodPressure.Diastolisch;
-        bloodPressureToUpdate.DateTime = bloodPressure.DateTime;
-        bloodPressureToUpdate.Pulse = bloodPressure.Pulse;
-        bloodPressureToUpdate.Oxygen = bloodPressure.Oxygen;
-        await _bloodPressureRepository.UpdateAsync(bloodPressureToUpdate);
-
-        return NoContent();
+        var found = await bus.InvokeAsync<bool>(
+            new UpdateBloodPressure(id, request.Systolisch, request.Diastolisch, request.DateTime, request.Pulse, request.Oxygen), ct);
+        return found ? NoContent() : NotFound();
     }
 
-    // DELETE: api/BloodPressure/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteBloodPressure(int id)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteBloodPressure(int id, CancellationToken ct)
     {
-        var bloodPressureToDelete = await _bloodPressureRepository.GetByIdAsync(id);
-
-        if (bloodPressureToDelete == null)
-        {
-            return NotFound();
-        }
-
-        await _bloodPressureRepository.DeleteAsync(bloodPressureToDelete);
-
-        return NoContent();
+        var found = await bus.InvokeAsync<bool>(new DeleteBloodPressure(id), ct);
+        return found ? NoContent() : NotFound();
     }
 }
-

@@ -1,12 +1,12 @@
-﻿using CleanArchitecture.Domain.Entities;
+using CleanArchitecture.Domain.Entities;
 
 namespace CleanArchitecture.Domain.IRepository;
 
 public interface IBloodPressureRepository
 {
-    Task<IEnumerable<BloodPressure>> GetAllAsync();
-    Task<BloodPressure> GetByIdAsync(int id);
-    Task AddAsync(BloodPressure bloodPressure);
-    Task UpdateAsync(BloodPressure bloodPressure);
-    Task DeleteAsync(BloodPressure bloodPressure);
+    Task<IReadOnlyList<BloodPressure>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<BloodPressure?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task AddAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default);
+    Task UpdateAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default);
+    Task DeleteAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default);
 }

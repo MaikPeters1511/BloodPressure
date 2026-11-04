@@ -1,23 +1,25 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
+using CleanArchitecture.Domain.IRepository;
 using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
-using Microsoft.EntityFrameworkCore;
+using CleanArchitecture.Infrastructure.Repository;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace CleanArchitecture.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureDI(this IServiceCollection serviceCollection, IConfiguration configuration)
+    /// <summary>Name der Aspire-Datenbankressource bzw. des Connection Strings.</summary>
+    public const string DatabaseName = "bloodpressuredb";
+
+    /// <summary>
+    /// Registriert DbContext (über die Aspire-Npgsql-Integration inkl. Health Check,
+    /// Telemetrie und Retry) und die Repositories. Der Connection String kommt aus
+    /// <c>ConnectionStrings:bloodpressuredb</c> (Aspire injiziert ihn per Umgebungsvariable).
+    /// </summary>
+    public static IHostApplicationBuilder AddInfrastructureDI(this IHostApplicationBuilder builder)
     {
-
-        #region Config PostgresSql Server Database
-        serviceCollection.AddDbContext<AddPostgresSqlDbContext>(options =>
-        {
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-            options.UseNpgsql(connectionString);
-        });
-        #endregion
-
-        return serviceCollection;
+        builder.AddNpgsqlDbContext<AddPostgresSqlDbContext>(DatabaseName);
+        builder.Services.AddScoped<IBloodPressureRepository, BloodPressureRepository>();
+        return builder;
     }
 }
