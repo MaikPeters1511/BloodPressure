@@ -10,12 +10,31 @@ namespace CleanArchitecture.Application.BloodPressures;
 /// </summary>
 public static class BloodPressureHandler
 {
-    public static async Task<IReadOnlyList<BloodPressureDto>> Handle(
+    public static async Task<PagedResult<BloodPressureDto>> Handle(
         GetBloodPressures query, IBloodPressureRepository repository, CancellationToken ct)
     {
-        var items = await repository.GetAllAsync(query.UserId, ct);
-        return items.Select(BloodPressureMapping.ToDto).ToList();
+        // Zu große Seiten werden begrenzt statt abgelehnt.
+        var pageSize = Math.Min(query.Query.PageSize, BloodPressureListQuery.MaxPageSize);
+        var filter = new BloodPressureFilter(
+            ToUtc(query.Query.From),
+            ToUtc(query.Query.To),
+            query.Query.Page,
+            pageSize,
+            Descending: !string.Equals(query.Query.Sort, BloodPressureListQuery.SortDateAscending, StringComparison.OrdinalIgnoreCase));
+
+        var page = await repository.GetPageAsync(query.UserId, filter, ct);
+        return new PagedResult<BloodPressureDto>(
+            page.Items.Select(BloodPressureMapping.ToDto).ToList(), query.Query.Page, pageSize, page.TotalCount);
     }
+
+    // npgsql erlaubt für timestamptz nur UTC; ohne Zeitzonenangabe wird UTC angenommen (Vertrag: alle Zeiten UTC).
+    private static DateTime? ToUtc(DateTime? value) => value switch
+    {
+        null => null,
+        { Kind: DateTimeKind.Utc } => value,
+        { Kind: DateTimeKind.Local } => value.Value.ToUniversalTime(),
+        _ => DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
+    };
 
     public static async Task<BloodPressureDto?> Handle(
         GetBloodPressureById query, IBloodPressureRepository repository, CancellationToken ct)

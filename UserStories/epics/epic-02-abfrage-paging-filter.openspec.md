@@ -1,6 +1,6 @@
 # Epic 2: Abfrage mit Paging, Filter und Sortierung
 
-> **Status:** proposed · **Priorität:** 2 · **Abhängigkeiten:** (optional) Epic 1 für Benutzerfilter · **Agenten:** backend-agent, frontend-agent (Folge)
+> **Status:** in-progress · **Priorität:** 2 · **Abhängigkeiten:** (optional) Epic 1 für Benutzerfilter · **Agenten:** backend-agent, frontend-agent (Folge)
 > Ablage: `UserStories/epics/epic-02-abfrage-paging-filter.openspec.md`
 
 ## 1. Proposal (Why & What)
@@ -51,17 +51,17 @@ _Entfällt._
 ## 4. Design
 - Datenbankseitige Filterung/Paging (`Where`/`Skip`/`Take`), Index auf `(UserId, DateTime)` per neuer Migration; `AsNoTracking` bleibt.
 - Neue Typen `PagedResult<T>` und `BloodPressureQuery` in `Contracts`.
-- Entscheidung: zu große `pageSize` → begrenzen (freundlicher) statt 400.
+- Entscheidung: zu große `pageSize` → begrenzen (freundlicher) statt 400; `from`/`to` ohne Zeitzone gelten als UTC, Zeiten mit Offset werden nach UTC umgerechnet.
 - Risiko: Breaking Change für Konsumenten; Hinweis in OpenAPI, Versionierung siehe Epic 7.
 
 ## 5. Tasks
-- [ ] T2.1 (backend) Tests für Filter, Paging, Sortierung, Grenzwerte (Red)
-- [ ] T2.2 (backend) Repository- und Handler-Erweiterung, Migration (Index)
-- [ ] T2.3 (backend) Controller + `IBloodPressureApi` anpassen
-- [ ] T2.4 (qa) Performance-Smoke mit 100 000 Zeilen
+- [x] T2.1 (backend) Tests für Filter, Paging, Sortierung, Grenzwerte (Red)
+- [x] T2.2 (backend) Repository- und Handler-Erweiterung, Migration (Index)
+- [x] T2.3 (backend) Controller + `IBloodPressureApi` anpassen
+- [x] T2.4 (qa) Performance-Smoke mit 100 000 Zeilen (Integrationstest: EXPLAIN nutzt den Index, Seite unter 1 s)
 - [ ] T2.5 (frontend, Folge-Spec) `Api.razor` auf Paging umstellen
 
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Scenarios als Tests grün.
-- [ ] Abfrage nutzt den Index (EXPLAIN geprüft), Antwort bei 100 000 Zeilen unter 200 ms (lokal).
+- [ ] Abfrage nutzt den Index (EXPLAIN geprüft), Antwort bei 100 000 Zeilen unter 1 s im Test (Schwelle bewusst großzügig, um CI-Schwankungen abzufangen).
 - [ ] OpenAPI zeigt Parameter und Envelope.

@@ -1,9 +1,11 @@
+using CleanArchitecture.Contracts;
+
 namespace CleanArchitecture.Application.BloodPressures;
 
 // Alle Messages tragen die UserId des angemeldeten Nutzers (aus dem Token, nie aus dem Request).
 
 // Queries
-public sealed record GetBloodPressures(string UserId);
+public sealed record GetBloodPressures(string UserId, BloodPressureListQuery Query);
 public sealed record GetBloodPressureById(string UserId, int Id);
 
 // Commands

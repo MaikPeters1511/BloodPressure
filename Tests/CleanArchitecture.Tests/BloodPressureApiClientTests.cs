@@ -29,8 +29,8 @@ public class BloodPressureApiClientTests
 
         var all = await _api.GetAllAsync();
 
-        await Assert.That(all.Count).IsEqualTo(1);
-        await Assert.That(all[0].Systolisch).IsEqualTo(120);
+        await Assert.That(all.TotalCount).IsEqualTo(1);
+        await Assert.That(all.Items[0].Systolisch).IsEqualTo(120);
     }
 
     [Test]
@@ -116,7 +116,7 @@ public class BloodPressureApiClientTests
             RequestUri = request.RequestUri;
             return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
             {
-                Content = new StringContent("[]", System.Text.Encoding.UTF8, "application/json")
+                Content = new StringContent("{\"items\":[],\"page\":1,\"pageSize\":50,\"totalCount\":0}", System.Text.Encoding.UTF8, "application/json")
             });
         }
     }

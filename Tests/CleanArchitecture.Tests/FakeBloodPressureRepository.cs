@@ -8,8 +8,16 @@ public sealed class FakeBloodPressureRepository : IBloodPressureRepository
     private readonly List<BloodPressure> _items = [];
     private int _nextId = 1;
 
-    public Task<IReadOnlyList<BloodPressure>> GetAllAsync(string userId, CancellationToken cancellationToken = default)
-        => Task.FromResult<IReadOnlyList<BloodPressure>>(_items.Where(i => i.UserId == userId).ToList());
+    public Task<PagedList<BloodPressure>> GetPageAsync(string userId, BloodPressureFilter filter, CancellationToken cancellationToken = default)
+    {
+        var query = _items.Where(i => i.UserId == userId
+            && (filter.From is null || i.DateTime >= filter.From)
+            && (filter.To is null || i.DateTime <= filter.To));
+        var ordered = filter.Descending ? query.OrderByDescending(i => i.DateTime) : query.OrderBy(i => i.DateTime);
+        var list = ordered.ToList();
+        var page = list.Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize).ToList();
+        return Task.FromResult(new PagedList<BloodPressure>(page, list.Count));
+    }
 
     public Task<BloodPressure?> GetByIdAsync(int id, string userId, CancellationToken cancellationToken = default)
         => Task.FromResult(_items.FirstOrDefault(i => i.Id == id && i.UserId == userId));

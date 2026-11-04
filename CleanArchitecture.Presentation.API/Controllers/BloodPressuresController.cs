@@ -17,8 +17,8 @@ public class BloodPressureController(IMessageBus bus) : ControllerBase
         ?? throw new InvalidOperationException("Angemeldeter Benutzer ohne NameIdentifier-Claim.");
 
     [HttpGet]
-    public async Task<IReadOnlyList<BloodPressureDto>> GetBloodPressures(CancellationToken ct)
-        => await bus.InvokeAsync<IReadOnlyList<BloodPressureDto>>(new GetBloodPressures(UserId), ct);
+    public async Task<PagedResult<BloodPressureDto>> GetBloodPressures([FromQuery] BloodPressureListQuery query, CancellationToken ct)
+        => await bus.InvokeAsync<PagedResult<BloodPressureDto>>(new GetBloodPressures(UserId, query), ct);
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<BloodPressureDto>> GetBloodPressure(int id, CancellationToken ct)
