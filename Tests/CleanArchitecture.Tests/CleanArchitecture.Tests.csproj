@@ -12,11 +12,13 @@
     <PackageReference Include="TUnit" Version="1.79.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
     <PackageReference Include="Refit" Version="16.4.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.16.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\CleanArchitecture.Contracts\CleanArchitecture.Contracts.csproj" />
     <ProjectReference Include="..\..\CleanArchitecture.Domain\CleanArchitecture.Domain.csproj" />
+    <ProjectReference Include="..\..\CleanArchitecture.Infrastructure\CleanArchitecture.Infrastructure.csproj" />
     <ProjectReference Include="..\..\CleanArchitecture.Application\CleanArchitecture.Application.csproj" />
     <ProjectReference Include="..\..\CleanArchitecture.Presentation.API\CleanArchitecture.Presentation.API.csproj" />
   </ItemGroup>
