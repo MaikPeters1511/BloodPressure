@@ -7,7 +7,7 @@ using Wolverine;
 
 namespace CleanArchitecture.Presentation.API.Controllers;
 
-[Route("api/notifications")]
+[Route("api/v1/notifications")]
 [ApiController]
 [Authorize]
 public class NotificationsController(IMessageBus bus) : AuthorizedControllerBase

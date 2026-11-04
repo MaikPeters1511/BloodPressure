@@ -140,7 +140,7 @@ public class NotificationApiTests(PostgresFixture postgres)
         await using var factory = await RealApiHarness.StartAsync(postgres);
         var http = factory.CreateClient();
 
-        await Assert.That((await http.GetAsync("/api/notifications")).StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
-        await Assert.That((await http.GetAsync("/api/reminders")).StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
+        await Assert.That((await http.GetAsync("/api/v1/notifications")).StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
+        await Assert.That((await http.GetAsync("/api/v1/reminders")).StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
     }
 }

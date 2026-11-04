@@ -1,4 +1,6 @@
+using CleanArchitecture.Application.BloodPressures;
 using CleanArchitecture.Application.Export;
+using CleanArchitecture.Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +15,25 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
         ProblemDetails problem;
-        if (exception is ExportLimitExceededException)
+        if (exception is PreconditionFailedException)
+        {
+            problem = new ProblemDetails
+            {
+                Status = StatusCodes.Status412PreconditionFailed,
+                Title = "Veralteter Stand",
+                Detail = exception.Message
+            };
+        }
+        else if (exception is ConcurrencyConflictException)
+        {
+            problem = new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Title = "Konflikt",
+                Detail = exception.Message
+            };
+        }
+        else if (exception is ExportLimitExceededException)
         {
             problem = new ProblemDetails
             {

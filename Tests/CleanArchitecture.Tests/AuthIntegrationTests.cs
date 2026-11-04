@@ -48,7 +48,7 @@ public class AuthIntegrationTests(PostgresFixture postgres)
         var (factory, _) = await StartAsync();
         await using var _ = factory;
 
-        var response = await factory.CreateClient().GetAsync("/api/BloodPressure");
+        var response = await factory.CreateClient().GetAsync("/api/v1/BloodPressure");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
     }

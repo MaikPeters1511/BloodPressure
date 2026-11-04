@@ -5,21 +5,21 @@ namespace CleanArchitecture.Contracts;
 /// <summary>Erinnerungen des angemeldeten Nutzers.</summary>
 public interface IReminderApi
 {
-    [Get("/api/reminders")]
+    [Get("/api/v1/reminders")]
     Task<ReminderSettingsDto> GetAsync(CancellationToken cancellationToken = default);
 
     /// <summary>Ersetzt alle Erinnerungen (höchstens 5).</summary>
-    [Put("/api/reminders")]
+    [Put("/api/v1/reminders")]
     Task<ReminderSettingsDto> PutAsync([Body] ReminderSettingsDto settings, CancellationToken cancellationToken = default);
 }
 
 /// <summary>Benachrichtigungen des angemeldeten Nutzers.</summary>
 public interface INotificationApi
 {
-    [Get("/api/notifications")]
+    [Get("/api/v1/notifications")]
     Task<IReadOnlyList<NotificationDto>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    [Post("/api/notifications/{id}/read")]
+    [Post("/api/v1/notifications/{id}/read")]
     Task MarkAsReadAsync(Guid id, CancellationToken cancellationToken = default);
 }
 
@@ -27,7 +27,7 @@ public interface INotificationApi
 public interface IBloodPressureApi
 {
     /// <summary>Paginierte Liste; <paramref name="from"/>/<paramref name="to"/> inklusive (UTC), Standard-Sortierung neueste zuerst.</summary>
-    [Get("/api/BloodPressure")]
+    [Get("/api/v1/BloodPressure")]
     Task<PagedResult<BloodPressureDto>> GetAllAsync(
         [Query(Format = "o")] DateTime? from = null,
         [Query(Format = "o")] DateTime? to = null,
@@ -37,7 +37,7 @@ public interface IBloodPressureApi
         CancellationToken cancellationToken = default);
 
     /// <summary>Durchschnitt, Minimum, Maximum und Anzahl je Tag, Woche (Montag) oder Monat; Abschnitte ohne Messung fehlen.</summary>
-    [Get("/api/BloodPressure/statistics")]
+    [Get("/api/v1/BloodPressure/statistics")]
     Task<IReadOnlyList<StatisticsBucketDto>> GetStatisticsAsync(
         [Query(Format = "o")] DateTime? from = null,
         [Query(Format = "o")] DateTime? to = null,
@@ -45,22 +45,24 @@ public interface IBloodPressureApi
         CancellationToken cancellationToken = default);
 
     /// <summary>Lädt die Messungen des Zeitraums als Datei (<c>csv</c> oder <c>pdf</c>); höchstens 10 000 Messungen.</summary>
-    [Get("/api/BloodPressure/export")]
+    [Get("/api/v1/BloodPressure/export")]
     Task<Stream> ExportAsync(
         string? format = null,
         [Query(Format = "o")] DateTime? from = null,
         [Query(Format = "o")] DateTime? to = null,
         CancellationToken cancellationToken = default);
 
-    [Get("/api/BloodPressure/{id}")]
+    [Get("/api/v1/BloodPressure/{id}")]
     Task<BloodPressureDto> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
-    [Post("/api/BloodPressure")]
+    [Post("/api/v1/BloodPressure")]
     Task<BloodPressureDto> CreateAsync([Body] BloodPressureRequest request, CancellationToken cancellationToken = default);
 
-    [Put("/api/BloodPressure/{id}")]
-    Task UpdateAsync(int id, [Body] BloodPressureRequest request, CancellationToken cancellationToken = default);
+    /// <param name="ifMatch">Optional: <see cref="BloodPressureDto.ETag"/>; bei veraltetem Stand antwortet die API mit 412.</param>
+    [Put("/api/v1/BloodPressure/{id}")]
+    Task UpdateAsync(int id, [Body] BloodPressureRequest request, [Header("If-Match")] string? ifMatch = null, CancellationToken cancellationToken = default);
 
-    [Delete("/api/BloodPressure/{id}")]
-    Task DeleteAsync(int id, CancellationToken cancellationToken = default);
+    /// <param name="ifMatch">Optional: <see cref="BloodPressureDto.ETag"/>; bei veraltetem Stand antwortet die API mit 412.</param>
+    [Delete("/api/v1/BloodPressure/{id}")]
+    Task DeleteAsync(int id, [Header("If-Match")] string? ifMatch = null, CancellationToken cancellationToken = default);
 }

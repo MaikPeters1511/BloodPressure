@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 using Wolverine;
 using JasperFx.CodeGeneration.Model;
 
@@ -55,6 +57,41 @@ builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document,
     return Task.CompletedTask;
 }));
 builder.Services.AddProblemDetails();
+
+// Rate Limiting je Nutzer (angemeldet) bzw. je IP (anonym); Health-Probes sind ausgenommen.
+var permitLimit = builder.Configuration.GetValue("RateLimiting:PermitLimitPerMinute", 100);
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/alive") || context.Request.Path.StartsWithSegments("/health"))
+        {
+            return RateLimitPartition.GetNoLimiter("probe");
+        }
+
+        var key = context.User.FindFirstValue(ClaimTypes.NameIdentifier) is { } userId
+            ? $"user:{userId}"
+            : $"ip:{context.Connection.RemoteIpAddress}";
+        return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = permitLimit,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            context.HttpContext.Response.Headers.RetryAfter = ((int)Math.Ceiling(retryAfter.TotalSeconds)).ToString();
+        }
+
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsJsonAsync(
+            new Microsoft.AspNetCore.Mvc.ProblemDetails { Status = 429, Title = "Zu viele Anfragen" }, cancellationToken);
+    };
+});
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
@@ -79,6 +116,23 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 
+// Unversionierte Pfade leiten dauerhaft (308, Methode und Query bleiben erhalten) auf v1 weiter.
+string[] legacyPrefixes = ["/api/BloodPressure", "/api/reminders", "/api/notifications"];
+app.Use(async (context, next) =>
+{
+    foreach (var prefix in legacyPrefixes)
+    {
+        if (context.Request.Path.StartsWithSegments(prefix, StringComparison.OrdinalIgnoreCase, out var rest))
+        {
+            context.Response.StatusCode = StatusCodes.Status308PermanentRedirect;
+            context.Response.Headers.Location = $"/api/v1{prefix["/api".Length..]}{rest}{context.Request.QueryString}";
+            return;
+        }
+    }
+
+    await next();
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -95,6 +149,7 @@ else
 
 app.UseCors();
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 

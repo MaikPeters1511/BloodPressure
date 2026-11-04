@@ -53,11 +53,11 @@ public class BloodPressureTests
         var created = await BloodPressureHandler.Handle(
             new CreateBloodPressure("u1", 120, 80, DateTime.UtcNow, 65, 98), repo, TimeProvider.System, CancellationToken.None);
 
-        var ok = await BloodPressureHandler.Handle(
+        var updated = await BloodPressureHandler.Handle(
             new UpdateBloodPressure("u1", created.Id, 130, 85, DateTime.UtcNow, 70, 97), repo, CancellationToken.None);
         var reloaded = await BloodPressureHandler.Handle(new GetBloodPressureById("u1", created.Id), repo, CancellationToken.None);
 
-        await Assert.That(ok).IsTrue();
+        await Assert.That(updated).IsNotNull();
         await Assert.That(reloaded!.Systolisch).IsEqualTo(130);
     }
 

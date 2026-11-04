@@ -30,6 +30,9 @@ public class BloodPressure
 
     public DateTime DateTime { get; set; } = DateTime.UtcNow;
 
+    /// <summary>Zeilenversion für Optimistic Concurrency (PostgreSQL <c>xmin</c>); wird von der Datenbank vergeben.</summary>
+    public uint Version { get; set; }
+
     public int Pulse
     {
         get => _pulse;

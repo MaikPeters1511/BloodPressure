@@ -89,7 +89,8 @@ public class BloodPressureApiClientTests
 
         var loaded = await _api.GetByIdAsync(created.Id);
 
-        await Assert.That(loaded).IsEqualTo(new BloodPressureDto(created.Id, 121, 79, Measured, 66, 97, "Normal"));
+        // Die Version vergibt die Datenbank; alle übrigen Felder müssen unverändert zurückkommen.
+        await Assert.That(loaded with { Version = 0 }).IsEqualTo(new BloodPressureDto(created.Id, 121, 79, Measured, 66, 97, "Normal", 0));
     }
 
     [Test]
@@ -104,7 +105,7 @@ public class BloodPressureApiClientTests
         var client = provider.GetRequiredService<IBloodPressureApi>();
         await client.GetAllAsync();
 
-        await Assert.That(handler.RequestUri).IsEqualTo(new Uri("https://api.example.test/api/BloodPressure"));
+        await Assert.That(handler.RequestUri).IsEqualTo(new Uri("https://api.example.test/api/v1/BloodPressure"));
     }
 
     private sealed class CapturingHandler : HttpMessageHandler
