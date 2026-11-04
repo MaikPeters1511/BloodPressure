@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Nur Lesezugriff; keine Secrets erforderlich.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_UI_LANGUAGE: en
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  SOLUTION_FILTER: CleanArchitecture.Backend.slnf
+
+jobs:
+  build-test:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: "**/*.csproj"
+
+      - name: Restore
+        run: dotnet restore "$SOLUTION_FILTER"
+
+      - name: Build
+        run: dotnet build "$SOLUTION_FILTER" --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --project Tests/CleanArchitecture.Tests --configuration Release --no-build
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: Tests/CleanArchitecture.Tests/TestResults/
+          if-no-files-found: warn
+
+      # dotnet list liefert immer Exitcode 0 -> Ausgabe nach Schweregrad auswerten.
+      # High/Critical lassen den Lauf fehlschlagen, Moderate wird nur ausgegeben.
+      - name: Check vulnerable NuGet packages
+        run: |
+          dotnet list "$SOLUTION_FILTER" package --vulnerable --include-transitive | tee vulnerable.txt
+          if grep -E '^\s*>.*\s(High|Critical)\s' vulnerable.txt; then
+            echo "::error::NuGet packages with High/Critical vulnerabilities found (see above)."
+            exit 1
+          fi
