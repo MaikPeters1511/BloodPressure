@@ -11,5 +11,5 @@ public sealed record GetBloodPressureById(string UserId, int Id);
 
 // Commands
 public sealed record CreateBloodPressure(string UserId, int Systolisch, int Diastolisch, DateTime DateTime, int Pulse, int Oxygen);
-public sealed record UpdateBloodPressure(string UserId, int Id, int Systolisch, int Diastolisch, DateTime DateTime, int Pulse, int Oxygen);
-public sealed record DeleteBloodPressure(string UserId, int Id);
+public sealed record UpdateBloodPressure(string UserId, int Id, int Systolisch, int Diastolisch, DateTime DateTime, int Pulse, int Oxygen, uint? ExpectedVersion = null);
+public sealed record DeleteBloodPressure(string UserId, int Id, uint? ExpectedVersion = null);

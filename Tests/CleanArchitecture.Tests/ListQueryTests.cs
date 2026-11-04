@@ -60,7 +60,7 @@ public class ListQueryTests
     [Test]
     public async Task FromAfterTo_Returns400()
     {
-        var response = await _http.GetAsync("/api/BloodPressure?from=2026-11-10T00:00:00Z&to=2026-11-01T00:00:00Z");
+        var response = await _http.GetAsync("/api/v1/BloodPressure?from=2026-11-10T00:00:00Z&to=2026-11-01T00:00:00Z");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
@@ -128,7 +128,7 @@ public class ListQueryTests
     [Arguments("sort=systolisch")]
     public async Task InvalidParameters_Return400(string query)
     {
-        var response = await _http.GetAsync($"/api/BloodPressure?{query}");
+        var response = await _http.GetAsync($"/api/v1/BloodPressure?{query}");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }

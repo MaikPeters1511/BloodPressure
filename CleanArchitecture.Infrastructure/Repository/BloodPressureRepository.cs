@@ -1,4 +1,5 @@
 using CleanArchitecture.Domain.Entities;
+using CleanArchitecture.Domain.Exceptions;
 using CleanArchitecture.Domain.IRepository;
 using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
 using Microsoft.EntityFrameworkCore;
@@ -74,12 +75,24 @@ public class BloodPressureRepository(AddPostgresSqlDbContext context) : IBloodPr
     public async Task UpdateAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default)
     {
         // Entität wurde über denselben (scoped) Context geladen und ist bereits getrackt.
-        await context.SaveChangesAsync(cancellationToken);
+        await SaveAsync(cancellationToken);
     }
 
     public async Task DeleteAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default)
     {
         context.BloodPressures.Remove(bloodPressure);
-        await context.SaveChangesAsync(cancellationToken);
+        await SaveAsync(cancellationToken);
+    }
+
+    private async Task SaveAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            throw new ConcurrencyConflictException(ex);
+        }
     }
 }

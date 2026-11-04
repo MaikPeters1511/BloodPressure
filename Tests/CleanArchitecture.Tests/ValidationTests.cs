@@ -35,7 +35,7 @@ public class ValidationTests
     [Test]
     public async Task Create_WithSeveralInvalidFields_ReportsAllFields()
     {
-        var response = await _http.PostAsJsonAsync("/api/BloodPressure", Body(systolisch: 999, oxygen: 150));
+        var response = await _http.PostAsJsonAsync("/api/v1/BloodPressure", Body(systolisch: 999, oxygen: 150));
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
         var fields = await ErrorFieldsAsync(response);
@@ -46,7 +46,7 @@ public class ValidationTests
     [Test]
     public async Task Create_SystolischNotAboveDiastolisch_ReportsSystolisch()
     {
-        var response = await _http.PostAsJsonAsync("/api/BloodPressure", Body(systolisch: 70, diastolisch: 90));
+        var response = await _http.PostAsJsonAsync("/api/v1/BloodPressure", Body(systolisch: 70, diastolisch: 90));
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
         await Assert.That(await ErrorFieldsAsync(response)).Contains("systolisch");
@@ -55,7 +55,7 @@ public class ValidationTests
     [Test]
     public async Task Create_SystolischEqualsDiastolisch_IsRejected()
     {
-        var response = await _http.PostAsJsonAsync("/api/BloodPressure", Body(systolisch: 90, diastolisch: 90));
+        var response = await _http.PostAsJsonAsync("/api/v1/BloodPressure", Body(systolisch: 90, diastolisch: 90));
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
@@ -63,7 +63,7 @@ public class ValidationTests
     [Test]
     public async Task Create_DateTimeInFuture_ReportsDateTime()
     {
-        var response = await _http.PostAsJsonAsync("/api/BloodPressure", Body(dateTime: DateTime.UtcNow.AddHours(1)));
+        var response = await _http.PostAsJsonAsync("/api/v1/BloodPressure", Body(dateTime: DateTime.UtcNow.AddHours(1)));
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
         await Assert.That(await ErrorFieldsAsync(response)).Contains("dateTime");
@@ -72,7 +72,7 @@ public class ValidationTests
     [Test]
     public async Task Create_DateTimeSlightlyAhead_IsAccepted()
     {
-        var response = await _http.PostAsJsonAsync("/api/BloodPressure", Body(dateTime: DateTime.UtcNow.AddMinutes(2)));
+        var response = await _http.PostAsJsonAsync("/api/v1/BloodPressure", Body(dateTime: DateTime.UtcNow.AddMinutes(2)));
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Created);
     }
@@ -80,7 +80,7 @@ public class ValidationTests
     [Test]
     public async Task Update_WithInvalidFields_ReportsFields()
     {
-        var created = await _http.PostAsJsonAsync("/api/BloodPressure", Body());
+        var created = await _http.PostAsJsonAsync("/api/v1/BloodPressure", Body());
         var location = created.Headers.Location!;
 
         var response = await _http.PutAsJsonAsync(location, Body(systolisch: 70, diastolisch: 90));
@@ -92,7 +92,7 @@ public class ValidationTests
     [Test]
     public async Task InvalidRequest_DoesNotLogErrors()
     {
-        await _http.PostAsJsonAsync("/api/BloodPressure", Body(systolisch: 999));
+        await _http.PostAsJsonAsync("/api/v1/BloodPressure", Body(systolisch: 999));
 
         var errors = _factory.Logs.Entries.Where(e => e.Level >= LogLevel.Error).ToList();
         await Assert.That(errors).IsEmpty();
@@ -101,7 +101,7 @@ public class ValidationTests
     [Test]
     public async Task InvalidRequest_DoesNotExposeInternalDetails()
     {
-        var response = await _http.PostAsJsonAsync("/api/BloodPressure", Body(systolisch: 999));
+        var response = await _http.PostAsJsonAsync("/api/v1/BloodPressure", Body(systolisch: 999));
 
         var text = await response.Content.ReadAsStringAsync();
         await Assert.That(text).DoesNotContain("   at ");

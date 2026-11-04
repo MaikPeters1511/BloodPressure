@@ -122,7 +122,7 @@ public class StatisticsTests
     [Test]
     public async Task Statistics_WithoutMeasurements_ReturnsEmptyList()
     {
-        var response = await _http.GetAsync("/api/BloodPressure/statistics?interval=day");
+        var response = await _http.GetAsync("/api/v1/BloodPressure/statistics?interval=day");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(await response.Content.ReadAsStringAsync()).IsEqualTo("[]");
@@ -133,7 +133,7 @@ public class StatisticsTests
     [Arguments("interval=day&from=2026-10-10T00:00:00Z&to=2026-10-01T00:00:00Z")]
     public async Task Statistics_InvalidParameters_Return400(string query)
     {
-        var response = await _http.GetAsync($"/api/BloodPressure/statistics?{query}");
+        var response = await _http.GetAsync($"/api/v1/BloodPressure/statistics?{query}");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }

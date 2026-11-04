@@ -7,7 +7,7 @@ using Wolverine;
 
 namespace CleanArchitecture.Presentation.API.Controllers;
 
-[Route("api/reminders")]
+[Route("api/v1/reminders")]
 [ApiController]
 [Authorize]
 public class RemindersController(IMessageBus bus) : AuthorizedControllerBase

@@ -49,11 +49,16 @@ public sealed class FakeBloodPressureRepository : IBloodPressureRepository
         }
 
         bloodPressure.Id = _nextId++;
+        bloodPressure.Version = 1;
         _items.Add(bloodPressure);
         return Task.CompletedTask;
     }
 
-    public Task UpdateAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public Task UpdateAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default)
+    {
+        bloodPressure.Version++; // wie xmin in der Datenbank
+        return Task.CompletedTask;
+    }
 
     public Task DeleteAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default)
     {

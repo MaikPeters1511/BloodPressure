@@ -33,7 +33,7 @@ public class ExportTests
         await AddAsync(At(10, 1));
         await AddAsync(At(10, 2), 185, 115);
 
-        var response = await _http.GetAsync("/api/BloodPressure/export?format=csv");
+        var response = await _http.GetAsync("/api/v1/BloodPressure/export?format=csv");
         var lines = (await response.Content.ReadAsStringAsync()).Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(l => l.TrimEnd('\r')).ToArray();
 
@@ -52,7 +52,7 @@ public class ExportTests
         await AddAsync(At(10, 1));
         await AddAsync(At(10, 2), 190, 120, user: "user-b");
 
-        var text = await _http.GetStringAsync("/api/BloodPressure/export?format=csv");
+        var text = await _http.GetStringAsync("/api/v1/BloodPressure/export?format=csv");
 
         await Assert.That(text).DoesNotContain("190;120");
         await Assert.That(text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length).IsEqualTo(2);
@@ -64,7 +64,7 @@ public class ExportTests
         await AddAsync(At(10, 1));
         await AddAsync(At(10, 20));
 
-        var text = await _http.GetStringAsync("/api/BloodPressure/export?format=csv&from=2026-10-10T00:00:00Z&to=2026-10-30T00:00:00Z");
+        var text = await _http.GetStringAsync("/api/v1/BloodPressure/export?format=csv&from=2026-10-10T00:00:00Z&to=2026-10-30T00:00:00Z");
 
         await Assert.That(text).Contains("2026-10-20T08:00:00Z");
         await Assert.That(text).DoesNotContain("2026-10-01T08:00:00Z");
@@ -75,7 +75,7 @@ public class ExportTests
     {
         await AddAsync(At(10, 1));
 
-        var response = await _http.GetAsync("/api/BloodPressure/export?format=pdf");
+        var response = await _http.GetAsync("/api/v1/BloodPressure/export?format=pdf");
         var bytes = await response.Content.ReadAsByteArrayAsync();
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
@@ -86,7 +86,7 @@ public class ExportTests
     [Test]
     public async Task Pdf_WithoutMeasurements_IsStillProduced()
     {
-        var response = await _http.GetAsync("/api/BloodPressure/export?format=pdf");
+        var response = await _http.GetAsync("/api/v1/BloodPressure/export?format=pdf");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That((await response.Content.ReadAsByteArrayAsync()).Length).IsGreaterThan(500);
@@ -100,7 +100,7 @@ public class ExportTests
             await AddAsync(At(1, 1).AddMinutes(i));
         }
 
-        var response = await _http.GetAsync("/api/BloodPressure/export?format=csv");
+        var response = await _http.GetAsync("/api/v1/BloodPressure/export?format=csv");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
         await Assert.That(await response.Content.ReadAsStringAsync()).Contains("Zeitraum");
@@ -114,7 +114,7 @@ public class ExportTests
             await AddAsync(At(1, 1).AddMinutes(i));
         }
 
-        var response = await _http.GetAsync("/api/BloodPressure/export?format=csv");
+        var response = await _http.GetAsync("/api/v1/BloodPressure/export?format=csv");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
     }
@@ -124,7 +124,7 @@ public class ExportTests
     [Arguments("format=csv&from=2026-10-10T00:00:00Z&to=2026-10-01T00:00:00Z")]
     public async Task Export_InvalidParameters_Return400(string query)
     {
-        var response = await _http.GetAsync($"/api/BloodPressure/export?{query}");
+        var response = await _http.GetAsync($"/api/v1/BloodPressure/export?{query}");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
@@ -132,7 +132,7 @@ public class ExportTests
     [Test]
     public async Task Export_WithoutToken_Returns401()
     {
-        var response = await _factory.CreateClient().GetAsync("/api/BloodPressure/export?format=csv");
+        var response = await _factory.CreateClient().GetAsync("/api/v1/BloodPressure/export?format=csv");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
     }

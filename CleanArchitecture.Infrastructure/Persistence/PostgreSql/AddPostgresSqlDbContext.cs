@@ -27,6 +27,7 @@ public class AddPostgresSqlDbContext(DbContextOptions<AddPostgresSqlDbContext> o
             entity.Property(e => e.Pulse);
             entity.Property(e => e.Oxygen);
             entity.Property(e => e.UserId).HasMaxLength(450);
+            entity.Property(e => e.Version).IsRowVersion();
             entity.HasIndex(e => new { e.UserId, e.DateTime });
         });
 

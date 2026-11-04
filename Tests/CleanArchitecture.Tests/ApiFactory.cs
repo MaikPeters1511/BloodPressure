@@ -14,7 +14,8 @@ namespace CleanArchitecture.Tests;
 /// Startet die API im Speicher. Ohne Connection String: Fake-Repository und Test-Anmeldung (Header <c>X-Test-User</c>).
 /// Mit Connection String: echte Datenbank und echte Identity-Endpunkte.
 /// </summary>
-public sealed class ApiFactory(string? connectionString = null) : WebApplicationFactory<Program>
+public sealed class ApiFactory(string? connectionString = null, IReadOnlyDictionary<string, string>? settings = null)
+    : WebApplicationFactory<Program>
 {
     public FakeBloodPressureRepository Repository { get; } = new();
 
@@ -29,6 +30,11 @@ public sealed class ApiFactory(string? connectionString = null) : WebApplication
             connectionString ?? "Host=localhost;Database=unused;Username=unused;Password=unused");
 
         builder.UseSetting("Reminders:WorkerEnabled", "false");
+        foreach (var (key, value) in settings ?? new Dictionary<string, string>())
+        {
+            builder.UseSetting(key, value);
+        }
+
         builder.ConfigureLogging(logging => logging.AddProvider(Logs));
 
         if (connectionString is not null)

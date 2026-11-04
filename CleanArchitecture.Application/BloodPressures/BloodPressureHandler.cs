@@ -61,22 +61,32 @@ public static class BloodPressureHandler
         return BloodPressureMapping.ToDto(entity);
     }
 
-    public static async Task<bool> Handle(
+    /// <summary>Gibt die aktualisierte Messung zurück oder <c>null</c>, wenn sie nicht existiert.</summary>
+    public static async Task<BloodPressureDto?> Handle(
         UpdateBloodPressure command, IBloodPressureRepository repository, CancellationToken ct)
     {
         var entity = await repository.GetByIdAsync(command.Id, command.UserId, ct);
         if (entity is null)
         {
-            return false;
+            return null;
         }
 
+        EnsureVersion(entity, command.ExpectedVersion);
         entity.Systolisch = command.Systolisch;
         entity.Diastolisch = command.Diastolisch;
         entity.DateTime = command.DateTime;
         entity.Pulse = command.Pulse;
         entity.Oxygen = command.Oxygen;
         await repository.UpdateAsync(entity, ct);
-        return true;
+        return BloodPressureMapping.ToDto(entity);
+    }
+
+    private static void EnsureVersion(BloodPressure entity, uint? expectedVersion)
+    {
+        if (expectedVersion is { } expected && expected != entity.Version)
+        {
+            throw new PreconditionFailedException();
+        }
     }
 
     public static async Task<bool> Handle(
@@ -88,6 +98,7 @@ public static class BloodPressureHandler
             return false;
         }
 
+        EnsureVersion(entity, command.ExpectedVersion);
         await repository.DeleteAsync(entity, ct);
         return true;
     }
