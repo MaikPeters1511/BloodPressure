@@ -279,6 +279,17 @@ public class RemindersPageTests
     }
 
     [Test]
+    public async Task RemoveButton_MovesFocusToAddButton()
+    {
+        var (host, cut) = await OpenAsync(new ReminderSettingsDto("UTC", ["08:00", "20:00"]));
+        using var _ = host;
+
+        cut.FindAll(".remove-time")[0].Click();
+
+        host.Context.JSInterop.VerifyFocusAsyncInvoke();
+    }
+
+    [Test]
     public async Task RemoveButton_DropsTime()
     {
         var (host, cut) = await OpenAsync(new ReminderSettingsDto("UTC", ["08:00", "20:00"]));
@@ -351,6 +362,32 @@ public class NotificationsPageTests
         cut.WaitForState(() => counter.Unread == 1);
         await Assert.That(host.Notifications.MarkedRead.Count).IsEqualTo(1);
         await Assert.That(cut.FindAll("button.mark-read").Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task MarkRead_AnnouncesStatus_AndKeepsKeyboardFocusInList()
+    {
+        var (host, cut) = await OpenAsync(Note("CriticalReading", false, 5));
+        using var _ = host;
+
+        cut.Find("button.mark-read").Click();
+
+        host.Context.JSInterop.VerifyFocusAsyncInvoke();
+        await Assert.That(cut.Find("#notifications-status").TextContent).Contains("gelesen markiert");
+        await Assert.That(cut.Find("li.notification").GetAttribute("tabindex")).IsEqualTo("-1");
+    }
+
+    [Test]
+    public async Task NavMenu_SingleUnread_UsesSingularLabel()
+    {
+        using var host = new UiHost();
+        host.Notifications.Items.Add(Note("CriticalReading", false, 1));
+        await host.SignInAsync();
+
+        var cut = host.Context.Render<NavMenu>();
+
+        cut.WaitForState(() => cut.FindAll(".unread-count").Count == 1);
+        await Assert.That(cut.Find(".unread-count").GetAttribute("aria-label")).IsEqualTo("1 ungelesener Hinweis");
     }
 
     [Test]

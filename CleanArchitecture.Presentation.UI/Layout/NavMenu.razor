@@ -39,7 +39,7 @@
                     @L["Nav_Notifications"]
                     @if (Counter.Unread > 0)
                     {
-                        <span class="badge text-bg-danger unread-count" aria-label="@L["Nav_UnreadAria", Counter.Unread]">@Counter.Unread</span>
+                        <span class="badge text-bg-danger unread-count" aria-label="@(Counter.Unread == 1 ? L["Nav_UnreadAriaOne"].Value : L["Nav_UnreadAria", Counter.Unread].Value)">@Counter.Unread</span>
                     }
                 </NavLink>
             </div>

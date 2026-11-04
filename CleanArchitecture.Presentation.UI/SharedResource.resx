@@ -100,4 +100,6 @@
   <data name="Notifications_New" xml:space="preserve"><value>Neu</value></data>
   <data name="Notifications_MarkRead" xml:space="preserve"><value>Als gelesen markieren</value></data>
   <data name="Notifications_MarkReadAria" xml:space="preserve"><value>Hinweis vom {0} als gelesen markieren</value></data>
+  <data name="Nav_UnreadAriaOne" xml:space="preserve"><value>1 ungelesener Hinweis</value></data>
+  <data name="Notifications_MarkedRead" xml:space="preserve"><value>Der Hinweis wurde als gelesen markiert.</value></data>
 </root>
