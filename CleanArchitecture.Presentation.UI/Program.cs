@@ -22,6 +22,8 @@ builder.Services.AddLocalization();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<ITokenStorage, SessionTokenStorage>();
 builder.Services.AddSingleton<AuthSession>();
+builder.Services.AddScoped<IBrowserInterop, BrowserInterop>();
+builder.Services.AddSingleton<NotificationCounter>();
 builder.Services.AddSingleton<IAccessTokenProvider>(sp => sp.GetRequiredService<AuthSession>());
 
 // Die API-Adresse kommt aus wwwroot/appsettings.json (Api:BaseUrl), nie aus dem Code.

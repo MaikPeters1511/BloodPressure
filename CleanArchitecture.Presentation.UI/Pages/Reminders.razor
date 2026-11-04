@@ -1,0 +1,201 @@
+@page "/reminders"
+@using System.Globalization
+@using System.Net
+@using CleanArchitecture.Contracts
+@using CleanArchitecture.Presentation.UI.Services
+@using Microsoft.Extensions.Localization
+@using Refit
+@inject IReminderApi Api
+@inject IBrowserInterop Browser
+@inject AuthSession Session
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+@inject ILogger<Reminders> Logger
+
+<PageTitle>@L["Reminders_Title"]</PageTitle>
+
+<h1>@L["Reminders_Title"]</h1>
+<p class="text-muted">@L["Reminders_Hint", MaxTimes]</p>
+
+<form id="reminders-form" @onsubmit="SaveAsync" aria-label="@L["Reminders_Title"]" aria-busy="@(_loading ? "true" : "false")">
+    <div class="mb-3">
+        <label for="reminder-zone" class="form-label">@L["Reminders_Zone"]</label>
+        <input id="reminder-zone" class="form-control" list="zone-suggestions" value="@_zone" @onchange="e => _zone = e.Value?.ToString() ?? string.Empty" aria-describedby="reminder-zone-help" />
+        <datalist id="zone-suggestions">
+            <option value="Europe/Berlin"></option>
+            <option value="Europe/Vienna"></option>
+            <option value="Europe/Zurich"></option>
+            <option value="UTC"></option>
+        </datalist>
+        <div id="reminder-zone-help" class="form-text">@L["Reminders_ZoneHelp"]</div>
+    </div>
+
+    <fieldset class="mb-3">
+        <legend class="fs-6">@L["Reminders_Times"]</legend>
+        @for (var i = 0; i < _times.Count; i++)
+        {
+            var index = i;
+            <div class="d-flex gap-2 align-items-center mb-2 reminder-row">
+                <label for="reminder-time-@index" class="visually-hidden">@L["Reminders_TimeN", index + 1]</label>
+                <input id="reminder-time-@index" type="time" class="form-control w-auto" value="@_times[index]"
+                       @onchange="e => _times[index] = e.Value?.ToString() ?? string.Empty" />
+                <button type="button" class="btn btn-outline-danger btn-sm remove-time" aria-label="@L["Reminders_Remove", index + 1]"
+                        @onclick="() => _times.RemoveAt(index)">@L["Delete"]</button>
+            </div>
+        }
+        @if (_times.Count == 0)
+        {
+            <p class="text-muted">@L["Reminders_None"]</p>
+        }
+        <button id="add-time" type="button" class="btn btn-outline-secondary" disabled="@(_times.Count >= MaxTimes)" @onclick="AddTime">@L["Reminders_Add"]</button>
+    </fieldset>
+
+    <div @ref="_errorRegion" tabindex="-1" id="reminders-errors">
+        @if (_errors.Count > 0)
+        {
+            <div role="alert" class="alert alert-danger">
+                @foreach (var error in _errors)
+                {
+                    <p class="mb-0">@error</p>
+                }
+            </div>
+        }
+    </div>
+
+    <button id="save-reminders" type="submit" class="btn btn-primary" disabled="@(_loading || _saving)">@L["Form_Save"]</button>
+</form>
+
+@if (_saved)
+{
+    <p role="status" id="reminders-saved" class="mt-3">@L["Reminders_Saved"]</p>
+}
+
+@code {
+    private const int MaxTimes = 5;
+
+    private readonly List<string> _times = [];
+    private string _zone = "";
+    private bool _loading = true;
+    private bool _saving;
+    private bool _saved;
+    private bool _focusErrors;
+    private IReadOnlyList<string> _errors = [];
+    private ElementReference _errorRegion;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.IsAuthenticated)
+        {
+            Navigation.NavigateTo("login");
+            return;
+        }
+
+        try
+        {
+            var settings = await Api.GetAsync();
+            _zone = settings.TimeZoneId;
+            _times.AddRange(settings.Times);
+            if (_times.Count == 0)
+            {
+                // Ohne gespeicherte Erinnerungen schlägt der Browser seine Zeitzone vor.
+                _zone = await Browser.GetTimeZoneAsync() ?? _zone;
+            }
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await Session.SignOutToLoginAsync(Navigation);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erinnerungen konnten nicht geladen werden");
+            _errors = [L["Error_Generic"].Value];
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusErrors)
+        {
+            _focusErrors = false;
+            await _errorRegion.FocusAsync();
+        }
+    }
+
+    private void AddTime()
+    {
+        if (_times.Count < MaxTimes)
+        {
+            _times.Add("08:00");
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        _saved = false;
+        var errors = Validate();
+        if (errors.Count > 0)
+        {
+            Fail(errors);
+            return;
+        }
+
+        _errors = [];
+        _saving = true;
+        try
+        {
+            var stored = await Api.PutAsync(new ReminderSettingsDto(_zone.Trim(), _times.ToList()));
+            _zone = stored.TimeZoneId;
+            _times.Clear();
+            _times.AddRange(stored.Times);
+            _saved = true;
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await Session.SignOutToLoginAsync(Navigation);
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
+        {
+            var messages = await ApiErrors.ValidationMessagesAsync(ex);
+            Fail(messages.Count > 0 ? messages : [L["Error_Generic"].Value]);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erinnerungen konnten nicht gespeichert werden");
+            Fail([L["Error_Generic"].Value]);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void Fail(IReadOnlyList<string> errors)
+    {
+        _errors = errors;
+        _focusErrors = true;
+    }
+
+    private List<string> Validate()
+    {
+        var errors = new List<string>();
+        if (string.IsNullOrWhiteSpace(_zone))
+        {
+            errors.Add(L["Reminders_ZoneMissing"].Value);
+        }
+
+        if (_times.Any(t => !TimeOnly.TryParseExact(t, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out _)))
+        {
+            errors.Add(L["Reminders_TimeInvalid"].Value);
+        }
+        else if (_times.Distinct().Count() != _times.Count)
+        {
+            errors.Add(L["Reminders_TimeDuplicate"].Value);
+        }
+
+        return errors;
+    }
+}

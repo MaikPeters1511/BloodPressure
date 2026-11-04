@@ -1,0 +1,163 @@
+@page "/statistics"
+@using System.Globalization
+@using System.Net
+@using CleanArchitecture.Contracts
+@using CleanArchitecture.Presentation.UI.Services
+@using Microsoft.Extensions.Localization
+@using Refit
+@inject IBloodPressureApi Api
+@inject AuthSession Session
+@inject NavigationManager Navigation
+@inject TimeProvider Time
+@inject IStringLocalizer<SharedResource> L
+@inject ILogger<Statistics> Logger
+
+<PageTitle>@L["Stats_Title"]</PageTitle>
+
+<h1>@L["Stats_Title"]</h1>
+<p class="text-muted">@L["Disclaimer_Medical"]</p>
+
+<form id="stats-form" class="row g-3 mb-3" @onsubmit="LoadAsync" aria-label="@L["Stats_Filter"]">
+    <div class="col-auto">
+        <label for="stats-from" class="form-label">@L["Range_From"]</label>
+        <input id="stats-from" type="date" class="form-control" value="@_from" @onchange="e => _from = e.Value?.ToString() ?? string.Empty" />
+    </div>
+    <div class="col-auto">
+        <label for="stats-to" class="form-label">@L["Range_To"]</label>
+        <input id="stats-to" type="date" class="form-control" value="@_to" @onchange="e => _to = e.Value?.ToString() ?? string.Empty" />
+    </div>
+    <div class="col-auto">
+        <label for="stats-interval" class="form-label">@L["Stats_Interval"]</label>
+        <select id="stats-interval" class="form-select" value="@_interval" @onchange="e => _interval = e.Value?.ToString() ?? StatisticsQuery.Day">
+            <option value="day">@L["Interval_Day"]</option>
+            <option value="week">@L["Interval_Week"]</option>
+            <option value="month">@L["Interval_Month"]</option>
+        </select>
+    </div>
+    <div class="col-auto align-self-end">
+        <button id="stats-apply" type="submit" class="btn btn-primary" disabled="@_loading">@L["Range_Apply"]</button>
+    </div>
+</form>
+
+@if (_message is not null)
+{
+    <div role="alert" class="alert alert-warning">@_message</div>
+}
+
+<section aria-busy="@(_loading ? "true" : "false")">
+    @if (!_loading && _message is null && _buckets.Count == 0)
+    {
+        <p id="stats-empty">@L["Stats_Empty"]</p>
+    }
+    else if (_buckets.Count > 0)
+    {
+        <LineChart AriaLabel="@L["Stats_ChartLabel"].Value" Series="_series" Labels="_labels" />
+
+        <div class="overflow-x-auto">
+            <table class="table table-zebra" id="stats-table">
+                <caption>@L["Stats_Caption"]</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">@L["Stats_Period"]</th>
+                        <th scope="col">@L["Stats_Count"]</th>
+                        <th scope="col">@L["Col_Systolic"]</th>
+                        <th scope="col">@L["Col_Diastolic"]</th>
+                        <th scope="col">@L["Col_Pulse"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in _buckets)
+                    {
+                        <tr @key="b.PeriodStart">
+                            <td>@Period(b.PeriodStart)</td>
+                            <td>@b.Count</td>
+                            <td>@Cell(b.Systolisch)</td>
+                            <td>@Cell(b.Diastolisch)</td>
+                            <td>@Cell(b.Pulse)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small">@L["Stats_Legend"]</p>
+    }
+</section>
+
+@code {
+    private string _from = "";
+    private string _to = "";
+    private string _interval = StatisticsQuery.Day;
+    private bool _loading;
+    private string? _message;
+    private IReadOnlyList<StatisticsBucketDto> _buckets = [];
+    private IReadOnlyList<LineChart.ChartSeries> _series = [];
+    private IReadOnlyList<string> _labels = [];
+    private string _shownInterval = StatisticsQuery.Day;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.IsAuthenticated)
+        {
+            Navigation.NavigateTo("login");
+            return;
+        }
+
+        var today = Time.GetLocalNow().Date;
+        _to = today.ToString(DateRangeParser.Format, CultureInfo.InvariantCulture);
+        _from = today.AddDays(-29).ToString(DateRangeParser.Format, CultureInfo.InvariantCulture);
+        await LoadAsync();
+    }
+
+    private string Period(DateTime utc)
+    {
+        var local = TimeZoneInfo.ConvertTimeFromUtc(utc.ToUniversalTime(), Time.LocalTimeZone);
+        return _shownInterval == StatisticsQuery.Month ? local.ToString("Y", CultureInfo.CurrentCulture) : local.ToString("d", CultureInfo.CurrentCulture);
+    }
+
+    private static string Cell(ValueStatsDto v)
+        => string.Create(CultureInfo.CurrentCulture, $"{v.Average:0.#} ({v.Min}–{v.Max})");
+
+    private async Task LoadAsync()
+    {
+        _message = null;
+        var parsed = DateRangeParser.TryParse(_from, _to, Time.LocalTimeZone, out var from, out var to);
+        if (parsed != DateRangeParser.Result.Ok)
+        {
+            _message = L[parsed == DateRangeParser.Result.FromAfterTo ? "Range_Order" : "Range_Invalid"].Value;
+            return;
+        }
+
+        _loading = true;
+        try
+        {
+            _buckets = await Api.GetStatisticsAsync(from, to, _interval);
+            _shownInterval = _interval;
+            BuildChart();
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await Session.SignOutToLoginAsync(Navigation);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Statistik konnte nicht geladen werden");
+            _buckets = [];
+            _message = L["Error_Generic"].Value;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void BuildChart()
+    {
+        _labels = _buckets.Select(b => Period(b.PeriodStart)).ToList();
+        _series =
+        [
+            new(L["Col_Systolic"].Value, _buckets.Select(b => b.Systolisch.Average).ToList(), "#6ea8fe", null),
+            new(L["Col_Diastolic"].Value, _buckets.Select(b => b.Diastolisch.Average).ToList(), "#ea868f", "6 4"),
+            new(L["Col_Pulse"].Value, _buckets.Select(b => b.Pulse.Average).ToList(), "#75b798", "2 3")
+        ];
+    }
+}

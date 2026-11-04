@@ -54,7 +54,7 @@
                             <td>@item.Diastolisch</td>
                             <td>@item.Pulse</td>
                             <td>@item.Oxygen</td>
-                            <td>@CategoryName(item.Category)</td>
+                            <td><CategoryBadge Category="@item.Category" /></td>
                             <td>
                                 @if (_pendingDelete == item.Id)
                                 {
@@ -152,12 +152,6 @@
     }
 
     private DateTime Local(DateTime utc) => TimeZoneInfo.ConvertTimeFromUtc(utc.ToUniversalTime(), Time.LocalTimeZone);
-
-    private string CategoryName(string category)
-    {
-        var name = L[$"Category_{category}"];
-        return name.ResourceNotFound ? category : name.Value;
-    }
 
     private async Task GoToAsync(int page)
     {
