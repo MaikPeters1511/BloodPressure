@@ -31,7 +31,7 @@ public class BloodPressureTests
         var repo = new FakeBloodPressureRepository();
 
         var dto = await BloodPressureHandler.Handle(
-            new CreateBloodPressure(120, 80, DateTime.UtcNow, 65, 98), repo, CancellationToken.None);
+            new CreateBloodPressure("u1", 120, 80, DateTime.UtcNow, 65, 98), repo, CancellationToken.None);
 
         await Assert.That(dto.Id).IsEqualTo(1);
         await Assert.That(dto.Systolisch).IsEqualTo(120);
@@ -41,7 +41,7 @@ public class BloodPressureTests
     public async Task GetById_Unknown_ReturnsNull()
     {
         var result = await BloodPressureHandler.Handle(
-            new GetBloodPressureById(42), new FakeBloodPressureRepository(), CancellationToken.None);
+            new GetBloodPressureById("u1", 42), new FakeBloodPressureRepository(), CancellationToken.None);
 
         await Assert.That(result).IsNull();
     }
@@ -51,11 +51,11 @@ public class BloodPressureTests
     {
         var repo = new FakeBloodPressureRepository();
         var created = await BloodPressureHandler.Handle(
-            new CreateBloodPressure(120, 80, DateTime.UtcNow, 65, 98), repo, CancellationToken.None);
+            new CreateBloodPressure("u1", 120, 80, DateTime.UtcNow, 65, 98), repo, CancellationToken.None);
 
         var ok = await BloodPressureHandler.Handle(
-            new UpdateBloodPressure(created.Id, 130, 85, DateTime.UtcNow, 70, 97), repo, CancellationToken.None);
-        var reloaded = await BloodPressureHandler.Handle(new GetBloodPressureById(created.Id), repo, CancellationToken.None);
+            new UpdateBloodPressure("u1", created.Id, 130, 85, DateTime.UtcNow, 70, 97), repo, CancellationToken.None);
+        var reloaded = await BloodPressureHandler.Handle(new GetBloodPressureById("u1", created.Id), repo, CancellationToken.None);
 
         await Assert.That(ok).IsTrue();
         await Assert.That(reloaded!.Systolisch).IsEqualTo(130);
@@ -65,7 +65,7 @@ public class BloodPressureTests
     public async Task Delete_Unknown_ReturnsFalse()
     {
         var ok = await BloodPressureHandler.Handle(
-            new DeleteBloodPressure(7), new FakeBloodPressureRepository(), CancellationToken.None);
+            new DeleteBloodPressure("u1", 7), new FakeBloodPressureRepository(), CancellationToken.None);
 
         await Assert.That(ok).IsFalse();
     }

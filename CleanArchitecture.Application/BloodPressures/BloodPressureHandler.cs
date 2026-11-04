@@ -13,14 +13,14 @@ public static class BloodPressureHandler
     public static async Task<IReadOnlyList<BloodPressureDto>> Handle(
         GetBloodPressures query, IBloodPressureRepository repository, CancellationToken ct)
     {
-        var items = await repository.GetAllAsync(ct);
+        var items = await repository.GetAllAsync(query.UserId, ct);
         return items.Select(BloodPressureMapping.ToDto).ToList();
     }
 
     public static async Task<BloodPressureDto?> Handle(
         GetBloodPressureById query, IBloodPressureRepository repository, CancellationToken ct)
     {
-        var item = await repository.GetByIdAsync(query.Id, ct);
+        var item = await repository.GetByIdAsync(query.Id, query.UserId, ct);
         return item is null ? null : BloodPressureMapping.ToDto(item);
     }
 
@@ -29,6 +29,7 @@ public static class BloodPressureHandler
     {
         var entity = new BloodPressure
         {
+            UserId = command.UserId,
             Systolisch = command.Systolisch,
             Diastolisch = command.Diastolisch,
             DateTime = command.DateTime,
@@ -42,7 +43,7 @@ public static class BloodPressureHandler
     public static async Task<bool> Handle(
         UpdateBloodPressure command, IBloodPressureRepository repository, CancellationToken ct)
     {
-        var entity = await repository.GetByIdAsync(command.Id, ct);
+        var entity = await repository.GetByIdAsync(command.Id, command.UserId, ct);
         if (entity is null)
         {
             return false;
@@ -60,7 +61,7 @@ public static class BloodPressureHandler
     public static async Task<bool> Handle(
         DeleteBloodPressure command, IBloodPressureRepository repository, CancellationToken ct)
     {
-        var entity = await repository.GetByIdAsync(command.Id, ct);
+        var entity = await repository.GetByIdAsync(command.Id, command.UserId, ct);
         if (entity is null)
         {
             return false;

@@ -13,6 +13,9 @@ public class BloodPressure
 
     public int Id { get; set; }
 
+    /// <summary>Besitzer der Messung (Identity-Benutzer-Id). <c>null</c> = Altdaten ohne Besitzer.</summary>
+    public string? UserId { get; set; }
+
     public int Systolisch
     {
         get => _systolisch;
