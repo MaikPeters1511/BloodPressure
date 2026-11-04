@@ -1,0 +1,26 @@
+@* [Name].razor – Presentational Component (Parameter rein, EventCallback raus) *@
+@inject IStringLocalizer<[Name]> Localizer
+
+<section class="container py-3" aria-labelledby="[name]-heading">
+    <h2 id="[name]-heading" class="h4 mb-3">@Localizer["Title"]</h2>
+
+    @if (Items.Count == 0)
+    {
+        <p class="text-body-secondary" role="status">@Localizer["Empty"]</p>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var item in Items)
+            {
+                <li class="list-group-item" @key="item.Id">
+                    <button type="button" class="btn btn-primary"
+                            aria-label="@Localizer["Select", item.Id]"
+                            @onclick="() => OnSelected.InvokeAsync(item)">
+                        @item.Id
+                    </button>
+                </li>
+            }
+        </ul>
+    }
+</section>
