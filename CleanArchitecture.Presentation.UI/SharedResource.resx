@@ -102,4 +102,5 @@
   <data name="Notifications_MarkReadAria" xml:space="preserve"><value>Hinweis vom {0} als gelesen markieren</value></data>
   <data name="Nav_UnreadAriaOne" xml:space="preserve"><value>1 ungelesener Hinweis</value></data>
   <data name="Notifications_MarkedRead" xml:space="preserve"><value>Der Hinweis wurde als gelesen markiert.</value></data>
+  <data name="M_Pagination" xml:space="preserve"><value>Seitenwechsel</value></data>
 </root>

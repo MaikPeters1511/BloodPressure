@@ -102,4 +102,5 @@
   <data name="Notifications_MarkReadAria" xml:space="preserve"><value>Mark notice from {0} as read</value></data>
   <data name="Nav_UnreadAriaOne" xml:space="preserve"><value>1 unread notice</value></data>
   <data name="Notifications_MarkedRead" xml:space="preserve"><value>The notice was marked as read.</value></data>
+  <data name="M_Pagination" xml:space="preserve"><value>Pagination</value></data>
 </root>

@@ -1,0 +1,14 @@
+{
+  "name": "bloodpressure-a11y",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Automatisierte Barrierefreiheits- und Mobilprüfung (axe-core) der Blazor-Oberfläche",
+  "type": "module",
+  "scripts": {
+    "check": "node check.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.10.1",
+    "playwright": "1.49.1"
+  }
+}

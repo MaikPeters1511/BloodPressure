@@ -74,7 +74,7 @@
             </table>
         </div>
 
-        <nav class="d-flex gap-2 align-items-center">
+        <nav class="d-flex flex-wrap gap-2 align-items-center" aria-label="@L["M_Pagination"]">
             <button id="prev-page" type="button" class="btn btn-outline-secondary" disabled="@(_page <= 1)" @onclick="() => GoToAsync(_page - 1)">@L["M_Prev"]</button>
             <span id="page-indicator" aria-live="polite">@L["M_PageOf", _page, TotalPages]</span>
             <button id="next-page" type="button" class="btn btn-outline-secondary" disabled="@(_page >= TotalPages)" @onclick="() => GoToAsync(_page + 1)">@L["M_Next"]</button>
