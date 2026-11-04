@@ -15,7 +15,8 @@ namespace CleanArchitecture.Tests;
 [ClassDataSource<PostgresFixture>(Shared = SharedType.PerTestSession)]
 public class AuthIntegrationTests(PostgresFixture postgres)
 {
-    private const string Password = "Passw0rd!x";
+    // Zur Laufzeit erzeugt (erfüllt die Identity-Passwortregeln), kein festes Passwort im Quelltext.
+    private static readonly string Password = $"Pw{Guid.NewGuid():N}!aA1";
     private static readonly DateTime Measured = new(2026, 11, 4, 10, 0, 0, DateTimeKind.Utc);
     private static readonly BloodPressureRequest Request = new(120, 80, Measured, 65, 98);
 
