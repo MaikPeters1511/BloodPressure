@@ -1,6 +1,6 @@
 # Epic 7: Qualität und Robustheit der API
 
-> **Status:** proposed · **Priorität:** 2 (Postgres-Tests früh) · **Abhängigkeiten:** keine (einzelne Tasks nach Epic 1/2) · **Agenten:** qa-agent, backend-agent, devops-agent
+> **Status:** in-progress · **Priorität:** 2 (Postgres-Tests früh) · **Abhängigkeiten:** keine (einzelne Tasks nach Epic 1/2) · **Agenten:** qa-agent, backend-agent, devops-agent
 > Ablage: `UserStories/epics/epic-07-qualitaet-betrieb.openspec.md`
 
 ## 1. Proposal (Why & What)
@@ -31,12 +31,12 @@ Das System SHALL eine Testsuite (`[Category("Integration")]`) besitzen, die in e
 - **THEN** stimmen die gelesenen Werte mit den geschriebenen überein
 
 #### Requirement: Modell und Migration stimmen überein
-Das System SHALL in der CI fehlschlagen, wenn das EF-Modell Änderungen enthält, für die keine Migration existiert (`dotnet ef migrations has-pending-model-changes`).
+Das System SHALL einen Test enthalten, der fehlschlägt (und damit die CI), wenn das EF-Modell Änderungen enthält, für die keine Migration existiert (`Database.HasPendingModelChanges()`).
 
 ##### Scenario: Vergessene Migration
 - **GIVEN** eine Modelländerung ohne Migration
 - **WHEN** die CI läuft
-- **THEN** schlägt der Prüfschritt fehl
+- **THEN** schlägt der Test fehl
 
 #### Requirement: Optimistic Concurrency
 Das System SHALL beim Ändern/Löschen den `If-Match`-Header (ETag aus dem Concurrency-Token `xmin`) auswerten und bei Abweichung mit 412 antworten.
@@ -63,7 +63,7 @@ Das System SHALL je Nutzer (oder IP bei anonymen Endpunkten) höchstens 100 Anfr
 - **THEN** antwortet die API mit 429
 
 ### MODIFIED Requirements
-**CI-Pipeline:** `ci.yml` SHALL zusätzlich die Integrationstests (Docker auf `ubuntu-latest`) und die Migrationsprüfung ausführen.
+**CI-Pipeline:** `ci.yml` führt die Integrationstests (Docker auf `ubuntu-latest`) und die Migrationsprüfung bereits über `dotnet test` aus; es ist keine Workflow-Änderung nötig.
 
 ### REMOVED Requirements
 _Entfällt._
@@ -75,8 +75,8 @@ _Entfällt._
 - Reihenfolge: Postgres-Tests und Migrationsprüfung zuerst (unabhängig von anderen Epics).
 
 ## 5. Tasks
-- [ ] T7.1 (qa) Testcontainers-Fixture + Migrations-/CRUD-Tests
-- [ ] T7.2 (devops) CI: Integrationstests, `has-pending-model-changes`
+- [x] T7.1 (qa) Testcontainers-Fixture + Migrations-/CRUD-Tests
+- [x] T7.2 (devops) CI: Integrationstests und Modellprüfung laufen über `dotnet test` (kein Workflow-Umbau)
 - [ ] T7.3 (backend) Concurrency-Token, ETag/If-Match, Tests
 - [ ] T7.4 (backend) Versionierung inkl. Weiterleitung
 - [ ] T7.5 (backend) Rate Limiting, Tests mit niedrigem Limit
