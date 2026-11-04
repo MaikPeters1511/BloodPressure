@@ -55,9 +55,9 @@ public class VersioningAndRateLimitTests
     {
         await using var factory = new ApiFactory();
 
-        var response = await NoRedirectClient(factory).GetAsync("/api/auth/manage/info");
+        var response = await NoRedirectClient(factory).GetAsync("/api/auth/does-not-exist");
 
-        await Assert.That(response.StatusCode).IsNotEqualTo(HttpStatusCode.PermanentRedirect);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
     }
 
     [Test]
@@ -107,7 +107,7 @@ public class VersioningAndRateLimitTests
             statuses.Add((await client.GetAsync("/alive")).StatusCode);
         }
 
-        await Assert.That(string.Join(",", statuses)).IsEqualTo("OK,OK,OK,OK,OK,OK");
+        await Assert.That(statuses.All(s => s == HttpStatusCode.OK)).IsTrue();
     }
 }
 

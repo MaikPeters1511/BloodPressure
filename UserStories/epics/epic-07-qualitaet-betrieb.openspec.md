@@ -39,7 +39,7 @@ Das System SHALL einen Test enthalten, der fehlschlägt (und damit die CI), wenn
 - **THEN** schlägt der Test fehl
 
 #### Requirement: Optimistic Concurrency
-Das System SHALL beim Ändern/Löschen den `If-Match`-Header (ETag aus dem Concurrency-Token `xmin`) auswerten und bei Abweichung mit 412 antworten.
+Das System SHALL `GET /api/v1/BloodPressure/{id}` mit einem `ETag` (Concurrency-Token `xmin`) ausliefern und beim Ändern/Löschen einen vorhandenen `If-Match`-Header auswerten; bei Abweichung antwortet es mit 412. Fehlt der Header oder ist er `*`, wird nicht geprüft (Rückwärtskompatibilität); ein nicht lesbarer Wert führt zu 400. Ein Konflikt, der erst beim Speichern auffällt (Wettlauf), führt zu 409.
 
 ##### Scenario: Veralteter Stand
 - **GIVEN** Gerät A und B haben denselben Stand gelesen und A hat geändert
@@ -47,7 +47,7 @@ Das System SHALL beim Ändern/Löschen den `If-Match`-Header (ETag aus dem Concu
 - **THEN** antwortet die API mit 412
 
 #### Requirement: API-Versionierung
-Das System SHALL Routen unter `/api/v1/…` anbieten; unversionierte Pfade SHALL auf v1 weiterleiten (308) bis zur Abkündigung.
+Das System SHALL die API-Controller unter `/api/v1/…` anbieten; die bisherigen unversionierten Pfade (`/api/BloodPressure`, `/api/reminders`, `/api/notifications`) SHALL dauerhaft auf v1 weiterleiten (308, Methode und Query bleiben erhalten) bis zur Abkündigung. Die Identity-Endpunkte unter `/api/auth` sind Teil des Frameworks und bleiben unversioniert.
 
 ##### Scenario: Versionierter Pfad
 - **GIVEN** die API läuft
@@ -55,7 +55,7 @@ Das System SHALL Routen unter `/api/v1/…` anbieten; unversionierte Pfade SHALL
 - **THEN** antwortet sie wie bisher `/api/BloodPressure`
 
 #### Requirement: Rate Limiting
-Das System SHALL je Nutzer (oder IP bei anonymen Endpunkten) höchstens 100 Anfragen pro Minute zulassen und darüber mit 429 samt `Retry-After` antworten.
+Das System SHALL je Nutzer (oder IP bei anonymen Anfragen) höchstens 100 Anfragen pro Minute zulassen (konfigurierbar über `RateLimiting:PermitLimitPerMinute`) und darüber mit 429 samt `Retry-After` antworten. Die Health-Probes `/alive` und `/health` sind ausgenommen.
 
 ##### Scenario: Limit überschritten
 - **GIVEN** 100 Anfragen in einer Minute
@@ -70,18 +70,19 @@ _Entfällt._
 
 ## 4. Design
 - Testcontainers (`Testcontainers.PostgreSql`) als TUnit-Fixture mit `[ClassDataSource<…>(Shared = SharedType.PerTestSession)]`; Container-Start 5–10 s.
-- Concurrency: Npgsql `xmin` als Token (`IsRowVersion()`), neue Migration ändert keine Spalte.
-- Versionierung mit `Asp.Versioning.Mvc`; Rate Limiting mit eingebautem `AddRateLimiter`.
+- Concurrency: Npgsql `xmin` als Token (`IsRowVersion()`); die Migration legt keine echte Spalte an (Systemspalte). Das Repository übersetzt `DbUpdateConcurrencyException` in eine Domain-Ausnahme (409), die Version wird zusätzlich im Handler gegen `If-Match` geprüft (412).
+- Versionierung: bewusst ohne `Asp.Versioning`-Bibliothek, mit festen Routen `api/v1/...` und einer Weiterleitung für die alten Pfade (eine zweite Version bekommt später neue Controller). Rate Limiting mit eingebautem `AddRateLimiter` (Fixed Window, Partition je Nutzer bzw. IP).
+- Hinter einem Reverse Proxy muss `ForwardedHeaders` konfiguriert werden, damit die Client-IP für anonyme Anfragen stimmt (nicht Teil dieser Change).
 - Reihenfolge: Postgres-Tests und Migrationsprüfung zuerst (unabhängig von anderen Epics).
 
 ## 5. Tasks
 - [x] T7.1 (qa) Testcontainers-Fixture + Migrations-/CRUD-Tests
 - [x] T7.2 (devops) CI: Integrationstests und Modellprüfung laufen über `dotnet test` (kein Workflow-Umbau)
-- [ ] T7.3 (backend) Concurrency-Token, ETag/If-Match, Tests
-- [ ] T7.4 (backend) Versionierung inkl. Weiterleitung
-- [ ] T7.5 (backend) Rate Limiting, Tests mit niedrigem Limit
-- [ ] T7.6 (doc) OpenAPI pro Version
+- [x] T7.3 (backend) Concurrency-Token, ETag/If-Match, Tests
+- [x] T7.4 (backend) Versionierung inkl. Weiterleitung
+- [x] T7.5 (backend) Rate Limiting, Tests mit niedrigem Limit
+- [ ] T7.6 (doc) OpenAPI pro Version (offen: es gibt ein OpenAPI-Dokument mit den v1-Routen; getrennte Dokumente je Version erst mit einer zweiten Version)
 
 ## 6. Acceptance Criteria (DoD)
-- [ ] Alle Scenarios als Tests grün, lokal und in der CI.
-- [ ] CI-Laufzeit steigt um höchstens 3 Minuten.
+- [x] Alle Scenarios als Tests grün, lokal (138 Tests); der CI-Lauf folgt im PR.
+- [ ] CI-Laufzeit steigt um höchstens 3 Minuten (wird am PR-Lauf geprüft).

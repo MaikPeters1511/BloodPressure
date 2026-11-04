@@ -63,5 +63,5 @@ _Entfällt._
 
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Scenarios als Tests grün.
-- [ ] Abfrage nutzt den Index (EXPLAIN geprüft), Antwort bei 100 000 Zeilen unter 1 s im Test (Schwelle bewusst großzügig, um CI-Schwankungen abzufangen).
+- [ ] Abfrage nutzt den Index (EXPLAIN geprüft), Index-Nutzung bei 100 000 Zeilen per `EXPLAIN` nachgewiesen; die Laufzeit (Test-Grenze 5 s) ist nur eine grobe Schutzgrenze, da Zeitmessungen unter paralleler Last schwanken.
 - [ ] OpenAPI zeigt Parameter und Envelope.
