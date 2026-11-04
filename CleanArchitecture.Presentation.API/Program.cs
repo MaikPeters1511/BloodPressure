@@ -35,7 +35,7 @@ builder.Services
     .AddEntityFrameworkStores<AddPostgresSqlDbContext>();
 builder.Services.AddAuthorization();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.Filters.Add<ValidateRequestFilter>());
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
 {
     document.Components ??= new OpenApiComponents();

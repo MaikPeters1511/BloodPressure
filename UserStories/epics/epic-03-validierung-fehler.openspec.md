@@ -1,6 +1,6 @@
 # Epic 3: Validierung und Fehlerantworten
 
-> **Status:** proposed · **Priorität:** 2 · **Abhängigkeiten:** keine · **Agenten:** backend-agent, qa-agent
+> **Status:** in-progress · **Priorität:** 2 · **Abhängigkeiten:** keine · **Agenten:** backend-agent, qa-agent
 > Ablage: `UserStories/epics/epic-03-validierung-fehler.openspec.md`
 
 ## 1. Proposal (Why & What)
@@ -52,15 +52,15 @@ Das System SHALL Validierungsfehler nicht als Fehler (`Error`) protokollieren.
 _Entfällt._
 
 ## 4. Design
-- Validatoren (FluentValidation) in `Application`, über Wolverine-Middleware vor dem Handler; Domain-Exceptions bleiben als Fallback im `GlobalExceptionHandler`.
+- Validatoren (FluentValidation) in `Application`, ausgeführt von einem MVC-Action-Filter (`ValidateRequestFilter`) vor der Action; die Handler werden bei ungültiger Eingabe gar nicht erst aufgerufen (daher kein Fehler-Log von Wolverine). Domain-Exceptions bleiben als Fallback im `GlobalExceptionHandler`.
 - Fehlerformat bleibt RFC 9457; Feldnamen camelCase wie das JSON.
 - Risiko: Doppelte Regeln (Validator und Domain) – Grenzwerte als Konstanten in der Domain teilen.
 
 ## 5. Tasks
-- [ ] T3.1 (backend) Tests aus den Scenarios (Red)
-- [ ] T3.2 (backend) Validatoren + Wolverine-Middleware
-- [ ] T3.3 (backend) `GlobalExceptionHandler` / Logging anpassen
-- [ ] T3.4 (backend) Refit: `ValidationProblemDetails` im Test-Client auswertbar
+- [x] T3.1 (backend) Tests aus den Scenarios (Red)
+- [x] T3.2 (backend) Validatoren + Action-Filter (statt Wolverine-Middleware)
+- [x] T3.3 (backend) `GlobalExceptionHandler` / Logging anpassen
+- [x] T3.4 (backend) Refit: `ValidationProblemDetails` im Test-Client auswertbar
 - [ ] T3.5 (doc) OpenAPI-Beispiele für Fehler
 
 ## 6. Acceptance Criteria (DoD)
