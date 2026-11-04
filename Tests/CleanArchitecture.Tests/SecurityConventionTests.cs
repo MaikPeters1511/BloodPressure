@@ -73,7 +73,7 @@ public class SecurityConventionTests
             Authorization = request.Headers.Authorization?.ToString();
             return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
             {
-                Content = new StringContent("[]", System.Text.Encoding.UTF8, "application/json")
+                Content = new StringContent("{\"items\":[],\"page\":1,\"pageSize\":50,\"totalCount\":0}", System.Text.Encoding.UTF8, "application/json")
             });
         }
     }

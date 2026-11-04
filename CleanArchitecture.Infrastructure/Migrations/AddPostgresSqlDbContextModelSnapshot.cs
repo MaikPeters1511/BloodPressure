@@ -51,7 +51,7 @@ namespace CleanArchitecture.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "DateTime");
 
                     b.ToTable("BloodPressure", (string)null);
                 });

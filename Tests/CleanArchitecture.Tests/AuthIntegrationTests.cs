@@ -83,8 +83,8 @@ public class AuthIntegrationTests(PostgresFixture postgres)
         var listA = await userA.GetAllAsync();
 
         await Assert.That((int)ex!.StatusCode).IsEqualTo(404);
-        await Assert.That(listB).IsEmpty();
-        await Assert.That(listA.Count).IsEqualTo(1);
+        await Assert.That(listB.Items).IsEmpty();
+        await Assert.That(listA.TotalCount).IsEqualTo(1);
     }
 
     [Test]
@@ -101,7 +101,7 @@ public class AuthIntegrationTests(PostgresFixture postgres)
 
         await Assert.That((int)update!.StatusCode).IsEqualTo(404);
         await Assert.That((int)delete!.StatusCode).IsEqualTo(404);
-        await Assert.That((await userA.GetAllAsync()).Count).IsEqualTo(1);
+        await Assert.That((await userA.GetAllAsync()).TotalCount).IsEqualTo(1);
     }
 
     [Test]
@@ -119,8 +119,53 @@ public class AuthIntegrationTests(PostgresFixture postgres)
         var first = await SignInAsync(factory, "first@example.test");
         var second = await SignInAsync(factory, "second@example.test");
 
-        await Assert.That((await first.GetAllAsync()).Single().Systolisch).IsEqualTo(118);
-        await Assert.That(await second.GetAllAsync()).IsEmpty();
+        await Assert.That((await first.GetAllAsync()).Items.Single().Systolisch).IsEqualTo(118);
+        await Assert.That((await second.GetAllAsync()).Items).IsEmpty();
+    }
+
+    [Test]
+    public async Task FromTo_WithTimeZoneOffsets_FiltersCorrectlyAgainstPostgres()
+    {
+        var (factory, _) = await StartAsync();
+        await using var _ = factory;
+        var user = await SignInAsync(factory, "a@example.test");
+        foreach (var day in new[] { 1, 5, 10 })
+        {
+            await user.CreateAsync(new BloodPressureRequest(120, 80, new DateTime(2026, 10, day, 8, 0, 0, DateTimeKind.Utc), 65, 98));
+        }
+
+        // Lokale Zeiten mit Offset werden als UTC-Zeitpunkte verstanden.
+        var result = await user.GetAllAsync(
+            from: new DateTime(2026, 10, 4, 0, 0, 0, DateTimeKind.Utc).ToLocalTime(),
+            to: new DateTime(2026, 10, 6, 0, 0, 0, DateTimeKind.Utc).ToLocalTime());
+
+        await Assert.That(result.TotalCount).IsEqualTo(1);
+        await Assert.That(result.Items[0].DateTime).IsEqualTo(new DateTime(2026, 10, 5, 8, 0, 0, DateTimeKind.Utc));
+    }
+
+    [Test]
+    public async Task PagedQuery_With100000Rows_UsesIndexAndIsFast()
+    {
+        var connectionString = await postgres.CreateDatabaseAsync();
+        await using var context = PostgresFixture.CreateContext(connectionString);
+        await context.Database.MigrateAsync();
+        await context.Database.ExecuteSqlRawAsync(
+            "INSERT INTO \"BloodPressure\" (\"UserId\",\"Systolisch\",\"Diastolisch\",\"DateTime\",\"Pulse\",\"Oxygen\") " +
+            "SELECT 'u1', 120, 80, TIMESTAMPTZ '2020-01-01' + (g * INTERVAL '1 minute'), 60, 98 FROM generate_series(1, 100000) g");
+        await context.Database.ExecuteSqlRawAsync("ANALYZE \"BloodPressure\"");
+        var repository = new Infrastructure.Repository.BloodPressureRepository(context);
+
+        var started = System.Diagnostics.Stopwatch.StartNew();
+        var page = await repository.GetPageAsync("u1", new Domain.IRepository.BloodPressureFilter(null, null, 1, 50, true));
+        started.Stop();
+        var plan = string.Join('\n', await context.Database
+            .SqlQueryRaw<string>("EXPLAIN SELECT * FROM \"BloodPressure\" WHERE \"UserId\" = 'u1' ORDER BY \"DateTime\" DESC LIMIT 50")
+            .ToListAsync());
+
+        await Assert.That(page.TotalCount).IsEqualTo(100000);
+        await Assert.That(page.Items.Count).IsEqualTo(50);
+        await Assert.That(plan).Contains("IX_BloodPressure_UserId_DateTime");
+        await Assert.That(started.ElapsedMilliseconds).IsLessThan(1000);
     }
 
     [Test]

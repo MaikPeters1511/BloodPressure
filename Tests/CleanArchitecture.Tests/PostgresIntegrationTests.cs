@@ -1,4 +1,5 @@
 using CleanArchitecture.Domain.Entities;
+using CleanArchitecture.Domain.IRepository;
 using CleanArchitecture.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,7 +33,7 @@ public class PostgresIntegrationTests(PostgresFixture postgres)
         var loaded = await repository.GetByIdAsync(entity.Id, "u1");
         loaded!.Systolisch = 130;
         await repository.UpdateAsync(loaded);
-        var updated = await repository.GetAllAsync("u1");
+        var updated = (await repository.GetPageAsync("u1", new BloodPressureFilter(null, null, 1, 50, false))).Items;
         await repository.DeleteAsync(loaded);
 
         await Assert.That(updated.Single().Systolisch).IsEqualTo(130);
