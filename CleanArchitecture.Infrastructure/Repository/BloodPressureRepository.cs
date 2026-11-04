@@ -30,6 +30,31 @@ public class BloodPressureRepository(AddPostgresSqlDbContext context) : IBloodPr
         return new PagedList<BloodPressure>(items, total);
     }
 
+    public async Task<IReadOnlyList<DailyAggregate>> GetDailyAggregatesAsync(
+        string userId, DateTime? from, DateTime? to, CancellationToken cancellationToken = default)
+    {
+        var query = context.BloodPressures.AsNoTracking().Where(b => b.UserId == userId);
+        if (from is { } start)
+        {
+            query = query.Where(b => b.DateTime >= start);
+        }
+
+        if (to is { } end)
+        {
+            query = query.Where(b => b.DateTime <= end);
+        }
+
+        var rows = await query
+            .GroupBy(b => b.DateTime.Date)
+            .Select(g => new DailyAggregate(
+                g.Key, g.Count(),
+                g.Sum(x => (long)x.Systolisch), g.Min(x => x.Systolisch), g.Max(x => x.Systolisch),
+                g.Sum(x => (long)x.Diastolisch), g.Min(x => x.Diastolisch), g.Max(x => x.Diastolisch),
+                g.Sum(x => (long)x.Pulse), g.Min(x => x.Pulse), g.Max(x => x.Pulse)))
+            .ToListAsync(cancellationToken);
+        return rows.OrderBy(r => r.Day).ToList();
+    }
+
     public async Task<BloodPressure?> GetByIdAsync(int id, string userId, CancellationToken cancellationToken = default)
         => await context.BloodPressures.FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId, cancellationToken);
 

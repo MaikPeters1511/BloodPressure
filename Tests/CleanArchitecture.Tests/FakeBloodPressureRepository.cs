@@ -19,6 +19,22 @@ public sealed class FakeBloodPressureRepository : IBloodPressureRepository
         return Task.FromResult(new PagedList<BloodPressure>(page, list.Count));
     }
 
+    public Task<IReadOnlyList<DailyAggregate>> GetDailyAggregatesAsync(
+        string userId, DateTime? from, DateTime? to, CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<DailyAggregate> result = _items
+            .Where(i => i.UserId == userId && (from is null || i.DateTime >= from) && (to is null || i.DateTime <= to))
+            .GroupBy(i => i.DateTime.Date)
+            .Select(g => new DailyAggregate(
+                DateTime.SpecifyKind(g.Key, DateTimeKind.Utc), g.Count(),
+                g.Sum(i => (long)i.Systolisch), g.Min(i => i.Systolisch), g.Max(i => i.Systolisch),
+                g.Sum(i => (long)i.Diastolisch), g.Min(i => i.Diastolisch), g.Max(i => i.Diastolisch),
+                g.Sum(i => (long)i.Pulse), g.Min(i => i.Pulse), g.Max(i => i.Pulse)))
+            .OrderBy(a => a.Day)
+            .ToList();
+        return Task.FromResult(result);
+    }
+
     public Task<BloodPressure?> GetByIdAsync(int id, string userId, CancellationToken cancellationToken = default)
         => Task.FromResult(_items.FirstOrDefault(i => i.Id == id && i.UserId == userId));
 

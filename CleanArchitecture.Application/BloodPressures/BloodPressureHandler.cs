@@ -28,7 +28,7 @@ public static class BloodPressureHandler
     }
 
     // npgsql erlaubt für timestamptz nur UTC; ohne Zeitzonenangabe wird UTC angenommen (Vertrag: alle Zeiten UTC).
-    private static DateTime? ToUtc(DateTime? value) => value switch
+    internal static DateTime? ToUtc(DateTime? value) => value switch
     {
         null => null,
         { Kind: DateTimeKind.Utc } => value,
