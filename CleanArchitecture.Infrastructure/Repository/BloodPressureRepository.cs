@@ -1,44 +1,33 @@
-﻿using CleanArchitecture.Domain.Entities;
+using CleanArchitecture.Domain.Entities;
 using CleanArchitecture.Domain.IRepository;
 using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Infrastructure.Repository;
 
-public class BloodPressureRepository : IBloodPressureRepository
+public class BloodPressureRepository(AddPostgresSqlDbContext context) : IBloodPressureRepository
 {
-    private readonly AddPostgresSqlDbContext _context;
+    public async Task<IReadOnlyList<BloodPressure>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await context.BloodPressures.AsNoTracking().OrderBy(b => b.DateTime).ToListAsync(cancellationToken);
 
-    public BloodPressureRepository(AddPostgresSqlDbContext context)
+    public async Task<BloodPressure?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        => await context.BloodPressures.FindAsync([id], cancellationToken);
+
+    public async Task AddAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default)
     {
-        _context = context;
+        context.BloodPressures.Add(bloodPressure);
+        await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<BloodPressure>> GetAllAsync()
+    public async Task UpdateAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default)
     {
-        return await _context.BloodPressures.ToListAsync();
+        // Entität wurde über denselben (scoped) Context geladen und ist bereits getrackt.
+        await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<BloodPressure> GetByIdAsync(int id)
+    public async Task DeleteAsync(BloodPressure bloodPressure, CancellationToken cancellationToken = default)
     {
-        return await _context.BloodPressures.FindAsync(id);
-    }
-
-    public async Task AddAsync(BloodPressure bloodPressure)
-    {
-        _context.BloodPressures.Add(bloodPressure);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateAsync(BloodPressure bloodPressure)
-    {
-        _context.Entry(bloodPressure).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteAsync(BloodPressure bloodPressure)
-    {
-        _context.BloodPressures.Remove(bloodPressure);
-        await _context.SaveChangesAsync();
+        context.BloodPressures.Remove(bloodPressure);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

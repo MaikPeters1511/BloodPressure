@@ -1,20 +1,23 @@
-﻿using CleanArchitecture.Domain.Entities;
+using CleanArchitecture.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Infrastructure.Persistence.PostgreSql;
 
-public class AddPostgresSqlDbContext : DbContext
+public class AddPostgresSqlDbContext(DbContextOptions<AddPostgresSqlDbContext> options) : DbContext(options)
 {
-    public AddPostgresSqlDbContext(DbContextOptions<AddPostgresSqlDbContext> options): base (options)
-    {
-    }
-
-    public DbSet<BloodPressure> BloodPressures { get; set; }
+    public DbSet<BloodPressure> BloodPressures => Set<BloodPressure>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<BloodPressure>().ToTable("BloodPressure");
-        modelBuilder.Entity<BloodPressure>().HasKey(s => s.Id);
+        modelBuilder.Entity<BloodPressure>(entity =>
+        {
+            entity.ToTable("BloodPressure");
+            entity.HasKey(e => e.Id);
+            // Backing-Felder werden von EF über die Properties befüllt (Validierung im Setter).
+            entity.Property(e => e.Systolisch);
+            entity.Property(e => e.Diastolisch);
+            entity.Property(e => e.Pulse);
+            entity.Property(e => e.Oxygen);
+        });
     }
 }
