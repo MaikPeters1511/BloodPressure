@@ -28,12 +28,13 @@
     {
         <p id="notifications-empty">@L["Notifications_Empty"]</p>
     }
+    <p role="status" id="notifications-status" class="visually-hidden">@_status</p>
     <ul class="list-unstyled">
         @foreach (var n in _items)
         {
             var critical = n.Type == "CriticalReading";
             var time = TimeZoneInfo.ConvertTimeFromUtc(n.CreatedAt.ToUniversalTime(), Time.LocalTimeZone).ToString("g", CultureInfo.CurrentCulture);
-            <li @key="n.Id" class="card mb-2 notification @(n.IsRead ? "read" : "unread") @(critical ? "border-danger" : "")"
+            <li @key="n.Id" tabindex="-1" @ref="_refs[n.Id]" class="card mb-2 notification @(n.IsRead ? "read" : "unread") @(critical ? "border-danger" : "")"
                 role="@(critical && !n.IsRead ? "alert" : null)">
                 <div class="card-body">
                     <p class="mb-1">
@@ -64,6 +65,9 @@
     private IReadOnlyList<NotificationDto> _items = [];
     private bool _loading = true;
     private string? _message;
+    private string? _status;
+    private Guid? _focusId;
+    private readonly Dictionary<Guid, ElementReference> _refs = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,6 +97,15 @@
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusId is { } id && _refs.TryGetValue(id, out var element))
+        {
+            _focusId = null;
+            await element.FocusAsync();
+        }
+    }
+
     private async Task MarkReadAsync(NotificationDto notification)
     {
         _message = null;
@@ -101,6 +114,9 @@
             await Api.MarkAsReadAsync(notification.Id);
             _items = _items.Select(n => n.Id == notification.Id ? n with { IsRead = true } : n).ToList();
             Counter.Set(_items.Count(n => !n.IsRead));
+            // Die Schaltfläche verschwindet; ohne Fokusziel ginge der Tastaturfokus verloren.
+            _status = L["Notifications_MarkedRead"].Value;
+            _focusId = notification.Id;
         }
         catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {

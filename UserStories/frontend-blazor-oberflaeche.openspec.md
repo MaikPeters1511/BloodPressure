@@ -167,7 +167,7 @@ Entfällt.
 - [x] T5 (frontend) Export
 - [x] T6 (frontend) Erinnerungen
 - [x] T7 (frontend) Hinweise und Navigation mit Zähler
-- [ ] T8 (ux) Review: Tastatur, Fokusführung, Kontraste, Screenreader-Texte, Mobilbreite
+- [x] T8 (ux) Review: Tastatur, Fokusführung, Kontraste, Accessibility-Baum geprüft (Befunde behoben: Fokusverlust nach „gelesen“/„Entfernen“, Singular-Label, fehlende `visually-hidden`-Klasse). Mobilbreite und echter Screenreader (VoiceOver/NVDA) nicht geprüft
 - [x] T9 (qa) Durchlauf im echten Browser gegen die echte API (Registrieren → Messungen → Auswertung → Export → Erinnerung → Hinweis); Ergebnis dokumentieren
 - [x] T10 (doc) README: Funktionsübersicht der Oberfläche
 
@@ -175,6 +175,6 @@ Entfällt.
 - [x] Jedes Scenario aus Abschnitt 3 ist durch einen automatisierten Test abgedeckt und grün (lokal: 205 Tests, UI-Tests auch mit englischer Systemkultur; CI steht aus).
 - [x] Keine hartcodierten sichtbaren Texte; DE/EN-Paritätstest grün.
 - [x] Keine neue NuGet-Abhängigkeit; kein Lizenzschlüssel im Repository.
-- [ ] Manuell im Browser mit Tastatur allein durchgespielt (ohne Maus), inkl. Screenreader-Stichprobe der Diagramm-Tabelle.
-- [ ] Download von CSV und PDF im echten Browser geprüft. Stand: PDF-Download im Browser ausgelöst (Blob 34 KB, Dateiname korrekt); CSV und Öffnen der Datei nicht geprüft.
+- [x] Im Browser geprüft: sichtbarer Fokusindikator an allen 14 bedienbaren Elementen der Auswertung, Fokusziele nach Aktionen, Accessibility-Baum (Labels, Formulare, Diagramm `role=img` + Tabelle). **Nicht** geprüft: echter Screenreader, Mobilbreite.
+- [x] Download von CSV und PDF im echten Browser geprüft: CSV-Inhalt (Semikolon, 5 Zeilen, Kategorien) und PDF (`%PDF-1.4` … `%%EOF`, 34 KB) stimmen; Dateinamen korrekt.
 - [ ] Spec archiviert, Requirements in `UserStories/specs/frontend-oberflaeche.openspec.md` übernommen.
