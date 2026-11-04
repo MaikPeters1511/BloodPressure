@@ -1,0 +1,78 @@
+@page "/login"
+@using System.Net
+@using CleanArchitecture.Presentation.UI.Services
+@using Microsoft.Extensions.Localization
+@using Refit
+@inject AuthSession Session
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+@inject ILogger<Login> Logger
+
+<PageTitle>@L["Login_Title"]</PageTitle>
+
+<h1>@L["Login_Title"]</h1>
+
+<form id="login-form" @onsubmit="SignInAsync" aria-busy="@(_busy ? "true" : "false")">
+    <div class="mb-3">
+        <label for="email" class="form-label">@L["Login_Email"]</label>
+        <input id="email" type="email" class="form-control" autocomplete="username" required @bind="_email" />
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">@L["Login_Password"]</label>
+        <input id="password" type="password" class="form-control" autocomplete="current-password" required @bind="_password" />
+    </div>
+
+    @if (_errors.Count > 0)
+    {
+        <div role="alert" class="alert alert-danger">
+            @foreach (var error in _errors)
+            {
+                <p class="mb-0">@error</p>
+            }
+        </div>
+    }
+
+    <button id="login-button" type="submit" class="btn btn-primary" disabled="@_busy">@L["Login_Submit"]</button>
+    <button id="register-button" type="button" class="btn btn-outline-secondary" disabled="@_busy" @onclick="RegisterAsync">@L["Login_Register"]</button>
+</form>
+
+@code {
+    private string _email = "";
+    private string _password = "";
+    private bool _busy;
+    private IReadOnlyList<string> _errors = [];
+
+    private Task SignInAsync() => RunAsync(() => Session.LoginAsync(_email, _password));
+
+    private Task RegisterAsync() => RunAsync(() => Session.RegisterAsync(_email, _password));
+
+    private async Task RunAsync(Func<Task> action)
+    {
+        _busy = true;
+        _errors = [];
+        try
+        {
+            await action();
+            Navigation.NavigateTo("measurements");
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _errors = [L["Login_Invalid"].Value];
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
+        {
+            var messages = await ApiErrors.ValidationMessagesAsync(ex);
+            _errors = messages.Count > 0 ? messages : [L["Error_Generic"].Value];
+        }
+        catch (Exception ex)
+        {
+            // Technische Details nur ins Log, dem Nutzer nur eine saubere Meldung zeigen.
+            Logger.LogError(ex, "Anmeldung fehlgeschlagen");
+            _errors = [L["Error_Generic"].Value];
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

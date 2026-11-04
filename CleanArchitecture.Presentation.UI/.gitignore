@@ -1123,3 +1123,5 @@ $RECYCLE.BIN/
 
 appsettings.Development.json
 appsettings.json
+# Öffentliche Konfiguration ohne Geheimnisse (nur Api:BaseUrl); Lizenzschlüssel gehören nicht hierher.
+!wwwroot/appsettings.json

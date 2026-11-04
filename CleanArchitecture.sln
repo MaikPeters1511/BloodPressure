@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Contracts", "CleanArchitecture.Contracts\CleanArchitecture.Contracts.csproj", "{E1F1DC61-D235-4431-A0DE-621D14AE59FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.UI.Tests", "Tests\CleanArchitecture.UI.Tests\CleanArchitecture.UI.Tests.csproj", "{D7E812A3-63C1-4220-A414-261C169665D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,6 +159,18 @@ Global
 		{E1F1DC61-D235-4431-A0DE-621D14AE59FC}.Release|x64.Build.0 = Release|Any CPU
 		{E1F1DC61-D235-4431-A0DE-621D14AE59FC}.Release|x86.ActiveCfg = Release|Any CPU
 		{E1F1DC61-D235-4431-A0DE-621D14AE59FC}.Release|x86.Build.0 = Release|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Debug|x64.Build.0 = Debug|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Debug|x86.Build.0 = Debug|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Release|x64.ActiveCfg = Release|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Release|x64.Build.0 = Release|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Release|x86.ActiveCfg = Release|Any CPU
+		{D7E812A3-63C1-4220-A414-261C169665D0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -169,5 +183,6 @@ Global
 		{12B72ADD-1678-43E0-BE1D-E694588A0E6E} = {DC4CDD19-6719-469E-82B8-100CFE5CCFB6}
 		{766D26D4-682B-4912-BE47-E9CC42FD76D0} = {DC4CDD19-6719-469E-82B8-100CFE5CCFB6}
 		{0035C244-C04E-41CD-B311-71EC5452EAC9} = {049C3CF2-E035-465D-A07B-5AA251E12CEF}
+		{D7E812A3-63C1-4220-A414-261C169665D0} = {049C3CF2-E035-465D-A07B-5AA251E12CEF}
 	EndGlobalSection
 EndGlobal
