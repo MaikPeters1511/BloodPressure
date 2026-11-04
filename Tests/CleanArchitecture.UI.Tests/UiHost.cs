@@ -2,7 +2,9 @@ using System.Globalization;
 using Bunit;
 using CleanArchitecture.Contracts;
 using CleanArchitecture.Presentation.UI.Services;
+using CleanArchitecture.Presentation.UI;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Time.Testing;
 
 namespace CleanArchitecture.UI.Tests;
@@ -19,11 +21,10 @@ public sealed class UiHost : IDisposable
 
     public UiHost(string culture = "de")
     {
-        CultureInfo.CurrentUICulture = new CultureInfo(culture);
-        CultureInfo.CurrentCulture = new CultureInfo(culture);
+        var cultureInfo = new CultureInfo(culture);
         Session = new AuthSession(Storage, Auth, Time);
         Context.Services.AddLogging();
-        Context.Services.AddLocalization();
+        Context.Services.AddSingleton<IStringLocalizer<SharedResource>>(new FixedCultureLocalizer(cultureInfo));
         Context.Services.AddSingleton<ITokenStorage>(Storage);
         Context.Services.AddSingleton<IAuthApi>(Auth);
         Context.Services.AddSingleton<IBloodPressureApi>(Api);
