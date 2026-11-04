@@ -53,7 +53,7 @@
     {
         <LineChart AriaLabel="@L["Stats_ChartLabel"].Value" Series="_series" Labels="_labels" />
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto" tabindex="0" role="region" aria-label="@L["Stats_Caption"]">
             <table class="table table-zebra" id="stats-table">
                 <caption>@L["Stats_Caption"]</caption>
                 <thead>
@@ -155,9 +155,9 @@
         _labels = _buckets.Select(b => Period(b.PeriodStart)).ToList();
         _series =
         [
-            new(L["Col_Systolic"].Value, _buckets.Select(b => b.Systolisch.Average).ToList(), "#6ea8fe", null),
-            new(L["Col_Diastolic"].Value, _buckets.Select(b => b.Diastolisch.Average).ToList(), "#ea868f", "6 4"),
-            new(L["Col_Pulse"].Value, _buckets.Select(b => b.Pulse.Average).ToList(), "#75b798", "2 3")
+            new(L["Col_Systolic"].Value, _buckets.Select(b => b.Systolisch.Average).ToList(), "var(--chart-sys)", null),
+            new(L["Col_Diastolic"].Value, _buckets.Select(b => b.Diastolisch.Average).ToList(), "var(--chart-dia)", "6 4"),
+            new(L["Col_Pulse"].Value, _buckets.Select(b => b.Pulse.Average).ToList(), "var(--chart-pulse)", "2 3")
         ];
     }
 }
