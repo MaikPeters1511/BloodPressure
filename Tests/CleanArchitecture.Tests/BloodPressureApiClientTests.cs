@@ -64,6 +64,17 @@ public class BloodPressureApiClientTests
     }
 
     [Test]
+    public async Task Create_InvalidFields_ApiExceptionExposesFieldErrors()
+    {
+        var ex = await Assert.That(async () => await _api.CreateAsync(new BloodPressureRequest(70, 90, Measured, 65, 150)))
+            .Throws<ApiException>();
+
+        var problem = await ex!.GetContentAsAsync<ValidationProblemDto>();
+        await Assert.That(problem!.Errors.Keys).Contains("systolisch");
+        await Assert.That(problem.Errors.Keys).Contains("oxygen");
+    }
+
+    [Test]
     public async Task GetById_Unknown_ThrowsApiException404()
     {
         var ex = await Assert.That(async () => await _api.GetByIdAsync(99)).Throws<ApiException>();
@@ -111,4 +122,6 @@ public class BloodPressureApiClientTests
     }
 
     private sealed record ProblemDetailsDto(string? Title, int? Status, string? Detail);
+
+    private sealed record ValidationProblemDto(string? Title, Dictionary<string, string[]> Errors);
 }

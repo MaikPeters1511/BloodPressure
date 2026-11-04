@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace CleanArchitecture.Tests;
 
@@ -17,6 +18,8 @@ public sealed class ApiFactory(string? connectionString = null) : WebApplication
 {
     public FakeBloodPressureRepository Repository { get; } = new();
 
+    public CapturingLoggerProvider Logs { get; } = new();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         // Nicht "Development": dort würde die Migration gegen Postgres laufen.
@@ -24,6 +27,8 @@ public sealed class ApiFactory(string? connectionString = null) : WebApplication
         // UseSetting statt ConfigureAppConfiguration: Aspire liest den Connection String schon beim Registrieren in Program.cs.
         builder.UseSetting("ConnectionStrings:bloodpressuredb",
             connectionString ?? "Host=localhost;Database=unused;Username=unused;Password=unused");
+
+        builder.ConfigureLogging(logging => logging.AddProvider(Logs));
 
         if (connectionString is not null)
         {

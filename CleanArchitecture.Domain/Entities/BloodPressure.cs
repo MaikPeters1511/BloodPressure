@@ -19,13 +19,13 @@ public class BloodPressure
     public int Systolisch
     {
         get => _systolisch;
-        set => _systolisch = EnsureInRange(value, 0, 500, nameof(Systolisch));
+        set => _systolisch = EnsureInRange(value, BloodPressureLimits.PressureMin, BloodPressureLimits.PressureMax, nameof(Systolisch));
     }
 
     public int Diastolisch
     {
         get => _diastolisch;
-        set => _diastolisch = EnsureInRange(value, 0, 500, nameof(Diastolisch));
+        set => _diastolisch = EnsureInRange(value, BloodPressureLimits.PressureMin, BloodPressureLimits.PressureMax, nameof(Diastolisch));
     }
 
     public DateTime DateTime { get; set; } = DateTime.UtcNow;
@@ -33,13 +33,13 @@ public class BloodPressure
     public int Pulse
     {
         get => _pulse;
-        set => _pulse = EnsureInRange(value, 0, 500, nameof(Pulse));
+        set => _pulse = EnsureInRange(value, BloodPressureLimits.PulseMin, BloodPressureLimits.PulseMax, nameof(Pulse));
     }
 
     public int Oxygen
     {
         get => _oxygen;
-        set => _oxygen = EnsureInRange(value, 0, 100, nameof(Oxygen));
+        set => _oxygen = EnsureInRange(value, BloodPressureLimits.OxygenMin, BloodPressureLimits.OxygenMax, nameof(Oxygen));
     }
 
     private static int EnsureInRange(int value, int min, int max, string name)
