@@ -1,6 +1,6 @@
 # Epic 8: Continuous Delivery (Container-Image)
 
-> **Status:** proposed · **Priorität:** 4 · **Abhängigkeiten:** CI-Change (`ci-github-actions`) · **Agenten:** devops-agent, sec-agent
+> **Status:** in-progress · **Priorität:** 4 · **Abhängigkeiten:** CI-Change (`ci-github-actions`) · **Agenten:** devops-agent, sec-agent
 > Ablage: `UserStories/epics/epic-08-cd-deployment.openspec.md`
 
 ## 1. Proposal (Why & What)
@@ -53,17 +53,17 @@ _Entfällt._
 
 ## 4. Design
 - `docker/build-push-action` mit Layer-Cache (`type=gha`); Basis-Image `mcr.microsoft.com/dotnet/aspnet:10.0` als Nicht-Root (`USER app` ist gesetzt).
-- Trigger `workflow_run` der CI oder `needs`-Job im selben Workflow – Entscheidung: gleicher Workflow-Datei-Trigger `push` auf `main` mit eigenem Job nach Test, damit „CI grün“ garantiert ist.
+- Trigger: `workflow_run` des Workflows `CI` auf `main` (Bedingung: Ergebnis `success`, Ereignis `push`). So wird nie ein Image aus einem roten Stand veröffentlicht und die Tests laufen nicht doppelt.
 - Konfiguration (Connection String, Cors) nur per Umgebungsvariablen zur Laufzeit.
 - **Offene Frage:** Zielumgebung (VPS mit Docker Compose, Azure Container Apps, Kubernetes) – bestimmt Folge-Epic.
 
 ## 5. Tasks
-- [ ] T8.1 (devops) `cd.yml` schreiben (Build, Scan, Push)
-- [ ] T8.2 (sec) Rechte und Scan-Policy prüfen; Entscheidung zu Health-Endpunkten in Produktion
-- [ ] T8.3 (qa) Image lokal starten (`docker run`) und `/health` prüfen
-- [ ] T8.4 (doc) README: Image-Nutzung und benötigte Umgebungsvariablen
+- [x] T8.1 (devops) `cd.yml` schreiben (Build, Scan, Push)
+- [x] T8.2 (sec) Rechte und Scan-Policy prüfen; Entscheidung: `/alive` (nur "self"-Check) in allen Umgebungen, `/health` nur in Development
+- [x] T8.3 (qa) Image lokal starten (`docker run`) und `/health` prüfen
+- [x] T8.4 (doc) README: Image-Nutzung und benötigte Umgebungsvariablen
 
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Scenarios an echten Workflow-Läufen nachgewiesen.
-- [ ] Container startet mit gesetzten Umgebungsvariablen und ist erreichbar.
+- [x] Container startet mit gesetzten Umgebungsvariablen und ist erreichbar (lokal geprüft: Registrierung, Anlegen, CSV- und PDF-Export im Container gegen Postgres).
 - [ ] Health-Endpunkt: `MapDefaultEndpoints` in den ServiceDefaults mappt `/health` und `/alive` nur in Development. Für Container-Healthchecks in Produktion ist eine bewusste Entscheidung nötig (z. B. nur `/alive` freigeben, nicht öffentlich erreichbar); sie wird in T8.2 durch `sec-agent` getroffen.
