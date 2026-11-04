@@ -1,7 +1,7 @@
 using CleanArchitecture.Application.BloodPressures;
 using CleanArchitecture.Application.Export;
 using CleanArchitecture.Contracts;
-using System.Security.Claims;
+using CleanArchitecture.Presentation.API.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Wolverine;
@@ -11,12 +11,8 @@ namespace CleanArchitecture.Presentation.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class BloodPressureController(IMessageBus bus) : ControllerBase
+public class BloodPressureController(IMessageBus bus) : AuthorizedControllerBase
 {
-    // Die UserId kommt immer aus dem Token, nie aus dem Request.
-    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
-        ?? throw new InvalidOperationException("Angemeldeter Benutzer ohne NameIdentifier-Claim.");
-
     [HttpGet]
     [EndpointDescription("Die Kategorie ist eine Einordnung nach ESC/ESH 2018 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.")]
         public async Task<PagedResult<BloodPressureDto>> GetBloodPressures([FromQuery] BloodPressureListQuery query, CancellationToken ct)

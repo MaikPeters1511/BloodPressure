@@ -14,6 +14,12 @@ public static class DependencyInjection
     public static IHttpClientBuilder AddBloodPressureApiClient(this IServiceCollection services, Uri baseAddress)
     {
         services.AddTransient<BearerTokenHandler>();
+        services.AddRefitClient<IReminderApi>()
+            .ConfigureHttpClient(c => c.BaseAddress = baseAddress)
+            .AddHttpMessageHandler<BearerTokenHandler>();
+        services.AddRefitClient<INotificationApi>()
+            .ConfigureHttpClient(c => c.BaseAddress = baseAddress)
+            .AddHttpMessageHandler<BearerTokenHandler>();
         return services.AddRefitClient<IBloodPressureApi>()
             .ConfigureHttpClient(c => c.BaseAddress = baseAddress)
             .AddHttpMessageHandler<BearerTokenHandler>();
