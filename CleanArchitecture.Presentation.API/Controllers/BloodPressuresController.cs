@@ -1,4 +1,5 @@
 using CleanArchitecture.Application.BloodPressures;
+using CleanArchitecture.Application.Export;
 using CleanArchitecture.Contracts;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
@@ -25,6 +26,13 @@ public class BloodPressureController(IMessageBus bus) : ControllerBase
     [EndpointDescription("Die Kategorie ist eine Einordnung nach ESC/ESH 2018 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.")]
         public async Task<IReadOnlyList<StatisticsBucketDto>> GetStatistics([FromQuery] StatisticsQuery query, CancellationToken ct)
         => await bus.InvokeAsync<IReadOnlyList<StatisticsBucketDto>>(new GetStatistics(UserId, query), ct);
+
+    [HttpGet("export")]
+    public async Task<IActionResult> Export([FromQuery] ExportQuery query, CancellationToken ct)
+    {
+        var file = await bus.InvokeAsync<ExportFile>(new ExportBloodPressures(UserId, query), ct);
+        return File(file.Content, file.ContentType, file.FileName);
+    }
 
     [HttpGet("{id:int}")]
     [EndpointDescription("Die Kategorie ist eine Einordnung nach ESC/ESH 2018 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.")]

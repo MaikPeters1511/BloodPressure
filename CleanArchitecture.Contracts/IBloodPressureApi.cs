@@ -23,6 +23,14 @@ public interface IBloodPressureApi
         string? interval = null,
         CancellationToken cancellationToken = default);
 
+    /// <summary>Lädt die Messungen des Zeitraums als Datei (<c>csv</c> oder <c>pdf</c>); höchstens 10 000 Messungen.</summary>
+    [Get("/api/BloodPressure/export")]
+    Task<Stream> ExportAsync(
+        string? format = null,
+        [Query(Format = "o")] DateTime? from = null,
+        [Query(Format = "o")] DateTime? to = null,
+        CancellationToken cancellationToken = default);
+
     [Get("/api/BloodPressure/{id}")]
     Task<BloodPressureDto> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
