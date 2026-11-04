@@ -1,6 +1,6 @@
 # Epic 4: Klassifikation und Auswertung
 
-> **Status:** proposed · **Priorität:** 3 · **Abhängigkeiten:** Epic 1 (Benutzerfilter), Epic 2 (Zeitraumfilter) · **Agenten:** backend-agent, architect-agent
+> **Status:** in-progress · **Priorität:** 3 · **Abhängigkeiten:** Epic 1 (Benutzerfilter), Epic 2 (Zeitraumfilter) · **Agenten:** backend-agent, architect-agent
 > Ablage: `UserStories/epics/epic-04-klassifikation-auswertung.openspec.md`
 
 ## 1. Proposal (Why & What)
@@ -18,7 +18,7 @@
 ### ADDED Requirements
 
 #### Requirement: Kategorie einer Messung
-Das System SHALL jede Messung nach ESC/ESH 2018 einordnen: Optimal (<120 und <80), Normal (120–129 und/oder 80–84), Hochnormal (130–139 und/oder 85–89), Hypertonie Grad 1 (140–159 und/oder 90–99), Grad 2 (160–179 und/oder 100–109), Grad 3 (≥180 und/oder ≥110), isolierte systolische Hypertonie (≥140 und <90). Bei verschiedenen Kategorien von Systolisch und Diastolisch gilt die höhere.
+Das System SHALL jede Messung nach ESC/ESH 2018 einordnen: Optimal (<120 und <80), Normal (120–129 und/oder 80–84), Hochnormal (130–139 und/oder 85–89), Hypertonie Grad 1 (140–159 und/oder 90–99), Grad 2 (160–179 und/oder 100–109), Grad 3 (≥180 und/oder ≥110). Bei verschiedenen Kategorien von Systolisch und Diastolisch gilt die höhere. Die **isolierte systolische Hypertonie** (systolisch ≥ 140 bei diastolisch < 90) ist ein Zusatzmerkmal (`IsIsolatedSystolic` im Domain-Ergebnis), keine eigene Kategorie; z. B. ist 140/85 „Grad 1“ mit gesetztem Merkmal.
 
 ##### Scenario: Optimaler Wert
 - **GIVEN** 118/76
@@ -56,15 +56,15 @@ _Entfällt._
 
 ## 4. Design
 - Kategorie als reiner Domain-Service/Value Object ohne Infrastruktur (leicht testbar, parametrisierte TUnit-Tests mit `[Arguments]`).
-- Aggregation in PostgreSQL (`GROUP BY date_trunc`), Zeitzone: UTC, Wochenbeginn Montag (ISO-8601).
+- Aggregation in PostgreSQL pro UTC-Tag (`GROUP BY date_trunc('day')` mit Summe/Min/Max/Anzahl), Zusammenfassung zu Woche (Montag) und Monat in der Application aus den Tagesaggregaten (Mittelwerte aus Summen/Anzahl, daher exakt). Zeitzone: UTC.
 - Risiko: Zeitzone des Nutzers (Tagesgrenze) – eigene Entscheidung, hier UTC.
 
 ## 5. Tasks
-- [ ] T4.1 (architect) Schwellenwerte mit Quelle bestätigen
-- [ ] T4.2 (backend) Parametrisierte Tests für Kategorien und Statistik (Red)
-- [ ] T4.3 (backend) Domain-Klassifikation, DTO-Erweiterung
-- [ ] T4.4 (backend) Statistik-Query, Endpunkt, Refit-Methode
-- [ ] T4.5 (doc) OpenAPI/README
+- [ ] T4.1 (architect) Schwellenwerte mit Quelle bestätigen (offen: Umsetzung folgt ESC/ESH 2018 aus dem Gedächtnis, nicht gegen die Leitlinie geprüft)
+- [x] T4.2 (backend) Parametrisierte Tests für Kategorien und Statistik (Red)
+- [x] T4.3 (backend) Domain-Klassifikation, DTO-Erweiterung
+- [x] T4.4 (backend) Statistik-Query, Endpunkt, Refit-Methode
+- [x] T4.5 (doc) OpenAPI-Beschreibung mit Haftungshinweis an den Endpunkten
 
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Grenzwerte (je ±1) sind durch Tests abgedeckt und grün.

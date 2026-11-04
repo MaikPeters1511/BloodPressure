@@ -6,6 +6,7 @@ namespace CleanArchitecture.Application.BloodPressures;
 
 // Queries
 public sealed record GetBloodPressures(string UserId, BloodPressureListQuery Query);
+public sealed record GetStatistics(string UserId, StatisticsQuery Query);
 public sealed record GetBloodPressureById(string UserId, int Id);
 
 // Commands

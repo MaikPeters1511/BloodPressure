@@ -15,6 +15,14 @@ public interface IBloodPressureApi
         string? sort = null,
         CancellationToken cancellationToken = default);
 
+    /// <summary>Durchschnitt, Minimum, Maximum und Anzahl je Tag, Woche (Montag) oder Monat; Abschnitte ohne Messung fehlen.</summary>
+    [Get("/api/BloodPressure/statistics")]
+    Task<IReadOnlyList<StatisticsBucketDto>> GetStatisticsAsync(
+        [Query(Format = "o")] DateTime? from = null,
+        [Query(Format = "o")] DateTime? to = null,
+        string? interval = null,
+        CancellationToken cancellationToken = default);
+
     [Get("/api/BloodPressure/{id}")]
     Task<BloodPressureDto> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 

@@ -89,7 +89,7 @@ public class BloodPressureApiClientTests
 
         var loaded = await _api.GetByIdAsync(created.Id);
 
-        await Assert.That(loaded).IsEqualTo(new BloodPressureDto(created.Id, 121, 79, Measured, 66, 97));
+        await Assert.That(loaded).IsEqualTo(new BloodPressureDto(created.Id, 121, 79, Measured, 66, 97, "Normal"));
     }
 
     [Test]
