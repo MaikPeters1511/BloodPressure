@@ -1,0 +1,283 @@
+@page "/measurements"
+@using System.Globalization
+@using System.Net
+@using CleanArchitecture.Contracts
+@using CleanArchitecture.Presentation.UI.Services
+@using Microsoft.Extensions.Localization
+@using Refit
+@inject IBloodPressureApi Api
+@inject AuthSession Session
+@inject NavigationManager Navigation
+@inject TimeProvider Time
+@inject IStringLocalizer<SharedResource> L
+@inject ILogger<Measurements> Logger
+
+<PageTitle>@L["M_Title"]</PageTitle>
+
+<h1>@L["M_Title"]</h1>
+
+<p id="disclaimer" class="text-muted">@L["M_Disclaimer"]</p>
+
+@if (_message is not null)
+{
+    <div role="alert" class="alert alert-warning">@_message</div>
+}
+
+<section aria-busy="@(_loading ? "true" : "false")">
+    @if (!_loading && _items.Count == 0)
+    {
+        <p>@L["M_Empty"]</p>
+    }
+    else if (_items.Count > 0)
+    {
+        <div class="overflow-x-auto">
+            <table class="table table-zebra">
+                <caption>@L["M_Caption"]</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">@L["Col_Date"]</th>
+                        <th scope="col">@L["Col_Systolic"]</th>
+                        <th scope="col">@L["Col_Diastolic"]</th>
+                        <th scope="col">@L["Col_Pulse"]</th>
+                        <th scope="col">@L["Col_Oxygen"]</th>
+                        <th scope="col">@L["Col_Category"]</th>
+                        <th scope="col">@L["Col_Actions"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in _items)
+                    {
+                        var date = Local(item.DateTime).ToString("g", CultureInfo.CurrentCulture);
+                        <tr @key="item.Id">
+                            <td>@date</td>
+                            <td>@item.Systolisch</td>
+                            <td>@item.Diastolisch</td>
+                            <td>@item.Pulse</td>
+                            <td>@item.Oxygen</td>
+                            <td>@CategoryName(item.Category)</td>
+                            <td>
+                                @if (_pendingDelete == item.Id)
+                                {
+                                    <span>@L["Delete_Confirm"]</span>
+                                    <button type="button" class="btn btn-danger btn-sm confirm-delete" @onclick="() => DeleteAsync(item)">@L["Delete_Yes"]</button>
+                                    <button type="button" class="btn btn-secondary btn-sm cancel-delete" @onclick="() => _pendingDelete = null">@L["Delete_Cancel"]</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-outline-danger btn-sm delete-button"
+                                            aria-label="@L["Delete_Aria", date]" @onclick="() => _pendingDelete = item.Id">@L["Delete"]</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="d-flex gap-2 align-items-center">
+            <button id="prev-page" type="button" class="btn btn-outline-secondary" disabled="@(_page <= 1)" @onclick="() => GoToAsync(_page - 1)">@L["M_Prev"]</button>
+            <span id="page-indicator" aria-live="polite">@L["M_PageOf", _page, TotalPages]</span>
+            <button id="next-page" type="button" class="btn btn-outline-secondary" disabled="@(_page >= TotalPages)" @onclick="() => GoToAsync(_page + 1)">@L["M_Next"]</button>
+        </nav>
+    }
+</section>
+
+<h2 id="form-title" class="mt-4">@L["Form_Title"]</h2>
+<form id="create-form" @onsubmit="CreateAsync" aria-labelledby="form-title">
+    <div class="mb-3">
+        <label for="systolisch" class="form-label">@L["Col_Systolic"]</label>
+        <input id="systolisch" type="number" class="form-control" min="0" max="500" required @bind="_systolisch" />
+    </div>
+    <div class="mb-3">
+        <label for="diastolisch" class="form-label">@L["Col_Diastolic"]</label>
+        <input id="diastolisch" type="number" class="form-control" min="0" max="500" required @bind="_diastolisch" />
+    </div>
+    <div class="mb-3">
+        <label for="pulse" class="form-label">@L["Col_Pulse"]</label>
+        <input id="pulse" type="number" class="form-control" min="0" max="500" required @bind="_pulse" />
+    </div>
+    <div class="mb-3">
+        <label for="oxygen" class="form-label">@L["Col_Oxygen"]</label>
+        <input id="oxygen" type="number" class="form-control" min="0" max="100" required @bind="_oxygen" />
+    </div>
+    <div class="mb-3">
+        <label for="measured-at" class="form-label">@L["Form_Time"]</label>
+        <input id="measured-at" type="datetime-local" class="form-control" required value="@_measuredAt" @onchange="e => _measuredAt = e.Value?.ToString() ?? string.Empty" />
+    </div>
+
+    @if (_formErrors.Count > 0)
+    {
+        <div role="alert" class="alert alert-danger">
+            @foreach (var error in _formErrors)
+            {
+                <p class="mb-0">@error</p>
+            }
+        </div>
+    }
+
+    <button id="save-button" type="submit" class="btn btn-primary" disabled="@_saving">@L["Form_Save"]</button>
+</form>
+
+@code {
+    private const int PageSize = 10;
+    private const string TimeFormat = "yyyy-MM-ddTHH:mm";
+
+    private IReadOnlyList<BloodPressureDto> _items = [];
+    private int _page = 1;
+    private int _totalCount;
+    private bool _loading = true;
+    private bool _saving;
+    private int? _pendingDelete;
+    private string? _message;
+    private IReadOnlyList<string> _formErrors = [];
+
+    private int? _systolisch;
+    private int? _diastolisch;
+    private int? _pulse;
+    private int? _oxygen;
+    private string _measuredAt = "";
+
+    private int TotalPages => Math.Max(1, (int)Math.Ceiling(_totalCount / (double)PageSize));
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.IsAuthenticated)
+        {
+            Navigation.NavigateTo("login");
+            return;
+        }
+
+        _measuredAt = Time.GetLocalNow().ToString(TimeFormat, CultureInfo.InvariantCulture);
+        await LoadAsync();
+    }
+
+    private DateTime Local(DateTime utc) => TimeZoneInfo.ConvertTimeFromUtc(utc.ToUniversalTime(), Time.LocalTimeZone);
+
+    private string CategoryName(string category)
+    {
+        var name = L[$"Category_{category}"];
+        return name.ResourceNotFound ? category : name.Value;
+    }
+
+    private async Task GoToAsync(int page)
+    {
+        _page = Math.Clamp(page, 1, TotalPages);
+        _pendingDelete = null;
+        _message = null;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try
+        {
+            var result = await Api.GetAllAsync(page: _page, pageSize: PageSize, sort: BloodPressureListQuery.SortDateDescending);
+            _items = result.Items;
+            _totalCount = result.TotalCount;
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await SignOutAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Messwerte konnten nicht geladen werden");
+            _message = L["Error_Generic"].Value;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task SignOutAsync()
+    {
+        await Session.LogoutAsync();
+        Navigation.NavigateTo("login");
+    }
+
+    private async Task CreateAsync()
+    {
+        _formErrors = [];
+        if (_systolisch is not { } systolisch || _diastolisch is not { } diastolisch || _pulse is not { } pulse
+            || _oxygen is not { } oxygen || !TryParseUtc(_measuredAt, out var measuredAt))
+        {
+            _formErrors = [L["Form_Missing"].Value];
+            return;
+        }
+
+        _saving = true;
+        try
+        {
+            await Api.CreateAsync(new BloodPressureRequest(systolisch, diastolisch, measuredAt, pulse, oxygen));
+            _systolisch = _diastolisch = _pulse = _oxygen = null;
+            _message = null;
+            _page = 1;
+            await LoadAsync();
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await SignOutAsync();
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
+        {
+            var messages = await ApiErrors.ValidationMessagesAsync(ex);
+            _formErrors = messages.Count > 0 ? messages : [L["Error_Generic"].Value];
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Messwert konnte nicht gespeichert werden");
+            _formErrors = [L["Error_Generic"].Value];
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    // Der Zeitpunkt wird in der lokalen Zeitzone des Nutzers eingegeben und als UTC gesendet.
+    private bool TryParseUtc(string value, out DateTime utc)
+    {
+        utc = default;
+        if (!DateTime.TryParseExact(value, TimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var local))
+        {
+            return false;
+        }
+
+        utc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(local, DateTimeKind.Unspecified), Time.LocalTimeZone);
+        return true;
+    }
+
+    private async Task DeleteAsync(BloodPressureDto item)
+    {
+        _pendingDelete = null;
+        _message = null;
+        try
+        {
+            await Api.DeleteAsync(item.Id, item.ETag);
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await SignOutAsync();
+            return;
+        }
+        catch (ApiException ex) when (ex.StatusCode is HttpStatusCode.PreconditionFailed or HttpStatusCode.Conflict)
+        {
+            _message = L["Conflict"].Value;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Messwert konnte nicht gelöscht werden");
+            _message = L["Error_Generic"].Value;
+        }
+
+        // Nach einem Löschen auf der letzten Seite eine Seite zurück, sonst bliebe die Ansicht leer.
+        if (_items.Count == 1 && _page > 1)
+        {
+            _page--;
+        }
+
+        await LoadAsync();
+    }
+}

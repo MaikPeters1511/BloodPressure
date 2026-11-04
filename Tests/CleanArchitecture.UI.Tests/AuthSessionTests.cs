@@ -1,0 +1,118 @@
+using System.Net;
+using CleanArchitecture.Contracts;
+using CleanArchitecture.Presentation.UI.Services;
+using Microsoft.Extensions.Time.Testing;
+
+namespace CleanArchitecture.UI.Tests;
+
+[Category("Unit")]
+public class AuthSessionTests
+{
+    private readonly FakeTokenStorage _storage = new();
+    private readonly FakeAuthApi _api = new();
+    private readonly FakeTimeProvider _time = new(new DateTimeOffset(2026, 11, 4, 12, 0, 0, TimeSpan.Zero));
+
+    private AuthSession Session() => new(_storage, _api, _time);
+
+    [Test]
+    public async Task Login_StoresTokensAndMarksUserAsAuthenticated()
+    {
+        var session = Session();
+
+        await session.LoginAsync("a@example.test", "pw");
+
+        await Assert.That(session.IsAuthenticated).IsTrue();
+        await Assert.That(await session.GetAccessTokenAsync(CancellationToken.None)).IsEqualTo("access-1");
+        await Assert.That(_storage.Items["bp.refresh"]).IsEqualTo("refresh-1");
+    }
+
+    [Test]
+    public async Task Login_Failure_LeavesUserSignedOut_AndRethrows()
+    {
+        _api.OnLogin = _ => throw ApiExceptions.Create(HttpStatusCode.Unauthorized);
+        var session = Session();
+
+        await Assert.That(async () => await session.LoginAsync("a@example.test", "wrong")).Throws<Refit.ApiException>();
+
+        await Assert.That(session.IsAuthenticated).IsFalse();
+        await Assert.That(_storage.Items).IsEmpty();
+    }
+
+    [Test]
+    public async Task Register_ThenLogsIn()
+    {
+        var session = Session();
+
+        await session.RegisterAsync("a@example.test", "pw");
+
+        await Assert.That(_api.Calls.ToArray()).IsEquivalentTo(new[] { "register", "login" });
+        await Assert.That(session.IsAuthenticated).IsTrue();
+    }
+
+    [Test]
+    public async Task ExpiredAccessToken_IsRefreshed()
+    {
+        var session = Session();
+        await session.LoginAsync("a@example.test", "pw");
+        _time.Advance(TimeSpan.FromHours(2));
+
+        var token = await session.GetAccessTokenAsync(CancellationToken.None);
+
+        await Assert.That(token).IsEqualTo("access-2");
+        await Assert.That(_storage.Items["bp.refresh"]).IsEqualTo("refresh-2");
+    }
+
+    [Test]
+    public async Task ValidAccessToken_IsNotRefreshed()
+    {
+        var session = Session();
+        await session.LoginAsync("a@example.test", "pw");
+        _time.Advance(TimeSpan.FromMinutes(10));
+
+        await session.GetAccessTokenAsync(CancellationToken.None);
+
+        await Assert.That(_api.Calls).DoesNotContain("refresh");
+    }
+
+    [Test]
+    public async Task FailedRefresh_ClearsTokensAndSignsOut()
+    {
+        _api.OnRefresh = _ => throw ApiExceptions.Create(HttpStatusCode.Unauthorized);
+        var session = Session();
+        await session.LoginAsync("a@example.test", "pw");
+        _time.Advance(TimeSpan.FromHours(2));
+
+        var token = await session.GetAccessTokenAsync(CancellationToken.None);
+
+        await Assert.That(token).IsNull();
+        await Assert.That(session.IsAuthenticated).IsFalse();
+        await Assert.That(_storage.Items).IsEmpty();
+    }
+
+    [Test]
+    public async Task Initialize_RestoresSessionAfterReload()
+    {
+        await Session().LoginAsync("a@example.test", "pw");
+
+        var reloaded = Session();
+        await reloaded.InitializeAsync();
+
+        await Assert.That(reloaded.IsAuthenticated).IsTrue();
+        await Assert.That(await reloaded.GetAccessTokenAsync(CancellationToken.None)).IsEqualTo("access-1");
+    }
+
+    [Test]
+    public async Task Logout_ClearsEverything_AndRaisesChanged()
+    {
+        var session = Session();
+        await session.LoginAsync("a@example.test", "pw");
+        var changed = 0;
+        session.Changed += () => changed++;
+
+        await session.LogoutAsync();
+
+        await Assert.That(session.IsAuthenticated).IsFalse();
+        await Assert.That(_storage.Items).IsEmpty();
+        await Assert.That(changed).IsEqualTo(1);
+    }
+}

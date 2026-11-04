@@ -1,34 +1,39 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+@using CleanArchitecture.Presentation.UI.Services
+@using Microsoft.Extensions.Localization
+@implements IDisposable
+@inject AuthSession Session
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Blood Pressure</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
+        <a class="navbar-brand" href="">@L["App_Title"]</a>
+        <button type="button" class="navbar-toggler" aria-label="@L["Nav_Menu"]" aria-expanded="@(!collapseNavMenu ? "true" : "false")" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon" aria-hidden="true"></span>
         </button>
     </div>
 </div>
 
 <div class="@NavMenuCssClass nav-scrollable">
-    <nav class="flex-column">
+    <nav class="flex-column" aria-label="@L["Nav_Menu"]">
         <div class="nav-item px-3">
-            <NavLink class="btn btn-ghost text-xl" href="/" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
+            <NavLink class="btn btn-ghost text-xl" href="" Match="NavLinkMatch.All">@L["Nav_Home"]</NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="btn btn-ghost text-xl" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="btn btn-ghost text-xl" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="btn btn-ghost text-xl" href="api">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> API
-            </NavLink>
-        </div>
+        @if (Session.IsAuthenticated)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="btn btn-ghost text-xl" href="measurements">@L["Nav_Measurements"]</NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <button type="button" class="btn btn-ghost text-xl" @onclick="SignOutAsync">@L["Nav_Logout"]</button>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="btn btn-ghost text-xl" href="login">@L["Nav_Login"]</NavLink>
+            </div>
+        }
     </nav>
 </div>
 
@@ -37,9 +42,17 @@
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    private void ToggleNavMenu()
+    protected override void OnInitialized() => Session.Changed += OnSessionChanged;
+
+    private void OnSessionChanged() => InvokeAsync(StateHasChanged);
+
+    private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
+
+    private async Task SignOutAsync()
     {
-        collapseNavMenu = !collapseNavMenu;
+        await Session.LogoutAsync();
+        Navigation.NavigateTo("login");
     }
 
+    public void Dispose() => Session.Changed -= OnSessionChanged;
 }
