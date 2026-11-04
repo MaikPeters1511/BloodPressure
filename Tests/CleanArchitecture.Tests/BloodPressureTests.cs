@@ -1,4 +1,5 @@
 using CleanArchitecture.Application.BloodPressures;
+using CleanArchitecture.Contracts;
 using CleanArchitecture.Domain.Entities;
 
 namespace CleanArchitecture.Tests;

@@ -1,5 +1,5 @@
 using CleanArchitecture.Application.BloodPressures;
-using CleanArchitecture.Presentation.API.Contracts;
+using CleanArchitecture.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Wolverine;

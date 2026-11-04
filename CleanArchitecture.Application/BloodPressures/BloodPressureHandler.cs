@@ -1,3 +1,4 @@
+using CleanArchitecture.Contracts;
 using CleanArchitecture.Domain.Entities;
 using CleanArchitecture.Domain.IRepository;
 
@@ -13,14 +14,14 @@ public static class BloodPressureHandler
         GetBloodPressures query, IBloodPressureRepository repository, CancellationToken ct)
     {
         var items = await repository.GetAllAsync(ct);
-        return items.Select(BloodPressureDto.From).ToList();
+        return items.Select(BloodPressureMapping.ToDto).ToList();
     }
 
     public static async Task<BloodPressureDto?> Handle(
         GetBloodPressureById query, IBloodPressureRepository repository, CancellationToken ct)
     {
         var item = await repository.GetByIdAsync(query.Id, ct);
-        return item is null ? null : BloodPressureDto.From(item);
+        return item is null ? null : BloodPressureMapping.ToDto(item);
     }
 
     public static async Task<BloodPressureDto> Handle(
@@ -35,7 +36,7 @@ public static class BloodPressureHandler
             Oxygen = command.Oxygen
         };
         await repository.AddAsync(entity, ct);
-        return BloodPressureDto.From(entity);
+        return BloodPressureMapping.ToDto(entity);
     }
 
     public static async Task<bool> Handle(
