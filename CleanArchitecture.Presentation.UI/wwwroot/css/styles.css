@@ -298,3 +298,10 @@ main  {
 .btn.btn-danger { background-color: #b02a37; border: 1px solid #b02a37; color: #fff; }
 .btn.btn-secondary { background-color: #495057; border: 1px solid #495057; color: #fff; }
 .btn.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Seitenleiste ist in beiden Farbschemata dunkel: Link- und Knopftext muss hell bleiben (Kontrast). */
+.sidebar .nav-item a, .sidebar .nav-item button { color: #f1f3f5; }
+.sidebar .nav-item a.active { color: #fff; }
+
+/* Auswahlfelder erreichen auch am Desktop die Mindest-Zielgröße. */
+select { min-height: 2.5rem; }

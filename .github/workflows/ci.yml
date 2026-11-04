@@ -65,3 +65,77 @@ jobs:
             echo "::error::NuGet packages with High/Critical vulnerabilities found (see above)."
             exit 1
           fi
+
+  # Barrierefreiheit und Mobilbreite: echte API + UI + Chromium (axe-core), siehe Tests/a11y/check.mjs.
+  # Schlägt fehl bei Verstößen "serious/critical", Seitenüberlauf oder Bedienelementen unter 24 px.
+  a11y:
+    name: A11y
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          # Nur für den kurzlebigen Runner-Container: ohne Passwort, nicht von außen erreichbar.
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: bloodpressure
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      ConnectionStrings__bloodpressuredb: Host=localhost;Port=5432;Database=bloodpressure;Username=postgres
+      Cors__AllowedOrigins__0: http://localhost:5296
+      ASPNETCORE_ENVIRONMENT: Development
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: "**/*.csproj"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Tests/a11y/package-lock.json
+
+      - name: Build API and UI
+        run: |
+          dotnet build CleanArchitecture.Presentation.API --configuration Release
+          dotnet build CleanArchitecture.Presentation.UI --configuration Release
+
+      - name: Start API and UI
+        run: |
+          # Nur im Runner-Arbeitsverzeichnis: die UI spricht die API per HTTP an.
+          sed -i 's#https://localhost:5000#http://localhost:5000#' CleanArchitecture.Presentation.UI/wwwroot/appsettings.json
+          ASPNETCORE_URLS=http://localhost:5000 nohup dotnet run --project CleanArchitecture.Presentation.API --configuration Release --no-build --no-launch-profile > api.log 2>&1 &
+          nohup dotnet run --project CleanArchitecture.Presentation.UI --configuration Release --no-build --no-launch-profile --urls http://localhost:5296 > ui.log 2>&1 &
+          curl --silent --show-error --fail --retry 40 --retry-delay 3 --retry-connrefused http://localhost:5000/alive
+          curl --silent --show-error --fail --retry 40 --retry-delay 3 --retry-connrefused http://localhost:5296/
+
+      - name: Install browser
+        working-directory: Tests/a11y
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run accessibility check
+        working-directory: Tests/a11y
+        run: node check.mjs
+
+      - name: Upload results and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-results
+          path: |
+            Tests/a11y/a11y-results.json
+            api.log
+            ui.log
+          if-no-files-found: warn

@@ -13,13 +13,17 @@ Spec: `UserStories/frontend-a11y-mobil-abnahme.openspec.md`. Dieses Dokument hat
 
 ## 2. Automatisierte Prüfung (axe-core, Mobilbreite, Zielgrößen)
 
-Ausführen: im angemeldeten Browser die Datei `Tests/a11y/axe-run.js` in der Konsole ausführen, jeweils bei 375 px und 320 px Breite sowie in heller und dunkler Darstellung (Entwicklerwerkzeuge → Rendering → `prefers-color-scheme`).
+**In der CI:** Der Job `A11y` in `.github/workflows/ci.yml` startet Postgres, API und UI, legt einen Testnutzer mit Testdaten an und führt `Tests/a11y/check.mjs` (Playwright + `@axe-core/playwright`) aus: 5 Seiten × 3 Breiten (1280, 375, 320 px) × 2 Farbschemata = 30 Prüfungen. Bei Fehlern lädt der Job `a11y-results.json` und die Logs als Artefakt hoch.
+
+**Lokal:** Umgebung wie in Abschnitt 1 starten, dann
+`cd Tests/a11y && npm ci && npx playwright install chromium && node check.mjs`
+(mit `A11Y_CHROMIUM=<Pfad>` lässt sich ein vorhandener Chromium verwenden). Alternativ liefert `Tests/a11y/axe-run.js` einen schnellen Einzellauf in der Browser-Konsole.
 
 Zulässig: keine Verstöße der Schwere *serious/critical*, `overflow: false`, keine Bedienelemente unter 24 × 24 px.
 
 | Datum | Stand (Commit) | 375 hell | 375 dunkel | 320 hell | 320 dunkel | Bemerkung |
 |---|---|---|---|---|---|---|
-| 2026-11-04 | Branch `feature/ui-mobile-a11y` | ohne Befund | ohne Befund | ohne Befund | ohne Befund | Seiten: Messwerte, Auswertung, Export, Erinnerungen, Hinweise; Anmeldeseite nicht Teil des Laufs. axe-core 4.10.2 findet nur einen Teil der Probleme, er ersetzt den Screenreader-Test nicht. |
+| 2026-11-04 | Branch `feature/ui-mobile-a11y` (manuell per Konsole) | ohne Befund | ohne Befund | ohne Befund | ohne Befund | Seiten: Messwerte, Auswertung, Export, Erinnerungen, Hinweise; Anmeldeseite nicht Teil des Laufs. axe-core 4.10.2 findet nur einen Teil der Probleme, er ersetzt den Screenreader-Test nicht. |
 
 ## 3. Screenreader-Prüfung (manuell)
 
@@ -53,3 +57,5 @@ Je Ablauf notieren: **bestanden**, oder **Befund** (Seite, Schritt, gehört, erw
 | _offen_ | _offen_ | NVDA / Firefox / Windows | | | |
 
 **Status:** Screenreader-Prüfung **nicht durchgeführt**. Die Abnahme „Screenreader geprüft“ gilt erst, wenn mindestens die VoiceOver-Zeile von einer Person ausgefüllt ist und alle Befunde behoben oder begründet sind.
+
+Der automatisierte Lauf (`check.mjs`, jetzt auch 1280 px) fand zusätzlich: Seitenwechsel-Leiste lief bei 320 px über (umbrechbar gemacht), Auswahlfelder am Desktop 21 px hoch, Seitenleisten-Links im hellen Schema zu kontrastarm. Alle behoben; Stand 30/30 Prüfungen bestanden.

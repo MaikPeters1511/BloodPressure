@@ -1121,3 +1121,6 @@ $RECYCLE.BIN/
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 TestResults/
+
+# a11y-Prüfung
+Tests/a11y/a11y-results.json
