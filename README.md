@@ -3,10 +3,10 @@
 
 ![clean.png](Images%2Fclean.png)
 
-### Web API with .NET 8 and Blazor WebAssembly
+### Web API with .NET 10 and Blazor WebAssembly
 
 DI (Dependency Injection)
-EntityFrameworkCore 8
+EntityFrameworkCore 10
 
 ## Container-Image
 
