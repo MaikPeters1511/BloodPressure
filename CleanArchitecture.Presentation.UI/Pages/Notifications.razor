@@ -34,9 +34,8 @@
         {
             var critical = n.Type == "CriticalReading";
             var time = TimeZoneInfo.ConvertTimeFromUtc(n.CreatedAt.ToUniversalTime(), Time.LocalTimeZone).ToString("g", CultureInfo.CurrentCulture);
-            <li @key="n.Id" tabindex="-1" @ref="_refs[n.Id]" class="card mb-2 notification @(n.IsRead ? "read" : "unread") @(critical ? "border-danger" : "")"
-                role="@(critical && !n.IsRead ? "alert" : null)">
-                <div class="card-body">
+            <li @key="n.Id" tabindex="-1" @ref="_refs[n.Id]" class="card mb-2 notification @(n.IsRead ? "read" : "unread") @(critical ? "border-danger" : "")">
+                <div class="card-body" role="@(critical && !n.IsRead ? "alert" : null)">
                     <p class="mb-1">
                         <strong>@(critical ? L["Notifications_Warning"] : L["Notifications_Reminder"])</strong>
                         @if (n.Category is not null)

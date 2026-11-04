@@ -9,13 +9,13 @@
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">@L["App_Title"]</a>
-        <button type="button" class="navbar-toggler" aria-label="@L["Nav_Menu"]" aria-expanded="@(!collapseNavMenu ? "true" : "false")" @onclick="ToggleNavMenu">
+        <button type="button" class="navbar-toggler" aria-label="@L["Nav_Menu"]" aria-expanded="@(!collapseNavMenu ? "true" : "false")" aria-controls="main-nav" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon" aria-hidden="true"></span>
         </button>
     </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable">
+<div id="main-nav" class="@NavMenuCssClass nav-scrollable" @onclick="CollapseNavMenu">
     <nav class="flex-column" aria-label="@L["Nav_Menu"]">
         <div class="nav-item px-3">
             <NavLink class="btn btn-ghost text-xl" href="" Match="NavLinkMatch.All">@L["Nav_Home"]</NavLink>
@@ -57,7 +57,7 @@
 </div>
 
 @code {
-    private bool collapseNavMenu = false;
+    private bool collapseNavMenu = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -87,6 +87,9 @@
     }
 
     private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
+
+    // Auf schmalen Bildschirmen schließt ein Klick auf einen Eintrag das Menü wieder.
+    private void CollapseNavMenu() => collapseNavMenu = true;
 
     private async Task SignOutAsync()
     {

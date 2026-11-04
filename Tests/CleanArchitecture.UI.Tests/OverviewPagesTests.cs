@@ -344,7 +344,9 @@ public class NotificationsPageTests
         using var _ = host;
 
         var item = cut.Find("li.notification");
-        await Assert.That(item.GetAttribute("role")).IsEqualTo("alert");
+        // Die Rolle sitzt im Inneren: ein <li> mit role=alert wäre kein Listenelement mehr (axe: list).
+        await Assert.That(item.GetAttribute("role")).IsNull();
+        await Assert.That(item.QuerySelector("[role=alert]")).IsNotNull();
         await Assert.That(item.TextContent).Contains("Warnung");
         await Assert.That(item.TextContent).Contains("Hypertonie Grad 3");
     }
@@ -497,5 +499,39 @@ public class GeometryAndResourcesTests
         }
 
         return dir?.FullName ?? throw new InvalidOperationException("Repository-Wurzel nicht gefunden.");
+    }
+}
+
+[Category("Unit")]
+public class NavMenuMobileTests
+{
+    [Test]
+    public async Task Menu_StartsCollapsed_AndToggleKeepsAriaExpandedInSync()
+    {
+        using var host = new UiHost();
+        await host.SignInAsync();
+        var cut = host.Context.Render<NavMenu>();
+
+        await Assert.That(cut.Find(".navbar-toggler").GetAttribute("aria-expanded")).IsEqualTo("false");
+        await Assert.That(cut.Find("#main-nav").ClassList).Contains("collapse");
+
+        cut.Find(".navbar-toggler").Click();
+
+        await Assert.That(cut.Find(".navbar-toggler").GetAttribute("aria-expanded")).IsEqualTo("true");
+        await Assert.That(cut.Find("#main-nav").ClassList).DoesNotContain("collapse");
+        await Assert.That(cut.Find(".navbar-toggler").GetAttribute("aria-controls")).IsEqualTo("main-nav");
+    }
+
+    [Test]
+    public async Task ClickOnEntry_CollapsesMenuAgain()
+    {
+        using var host = new UiHost();
+        await host.SignInAsync();
+        var cut = host.Context.Render<NavMenu>();
+        cut.Find(".navbar-toggler").Click();
+
+        cut.Find("a[href=statistics]").Click();
+
+        await Assert.That(cut.Find(".navbar-toggler").GetAttribute("aria-expanded")).IsEqualTo("false");
     }
 }
