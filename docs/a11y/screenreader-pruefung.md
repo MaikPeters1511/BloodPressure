@@ -47,6 +47,7 @@ Je Ablauf notieren: **bestanden**, oder **Befund** (Seite, Schritt, gehört, erw
 | 10 | Erinnerungen | Zeitzone leeren, speichern. | Fehler wird angesagt, **Fokus springt in den Fehlerbereich**. |
 | 11 | Erinnerungen | Uhrzeit entfernen. | Fokus landet auf „Uhrzeit hinzufügen“, nicht auf der Seite verloren. Schaltflächen heißen „Uhrzeit 2 entfernen“. |
 | 12 | Hinweise | Ungelesene Warnung lesen, „Als gelesen markieren“ wählen. | Warnung wird beim Laden angesagt; nach dem Markieren Ansage „Der Hinweis wurde als gelesen markiert.“, **Fokus liegt auf dem Hinweis**, Zähler in der Navigation sinkt. |
+| 14 | Profil | Darstellung wählen, Alter/Größe/Gewicht eingeben, speichern. | Optionsgruppe „Darstellung“ wird als Gruppe angesagt, jede Option mit „ausgewählt/nicht ausgewählt“; Felder heißen „Alter (Jahre)“, „Größe (cm)“, „Gewicht (kg)“; nach dem Speichern „Das Profil wurde gespeichert.“; ungültige Eingabe: Fokus im Fehlerbereich; BMI-Zeile meldet sich höflich („BMI 25,5 Dies ist keine Diagnose.“). |
 | 13 | Alle | Überschriftenstruktur prüfen (Rotor/`H`). | Eine `h1` je Seite, sinnvolle Reihenfolge, Seitentitel entspricht der Seite. |
 
 ### Ergebnisprotokoll (bitte ausfüllen)

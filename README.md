@@ -12,6 +12,13 @@ EntityFrameworkCore 10
 
 Nach der Anmeldung stehen fünf Bereiche bereit: **Messwerte** (Liste mit Kategorie, Anlegen, Löschen), **Auswertung** (Kennzahlen und Verlaufsdiagramm je Tag/Woche/Monat), **Export** (CSV oder PDF für einen Zeitraum), **Erinnerungen** (bis zu 5 tägliche Uhrzeiten) und **Hinweise** (Warnungen mit Zähler in der Navigation). Texte sind DE/EN; die API-Adresse steht in `CleanArchitecture.Presentation.UI/wwwroot/appsettings.json` (`Api:BaseUrl`), die Browser-Herkunft der UI muss in der API unter `Cors:AllowedOrigins` freigegeben sein.
 
+## Profil & Einstellungen
+
+Web (`/profile`) und MAUI-App (Schaltfläche „Profil“ auf den Messwerten) haben eine Seite mit zwei Teilen:
+
+- **Darstellung** (System / Hell / Dunkel): gilt je Gerät und wird lokal gespeichert (Browser: `localStorage`, App: `Preferences`), nicht am Server. Im Web setzt `data-theme` am `<html>`-Element das Schema; ohne Wahl gilt das Systemschema.
+- **Persönliche Angaben** (Alter, Größe in cm, Gewicht in kg, alle optional): am Server je Nutzer unter `GET/PUT/DELETE /api/v1/profile`. Gespeichert wird das Geburtsjahr, angezeigt das Alter. Dazu eine BMI-Zahl **ohne** Bewertung und mit dem Hinweis „keine Diagnose“. Die Angaben stehen nicht in Exporten.
+
 ## MAUI-App (iOS, Android, Mac Catalyst)
 
 Stand: Anmeldung (Registrieren, Abmelden, gespeicherte Anmeldung im sicheren Speicher), Messwerte (Liste mit Nachladen, Anlegen, Löschen), Auswertung (Kennzahlen und Verlaufsdiagramm je Tag/Woche/Monat) Export (CSV/PDF über den Teilen-Dialog), Erinnerungen (Zeitzone, bis zu 5 Uhrzeiten) und Hinweise (Warnungen, als gelesen markieren, Zähler im Tab-Titel). Barrierefreiheit: statischer XAML-Test in der CI, Geräte-Anleitung in `docs/a11y/maui-screenreader-pruefung.md` (Screenreader-Durchlauf noch offen) (siehe `UserStories/maui-app-api-anbindung.openspec.md`).

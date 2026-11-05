@@ -283,13 +283,20 @@ main  {
 /* Diagrammfarben und Outline-Schaltflächen je Farbschema (Kontrast ≥ 3:1 für Grafik, ≥ 4,5:1 für Text). */
 :root { --table-head-color: #e9ecef; --chart-sys: #6ea8fe; --chart-dia: #ea868f; --chart-pulse: #75b798; }
 
+/* Hell gilt, wenn das Systemschema hell ist und nicht ausdrücklich "dunkel" gewählt wurde, oder wenn "hell" ausdrücklich gewählt wurde. */
 @media (prefers-color-scheme: light) {
-    :root { --table-head-color: #212529; --chart-sys: #0a58ca; --chart-dia: #b02a37; --chart-pulse: #146c43; }
-    .card { border-color: rgba(0, 0, 0, 0.3); }
-    .card.border-danger { border-color: #b02a37; }
-    .btn-outline-danger { border-color: #b02a37; color: #b02a37; }
-    .btn-outline-secondary { border-color: #495057; color: #343a40; }
+    :root:not([data-theme="dark"]) { --table-head-color: #212529; --chart-sys: #0a58ca; --chart-dia: #b02a37; --chart-pulse: #146c43; }
+    :root:not([data-theme="dark"]) .card { border-color: rgba(0, 0, 0, 0.3); }
+    :root:not([data-theme="dark"]) .card.border-danger { border-color: #b02a37; }
+    :root:not([data-theme="dark"]) .btn-outline-danger { border-color: #b02a37; color: #b02a37; }
+    :root:not([data-theme="dark"]) .btn-outline-secondary { border-color: #495057; color: #343a40; }
 }
+
+:root[data-theme="light"] { --table-head-color: #212529; --chart-sys: #0a58ca; --chart-dia: #b02a37; --chart-pulse: #146c43; }
+:root[data-theme="light"] .card { border-color: rgba(0, 0, 0, 0.3); }
+:root[data-theme="light"] .card.border-danger { border-color: #b02a37; }
+:root[data-theme="light"] .btn-outline-danger { border-color: #b02a37; color: #b02a37; }
+:root[data-theme="light"] .btn-outline-secondary { border-color: #495057; color: #343a40; }
 
 /* Primär-, Gefahr- und Sekundärschaltflächen: im reduzierten daisyUI-Build fehlen die Farben (Schaltfläche wirkte deaktiviert). */
 .btn.btn-primary, .btn.btn-danger, .btn.btn-secondary { transition: none; }
@@ -310,10 +317,24 @@ select { min-height: 2.5rem; }
 :root { --field-bg: #2b3035; --field-fg: #f1f3f5; }
 
 @media (prefers-color-scheme: light) {
-    :root { --field-bg: #ffffff; --field-fg: #212529; }
+    :root:not([data-theme="dark"]) { --field-bg: #ffffff; --field-fg: #212529; }
 }
+
+:root[data-theme="light"] { --field-bg: #ffffff; --field-fg: #212529; }
 
 select, select option {
     background-color: var(--field-bg);
     color: var(--field-fg);
+}
+
+/* Optionsfelder: Zielgröße ab 24 px; die Beschriftung daneben vergrößert die Klickfläche auf 44 px. */
+input[type="radio"] { width: 1.5rem; height: 1.5rem; flex: 0 0 auto; accent-color: #0a58ca; cursor: pointer; }
+fieldset > div > label { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; }
+fieldset legend { margin-bottom: 0.5rem; }
+
+.bmi-row { min-height: 1.75rem; }
+
+/* Am Desktop ist die Seitenleiste immer sichtbar; der Menüknopf (oben definiert) wird dort wieder ausgeblendet. */
+@media (min-width: 641px) {
+    .navbar-toggler { display: none; }
 }

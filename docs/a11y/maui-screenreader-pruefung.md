@@ -47,6 +47,7 @@ Je Ablauf notieren: **bestanden** oder **Befund** (Seite, Schritt, gehört, erwa
 | 11 | Erinnerungen | Zeiten lesen, eine hinzufügen, entfernen. | Zeitwähler heißen „Uhrzeit 1“, „Uhrzeit 2“ …, Entfernen-Schaltflächen „Uhrzeit 2 entfernen“; nach dem Entfernen Ansage „Uhrzeit 2 wurde entfernt.“; „Uhrzeit hinzufügen“ ist bei fünf Zeiten deaktiviert. |
 | 12 | Erinnerungen | Doppelte Uhrzeit speichern. | „Jede Uhrzeit darf nur einmal vorkommen.“ wird angesagt. |
 | 13 | Hinweise | Warnung lesen, „Als gelesen markieren“. | Ansage der Warnung: „Warnung Bluthochdruck. Neu. …“; nach dem Markieren „Der Hinweis wurde als gelesen markiert.“, Zähler im Tab sinkt. |
+| 16 | Profil | „Profil“ in der Navigationsleiste der Messwerte öffnen; Darstellung wechseln; Werte eingeben und speichern. | Optionen „System/Hell/Dunkel“ als Optionsfelder mit Zustand; Ansage „Darstellung: Dunkel“ beim Wechsel; Felder „Alter (Jahre)“, „Größe (cm)“, „Gewicht (kg)“; „Das Profil wurde gespeichert.“; BMI mit „Dies ist keine Diagnose.“; „Profildaten löschen“ fragt nach. |
 | 14 | Alle | Schriftgröße auf das Maximum stellen (iOS: Dynamische Schrift; Android: Schriftgröße/Anzeigegröße). | Nichts wird abgeschnitten, alle Seiten bleiben bedienbar (Scrollen möglich). |
 | 15 | Alle | Dunkler Modus, Querformat. | Texte und Badges bleiben lesbar; Bedienelemente erreichbar. |
 

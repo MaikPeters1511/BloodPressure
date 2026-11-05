@@ -12,6 +12,7 @@ public class AddPostgresSqlDbContext(DbContextOptions<AddPostgresSqlDbContext> o
     public DbSet<BloodPressure> BloodPressures => Set<BloodPressure>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<Reminder> Reminders => Set<Reminder>();
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -51,6 +52,14 @@ public class AddPostgresSqlDbContext(DbContextOptions<AddPostgresSqlDbContext> o
             entity.Property(e => e.UserId).HasMaxLength(450);
             entity.Property(e => e.TimeZoneId).HasMaxLength(100);
             entity.HasIndex(e => new { e.UserId, e.TimeOfDay }).IsUnique();
+        });
+
+        modelBuilder.Entity<UserProfile>(entity =>
+        {
+            entity.ToTable("UserProfile");
+            entity.HasKey(e => e.UserId);
+            entity.Property(e => e.UserId).HasMaxLength(450);
+            entity.Property(e => e.WeightKg).HasPrecision(4, 1);
         });
     }
 }

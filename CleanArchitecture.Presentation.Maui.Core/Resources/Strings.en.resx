@@ -92,4 +92,24 @@
   <data name="Category_Hypertension" xml:space="preserve"><value>Hypertension</value></data>
   <data name="Notification_CriticalText" xml:space="preserve"><value>A measurement is in the range of severely elevated blood pressure (category {0}). This is not a diagnosis. In case of symptoms or persistently high values, please seek medical advice.</value></data>
   <data name="Notification_ReminderText" xml:space="preserve"><value>Time for your blood pressure measurement.</value></data>
+  <data name="Tab_Profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="Profile_Title" xml:space="preserve"><value>Profile &amp; settings</value></data>
+  <data name="Theme_Title" xml:space="preserve"><value>Appearance</value></data>
+  <data name="Theme_System" xml:space="preserve"><value>System</value></data>
+  <data name="Theme_Light" xml:space="preserve"><value>Light</value></data>
+  <data name="Theme_Dark" xml:space="preserve"><value>Dark</value></data>
+  <data name="Theme_Hint" xml:space="preserve"><value>Applies to this device only. "System" follows your device setting.</value></data>
+  <data name="Theme_Changed" xml:space="preserve"><value>Appearance: {0}</value></data>
+  <data name="Profile_Personal" xml:space="preserve"><value>Personal details</value></data>
+  <data name="Profile_Hint" xml:space="preserve"><value>All details are optional and visible only to you. They do not appear in exports.</value></data>
+  <data name="Profile_Age" xml:space="preserve"><value>Age (years)</value></data>
+  <data name="Profile_Height" xml:space="preserve"><value>Height (cm)</value></data>
+  <data name="Profile_Weight" xml:space="preserve"><value>Weight (kg)</value></data>
+  <data name="Profile_Bmi" xml:space="preserve"><value>BMI {0}</value></data>
+  <data name="Profile_BmiNote" xml:space="preserve"><value>This is not a diagnosis.</value></data>
+  <data name="Profile_Invalid" xml:space="preserve"><value>Please enter valid numbers.</value></data>
+  <data name="Profile_Saved" xml:space="preserve"><value>The profile was saved.</value></data>
+  <data name="Profile_Delete" xml:space="preserve"><value>Delete profile data</value></data>
+  <data name="Profile_DeleteConfirm" xml:space="preserve"><value>Really delete all profile details?</value></data>
+  <data name="Profile_Deleted" xml:space="preserve"><value>The profile details were deleted.</value></data>
 </root>

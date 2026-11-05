@@ -6,4 +6,6 @@ public interface INavigator
     Task GoToLoginAsync();
 
     Task GoToMeasurementsAsync();
+
+    Task GoToProfileAsync();
 }

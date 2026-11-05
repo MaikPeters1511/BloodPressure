@@ -10,6 +10,8 @@ public partial class AppShell : Shell
     public AppShell(NotificationCounter counter, SessionService session)
     {
         InitializeComponent();
+        // Das Profil ist keine Tab-Seite, sondern wird über die Navigationsleiste der Messwerte geöffnet.
+        Routing.RegisterRoute("profile", typeof(Views.ProfilePage));
         _counter = counter;
         counter.Changed += UpdateNotificationsTitle;
 

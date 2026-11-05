@@ -13,8 +13,8 @@ public class XamlAccessibilityTests
 {
     private static readonly XNamespace Maui = "http://schemas.microsoft.com/dotnet/2021/maui";
 
-    private static readonly string[] Labeled = ["Entry", "Picker", "DatePicker", "TimePicker", "Switch"];
-    private static readonly string[] MinHeight = ["Entry", "Picker", "DatePicker", "TimePicker", "Button"];
+    private static readonly string[] Labeled = ["Entry", "Picker", "DatePicker", "TimePicker", "Switch", "RadioButton"];
+    private static readonly string[] MinHeight = ["Entry", "Picker", "DatePicker", "TimePicker", "Button", "RadioButton"];
 
     private static IEnumerable<(string File, XElement Root)> Pages()
     {

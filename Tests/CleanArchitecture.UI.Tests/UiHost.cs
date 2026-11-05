@@ -19,6 +19,8 @@ public sealed class UiHost : IDisposable
     public FakeReminderApi Reminders { get; } = new();
     public FakeNotificationApi Notifications { get; } = new();
     public FakeBrowser Browser { get; } = new();
+    public FakeProfileApi Profile { get; } = new();
+    public FakeTheme Theme { get; } = new();
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 4, 12, 0, 0, TimeSpan.Zero));
     public AuthSession Session { get; }
 
@@ -34,6 +36,8 @@ public sealed class UiHost : IDisposable
         Context.Services.AddSingleton<IReminderApi>(Reminders);
         Context.Services.AddSingleton<INotificationApi>(Notifications);
         Context.Services.AddSingleton<IBrowserInterop>(Browser);
+        Context.Services.AddSingleton<IProfileApi>(Profile);
+        Context.Services.AddSingleton<IThemeService>(Theme);
         Context.Services.AddSingleton<NotificationCounter>();
         Context.JSInterop.Mode = JSRuntimeMode.Loose;
         Context.Services.AddSingleton<TimeProvider>(Time);

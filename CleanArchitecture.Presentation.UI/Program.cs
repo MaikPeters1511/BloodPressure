@@ -23,6 +23,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<ITokenStorage, SessionTokenStorage>();
 builder.Services.AddSingleton<AuthSession>();
 builder.Services.AddScoped<IBrowserInterop, BrowserInterop>();
+builder.Services.AddScoped<IThemeService, ThemeService>();
 builder.Services.AddSingleton<NotificationCounter>();
 builder.Services.AddSingleton<IAccessTokenProvider>(sp => sp.GetRequiredService<AuthSession>());
 

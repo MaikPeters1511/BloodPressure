@@ -12,9 +12,13 @@ import AxeBuilder from '@axe-core/playwright';
 
 const API = process.env.API_URL ?? 'http://localhost:5000';
 const UI = process.env.UI_URL ?? 'http://localhost:5296';
-const PAGES = ['measurements', 'statistics', 'export', 'reminders', 'notifications'];
+const PAGES = ['measurements', 'statistics', 'export', 'reminders', 'notifications', 'profile'];
 const VIEWPORTS = [{ width: 1280, height: 800 }, { width: 375, height: 812 }, { width: 320, height: 568 }];
-const SCHEMES = ['light', 'dark'];
+// Systemschema; zusätzlich (nur bei 1280 px) die ausdrücklich gewählte Darstellung, die dem Systemschema widerspricht.
+const VARIANTS = [
+  { scheme: 'light', forced: null }, { scheme: 'dark', forced: null },
+  { scheme: 'light', forced: 'dark' }, { scheme: 'dark', forced: 'light' },
+];
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 const email = `a11y-${randomBytes(4).toString('hex')}@example.test`;
@@ -59,10 +63,12 @@ await seed();
 // A11Y_CHROMIUM: optional Pfad zu einem vorhandenen Chromium (lokal); in der CI installiert Playwright den Browser.
 const browser = await chromium.launch(process.env.A11Y_CHROMIUM ? { executablePath: process.env.A11Y_CHROMIUM } : {});
 try {
-  for (const colorScheme of SCHEMES) {
+  for (const { scheme: colorScheme, forced } of VARIANTS) {
     for (const viewport of VIEWPORTS) {
+      if (forced && viewport.width !== 1280) continue;
       // Feste deutsche Browsersprache: die Oberfläche richtet sich nach navigator.language, die Prüfung nutzt die deutschen Beschriftungen.
       const context = await browser.newContext({ viewport, colorScheme, locale: 'de-DE', reducedMotion: 'reduce' });
+      if (forced) await context.addInitScript((value) => { try { localStorage.setItem('bp.theme', value); } catch (e) { /* ignorieren */ } }, forced);
       const page = await context.newPage();
 
       await page.goto(`${UI}/login`);
@@ -87,16 +93,32 @@ try {
             .map((e) => ({ el: e.id || e.tagName, w: Math.round(e.getBoundingClientRect().width), h: Math.round(e.getBoundingClientRect().height) }))
             .filter((x) => x.w < 24 || x.h < 24));
 
-        const failed = blocking.length > 0 || overflow || tooSmall.length > 0;
+        // Ausdrücklich gewählte Darstellung: Attribut gesetzt und die Textfarbe passt (dunkel -> heller Text, hell -> dunkler Text).
+        // Die Farbe wird über ein Canvas in RGB umgerechnet (das Stylesheet verwendet oklch()).
+        let themeProblem = false;
+        if (forced) {
+          const state = await page.evaluate(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 1;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = getComputedStyle(document.body).color;
+            ctx.fillRect(0, 0, 1, 1);
+            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+            return { attr: document.documentElement.getAttribute('data-theme'), luminance: (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 };
+          });
+          themeProblem = state.attr !== forced || (forced === 'dark' ? state.luminance < 0.5 : state.luminance > 0.5);
+        }
+
+        const failed = blocking.length > 0 || overflow || tooSmall.length > 0 || themeProblem;
         if (failed) failures++;
         results.push({
-          page: path, width: viewport.width, scheme: colorScheme, failed,
+          page: path, width: viewport.width, scheme: colorScheme, forced, failed, themeProblem,
           violations: axe.violations.map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.map((n) => n.target.join(' ')) })),
           overflow, tooSmall,
         });
-        console.log(`${failed ? 'FAIL' : 'ok  '} ${colorScheme.padEnd(5)} ${String(viewport.width).padStart(4)} px  ${path}` +
+        console.log(`${failed ? 'FAIL' : 'ok  '} ${colorScheme.padEnd(5)} ${(forced ?? '-').padEnd(5)} ${String(viewport.width).padStart(4)} px  ${path}` +
           (axe.violations.length ? `  axe: ${axe.violations.map((v) => `${v.id}(${v.impact})`).join(', ')}` : '') +
-          (overflow ? '  overflow' : '') + (tooSmall.length ? `  tooSmall: ${tooSmall.map((x) => x.el).join(',')}` : ''));
+          (themeProblem ? '  theme' : '') + (overflow ? '  overflow' : '') + (tooSmall.length ? `  tooSmall: ${tooSmall.map((x) => x.el).join(',')}` : ''));
       }
       await context.close();
     }

@@ -201,6 +201,9 @@ public sealed partial class MeasurementsViewModel : ObservableObject
     [RelayCommand]
     private async Task LogoutAsync() => await SignOutAsync();
 
+    [RelayCommand]
+    private async Task OpenProfileAsync() => await _navigator.GoToProfileAsync();
+
     private async Task LoadAsync(int page)
     {
         IsBusy = true;
