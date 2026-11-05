@@ -1,7 +1,7 @@
 # Change: Abnahme Barrierefreiheit (Screenreader) und Mobilbreite der Blazor-Oberfläche
 
-> **Status:** in-progress
-> Ablage: `UserStories/frontend-a11y-mobil-abnahme.openspec.md` (nach Abschluss: `UserStories/archive/YYYY-MM-DD-frontend-a11y-mobil-abnahme.openspec.md`)
+> **Status:** archived (2026-11-05). Offen vermerkt: Screenreader-Durchlauf durch eine Person (T6) und daraus folgende Korrekturen (T7).
+> Ablage: (archiviert als `UserStories/archive/2026-11-05-frontend-a11y-mobil-abnahme.openspec.md`)
 > Baut auf: `UserStories/archive/2026-11-05-frontend-blazor-oberflaeche.openspec.md` (dort sind Screenreader und Mobilbreite als „nicht geprüft“ vermerkt).
 
 ## 1. Proposal (Why & What)
@@ -104,14 +104,14 @@ Entfällt.
 - [x] T3 (qa) Zielgrößen vermessen, Korrekturen (CSS)
 - [x] T4 (qa) axe-core-Lauf je Seite (hell/dunkel), Befunde beheben oder begründen; Skript ablegen
 - [x] T5 (ux/doc) `docs/a11y/screenreader-pruefung.md` mit Abläufen und Ergebnistabelle schreiben
-- [ ] T6 (**Mensch**) VoiceOver-Durchlauf durchführen und Tabelle ausfüllen (NVDA, falls möglich)
-- [ ] T7 (frontend) Befunde aus T6 beheben, mit Tests absichern
-- [ ] T8 (po) Spec archivieren, Haken in `UserStories/archive/2026-11-05-frontend-blazor-oberflaeche.openspec.md` nachziehen
+- [~] T6 (**Mensch**) VoiceOver-Durchlauf durchführen und Tabelle ausfüllen (NVDA, falls möglich) — **Offen vermerkt**, nicht als bestanden ausgegeben (`docs/a11y/screenreader-pruefung.md`)
+- [~] T7 (frontend) Befunde aus T6 beheben, mit Tests absichern — Hängt an T6; es gibt noch keine Befunde
+- [x] T8 (po) Spec archivieren, Haken in `UserStories/archive/2026-11-05-frontend-blazor-oberflaeche.openspec.md` nachziehen — Archiviert; die archivierte Oberflächen-Spec enthält keine offenen Haken mehr
 
 ## 9. Acceptance Criteria (DoD)
 - [x] Kein horizontales Scrollen auf fünf von sechs Seiten bei 320 und 375 px (Messwerte, Auswertung, Export, Erinnerungen, Hinweise; die Anmeldeseite ist nicht in den Lauf einbezogen – im Screenshot bei 375 px unauffällig).
 - [x] Zielgrößen erfüllt (Messung dokumentiert).
 - [x] axe-core: keine Verstöße auf den fünf geprüften Seiten, hell und dunkel, bei 375 und 320 px (Protokoll in `docs/a11y/screenreader-pruefung.md`).
-- [ ] Prüfanleitung vorhanden; Ergebnistabelle von einer Person ausgefüllt (VoiceOver mindestens); alle Befunde behoben oder begründet.
-- [ ] UI-Tests und CI grün; keine neue Laufzeit-Abhängigkeit in der ausgelieferten UI.
-- [ ] Spec archiviert.
+- [~] Prüfanleitung vorhanden; Ergebnistabelle von einer Person ausgefüllt (VoiceOver mindestens); alle Befunde behoben oder begründet. — Anleitung vorhanden, Ergebnistabelle noch von keiner Person ausgefüllt
+- [x] UI-Tests und CI grün; keine neue Laufzeit-Abhängigkeit in der ausgelieferten UI. — CI und Job `A11y` grün, keine neue Laufzeit-Abhängigkeit
+- [x] Spec archiviert. — Archiviert

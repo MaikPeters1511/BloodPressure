@@ -1,6 +1,6 @@
 # Barrierefreiheits-Prüfung der MAUI-App
 
-Spec: `UserStories/maui-app-api-anbindung.openspec.md` (Phase 4). Zwei Teile: die **automatisierte Prüfung** (läuft in der CI) und die **Screenreader-Prüfung auf dem Gerät** (von einer Person auszuführen und zu protokollieren). Für die Web-Oberfläche gilt `docs/a11y/screenreader-pruefung.md`.
+Spec: `UserStories/archive/2026-11-05-maui-app-api-anbindung.openspec.md` (Phase 4). Zwei Teile: die **automatisierte Prüfung** (läuft in der CI) und die **Screenreader-Prüfung auf dem Gerät** (von einer Person auszuführen und zu protokollieren). Für die Web-Oberfläche gilt `docs/a11y/screenreader-pruefung.md`.
 
 ## 1. Automatisierte Prüfung
 
