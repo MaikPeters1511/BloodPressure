@@ -47,10 +47,13 @@
         <input id="profile-weight" class="form-control" inputmode="decimal" autocomplete="off" value="@_weight" @onchange="e => _weight = e.Value?.ToString() ?? string.Empty" />
     </div>
 
-    @if (Bmi is { } bmi)
-    {
-        <p id="profile-bmi"><strong>@L["Profile_Bmi", bmi.ToString("0.0", UiCulture)]</strong> <span class="text-muted">@L["Profile_BmiNote"]</span></p>
-    }
+    @* Platz bleibt immer reserviert: erscheint der BMI erst beim Verlassen des Feldes, würde sich sonst die Speichern-Schaltfläche verschieben und der Klick ins Leere gehen. *@
+    <div class="mb-3 bmi-row" aria-live="polite">
+        @if (Bmi is { } bmi)
+        {
+            <p id="profile-bmi" class="mb-0"><strong>@L["Profile_Bmi", bmi.ToString("0.0", UiCulture)]</strong> <span class="text-muted">@L["Profile_BmiNote"]</span></p>
+        }
+    </div>
 
     <div @ref="_errorRegion" tabindex="-1" id="profile-errors">
         @if (_errors.Count > 0)

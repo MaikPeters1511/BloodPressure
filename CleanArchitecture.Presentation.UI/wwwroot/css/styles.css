@@ -326,3 +326,15 @@ select, select option {
     background-color: var(--field-bg);
     color: var(--field-fg);
 }
+
+/* Optionsfelder: Zielgröße ab 24 px; die Beschriftung daneben vergrößert die Klickfläche auf 44 px. */
+input[type="radio"] { width: 1.5rem; height: 1.5rem; flex: 0 0 auto; accent-color: #0a58ca; cursor: pointer; }
+fieldset > div > label { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; }
+fieldset legend { margin-bottom: 0.5rem; }
+
+.bmi-row { min-height: 1.75rem; }
+
+/* Am Desktop ist die Seitenleiste immer sichtbar; der Menüknopf (oben definiert) wird dort wieder ausgeblendet. */
+@media (min-width: 641px) {
+    .navbar-toggler { display: none; }
+}
