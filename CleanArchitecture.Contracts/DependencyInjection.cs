@@ -18,6 +18,9 @@ public static class DependencyInjection
         services.AddRefitClient<IReminderApi>()
             .ConfigureHttpClient(c => c.BaseAddress = baseAddress)
             .AddHttpMessageHandler<BearerTokenHandler>();
+        services.AddRefitClient<IProfileApi>()
+            .ConfigureHttpClient(c => c.BaseAddress = baseAddress)
+            .AddHttpMessageHandler<BearerTokenHandler>();
         services.AddRefitClient<INotificationApi>()
             .ConfigureHttpClient(c => c.BaseAddress = baseAddress)
             .AddHttpMessageHandler<BearerTokenHandler>();
