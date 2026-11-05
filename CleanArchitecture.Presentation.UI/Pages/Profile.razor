@@ -7,10 +7,12 @@
 @using Refit
 @inject IProfileApi Api
 @inject IThemeService Theme
+@inject ILanguageService Language
 @inject AuthSession Session
 @inject NavigationManager Navigation
 @inject IStringLocalizer<SharedResource> L
 @inject ILogger<Profile> Logger
+@implements IDisposable
 
 <PageTitle>@L["Profile_Title"]</PageTitle>
 
@@ -28,6 +30,21 @@
         </div>
     }
     <p class="form-text">@L["Theme_Hint"]</p>
+</fieldset>
+
+<fieldset class="mb-4" id="language-group">
+    <legend class="fs-6">@L["Language_Title"]</legend>
+    @foreach (var option in new[] { LanguageChoice.System, LanguageChoice.German, LanguageChoice.English })
+    {
+        var value = option;
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <input type="radio" id="language-@value" name="language" value="@value" checked="@(_language == value)"
+                   @onchange="() => SetLanguageAsync(value)" />
+            @* Deutsch und English stehen in ihrer eigenen Sprache; lang sorgt für die richtige Aussprache im Screenreader. *@
+            <label for="language-@value" lang="@(value is LanguageChoice.System ? null : value)">@LanguageName(value)</label>
+        </div>
+    }
+    <p class="form-text">@L["Language_Hint"]</p>
 </fieldset>
 
 <h2 class="fs-5">@L["Profile_Personal"]</h2>
@@ -89,6 +106,7 @@
 
 @code {
     private string _theme = ThemeChoice.System;
+    private string _language = LanguageChoice.System;
     private string _age = "", _height = "", _weight = "";
     private bool _loading = true, _saving, _confirmDelete, _focusErrors;
     private string? _status;
@@ -109,7 +127,9 @@
             return;
         }
 
+        Language.Changed += OnLanguageChanged;
         _theme = await Theme.GetAsync();
+        _language = await Language.GetChoiceAsync();
         try
         {
             Show(await Api.GetAsync());
@@ -137,6 +157,36 @@
             await _errorRegion.FocusAsync();
         }
     }
+
+    // Autonyme (Deutsch, English) werden nicht übersetzt; nur "System" folgt der Oberflächensprache.
+    private string LanguageName(string value) => value switch
+    {
+        LanguageChoice.German => L["Language_German"].Value,
+        LanguageChoice.English => L["Language_English"].Value,
+        _ => L["Language_System"].Value
+    };
+
+    private async Task SetLanguageAsync(string value)
+    {
+        _language = value;
+        await Language.SetChoiceAsync(value);
+        // Meldung in der neuen Sprache (die Änderung wird dem Screenreader über role="status" angesagt).
+        _errors = [];
+        _status = L["Language_Changed", LanguageName(value)].Value;
+    }
+
+    // Nach dem Wechsel: Zahlenformat der Eingaben anpassen (Werte bleiben, auch ungespeicherte), Texte neu zeichnen.
+    private void OnLanguageChanged()
+    {
+        if (TryParse(out var profile))
+        {
+            Show(profile);
+        }
+
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => Language.Changed -= OnLanguageChanged;
 
     private async Task SetThemeAsync(string value)
     {

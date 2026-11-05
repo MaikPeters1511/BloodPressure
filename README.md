@@ -14,9 +14,10 @@ Nach der Anmeldung stehen fünf Bereiche bereit: **Messwerte** (Liste mit Katego
 
 ## Profil & Einstellungen
 
-Web (`/profile`) und MAUI-App (Schaltfläche „Profil“ auf den Messwerten) haben eine Seite mit zwei Teilen:
+Web (`/profile`) und MAUI-App (Schaltfläche „Profil“ auf den Messwerten) haben eine Seite mit drei Teilen:
 
 - **Darstellung** (System / Hell / Dunkel): gilt je Gerät und wird lokal gespeichert (Browser: `localStorage`, App: `Preferences`), nicht am Server. Im Web setzt `data-theme` am `<html>`-Element das Schema; ohne Wahl gilt das Systemschema.
+- **Sprache** (System / Deutsch / English): gilt ebenfalls je Gerät und wird lokal gespeichert (Browser: `localStorage` `bp.lang`, App: `Preferences` `bp.language`), nicht am Server. „System“ folgt der Browser- bzw. Gerätesprache (Englisch, sonst Deutsch). Der Wechsel wirkt sofort auf Texte, Zahlen- und Datumsformate; im Web bleiben ungespeicherte Eingaben erhalten, die App baut die Oberfläche neu auf (Anmeldung bleibt). Technisch: Das Web nutzt einen eigenen Lokalisierer (`LanguageLocalizer`), weil Blazor WebAssembly die Kultur des Threads beim Start festlegt, und lädt dafür beide Sprachpakete (`loadAllSatelliteResources` in `wwwroot/index.html`).
 - **Persönliche Angaben** (Alter, Größe in cm, Gewicht in kg, alle optional): am Server je Nutzer unter `GET/PUT/DELETE /api/v1/profile`. Gespeichert wird das Geburtsjahr, angezeigt das Alter. Dazu eine BMI-Zahl **ohne** Bewertung und mit dem Hinweis „keine Diagnose“. Die Angaben stehen nicht in Exporten.
 
 ## MAUI-App (iOS, Android, Mac Catalyst)

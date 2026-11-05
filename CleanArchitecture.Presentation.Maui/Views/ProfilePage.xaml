@@ -26,6 +26,21 @@
             </VerticalStackLayout>
             <Label Text="{loc:Translate Theme_Hint}" FontSize="13" />
 
+            <Label Text="{loc:Translate Language_Title}" Style="{StaticResource SubHeadline}"
+                   SemanticProperties.HeadingLevel="Level2" />
+            <VerticalStackLayout Spacing="4">
+                <RadioButton Content="{loc:Translate Language_System}" GroupName="language" IsChecked="{Binding IsLanguageSystem}"
+                             MinimumHeightRequest="44" AutomationId="LanguageSystem"
+                             SemanticProperties.Description="{loc:Translate Language_System}" />
+                <RadioButton Content="{loc:Translate Language_German}" GroupName="language" IsChecked="{Binding IsLanguageGerman}"
+                             MinimumHeightRequest="44" AutomationId="LanguageGerman"
+                             SemanticProperties.Description="{loc:Translate Language_German}" />
+                <RadioButton Content="{loc:Translate Language_English}" GroupName="language" IsChecked="{Binding IsLanguageEnglish}"
+                             MinimumHeightRequest="44" AutomationId="LanguageEnglish"
+                             SemanticProperties.Description="{loc:Translate Language_English}" />
+            </VerticalStackLayout>
+            <Label Text="{loc:Translate Language_Hint}" FontSize="13" />
+
             <Label Text="{loc:Translate Profile_Personal}" Style="{StaticResource SubHeadline}"
                    SemanticProperties.HeadingLevel="Level2" />
             <Label Text="{Binding Hint}" FontSize="13" />

@@ -38,7 +38,9 @@ public static class MauiProgram
         apiBase = ApiEndpoint.ForAndroidEmulator(apiBase);
 #endif
 
-        var localizer = new ResxLocalizer(CultureInfo.CurrentUICulture);
+        // Sprache: gespeicherte Wahl, sonst Gerätesprache (Englisch, sonst Deutsch); muss vor der ersten Seite feststehen.
+        var deviceCulture = CultureInfo.CurrentUICulture;
+        var localizer = new ResxLocalizer(LanguageSettings.ResolveStored(new MauiSettingsStore(), deviceCulture));
         Loc.Localizer = localizer;
 
         var services = builder.Services;
@@ -51,9 +53,12 @@ public static class MauiProgram
         services.AddSingleton<ISettingsStore, MauiSettingsStore>();
         services.AddSingleton<IThemeApplier, MauiThemeApplier>();
         services.AddSingleton<ThemeSettings>();
+        services.AddSingleton<ILanguageApplier, MauiLanguageApplier>();
+        services.AddSingleton(sp => new LanguageSettings(
+            sp.GetRequiredService<ISettingsStore>(), localizer, sp.GetRequiredService<ILanguageApplier>(), deviceCulture));
         services.AddSingleton<SessionService>();
         services.AddSingleton<NotificationCounter>();
-        services.AddSingleton<AppShell>();
+        services.AddTransient<AppShell>();
         services.AddSingleton<IAccessTokenProvider>(sp => sp.GetRequiredService<SessionService>());
         services.AddBloodPressureApiClient(apiBase);
 

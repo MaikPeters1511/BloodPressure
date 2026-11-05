@@ -5,6 +5,7 @@
 @using CleanArchitecture.Presentation.UI.Services
 @using Microsoft.Extensions.Localization
 @using Refit
+@inject ILanguageService Language
 @inject IBloodPressureApi Api
 @inject AuthSession Session
 @inject NavigationManager Navigation
@@ -47,7 +48,7 @@
                 <tbody>
                     @foreach (var item in _items)
                     {
-                        var date = Local(item.DateTime).ToString("g", CultureInfo.CurrentCulture);
+                        var date = Local(item.DateTime).ToString("g", Language.Culture);
                         <tr @key="item.Id">
                             <td>@date</td>
                             <td>@item.Systolisch</td>

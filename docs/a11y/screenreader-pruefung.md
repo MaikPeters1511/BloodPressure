@@ -48,11 +48,12 @@ Je Ablauf notieren: **bestanden**, oder **Befund** (Seite, Schritt, gehört, erw
 | 11 | Erinnerungen | Uhrzeit entfernen. | Fokus landet auf „Uhrzeit hinzufügen“, nicht auf der Seite verloren. Schaltflächen heißen „Uhrzeit 2 entfernen“. |
 | 12 | Hinweise | Ungelesene Warnung lesen, „Als gelesen markieren“ wählen. | Warnung wird beim Laden angesagt; nach dem Markieren Ansage „Der Hinweis wurde als gelesen markiert.“, **Fokus liegt auf dem Hinweis**, Zähler in der Navigation sinkt. |
 | 14 | Profil | Darstellung wählen, Alter/Größe/Gewicht eingeben, speichern. | Optionsgruppe „Darstellung“ wird als Gruppe angesagt, jede Option mit „ausgewählt/nicht ausgewählt“; Felder heißen „Alter (Jahre)“, „Größe (cm)“, „Gewicht (kg)“; nach dem Speichern „Das Profil wurde gespeichert.“; ungültige Eingabe: Fokus im Fehlerbereich; BMI-Zeile meldet sich höflich („BMI 25,5 Dies ist keine Diagnose.“). |
+| 15 | Sprache | Auf der Profilseite „English“ wählen, danach „Deutsch“ und „System“. | Gruppe „Sprache“ mit den Optionen „System“, „Deutsch“ und „English“; „Deutsch“ und „English“ werden in ihrer eigenen Sprache ausgesprochen (`lang`-Attribut). Nach dem Wechsel Ansage „Language: English“ bzw. „Sprache: Deutsch“, Fokus bleibt auf der gewählten Option, danach liest der Screenreader die Seite in der neuen Sprache. |
 | 13 | Alle | Überschriftenstruktur prüfen (Rotor/`H`). | Eine `h1` je Seite, sinnvolle Reihenfolge, Seitentitel entspricht der Seite. |
 
 ### Ergebnisprotokoll (bitte ausfüllen)
 
-| Datum | Prüfer | Screenreader / Browser / System | Version der Anwendung (Commit) | Ergebnis je Ablauf (1–13) | Befunde |
+| Datum | Prüfer | Screenreader / Browser / System | Version der Anwendung (Commit) | Ergebnis je Ablauf (1–15) | Befunde |
 |---|---|---|---|---|---|
 | _offen_ | _offen_ | VoiceOver / Safari / macOS | | | |
 | _offen_ | _offen_ | NVDA / Firefox / Windows | | | |

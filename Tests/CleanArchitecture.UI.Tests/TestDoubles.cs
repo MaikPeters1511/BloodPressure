@@ -266,3 +266,26 @@ public sealed class FakeTheme : IThemeService
         return Task.CompletedTask;
     }
 }
+
+public sealed class FakeLanguage(string current) : ILanguageService
+{
+    public event Action? Changed;
+
+    public string Current { get; private set; } = current;
+    public System.Globalization.CultureInfo Culture => new(Current);
+    public string Choice { get; set; } = LanguageChoice.System;
+    public List<string> Set { get; } = [];
+
+    public Task<string> GetChoiceAsync() => Task.FromResult(Choice);
+
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public Task SetChoiceAsync(string choice)
+    {
+        Choice = choice;
+        Set.Add(choice);
+        Current = LanguageChoice.Resolve(choice, "de");
+        Changed?.Invoke();
+        return Task.CompletedTask;
+    }
+}

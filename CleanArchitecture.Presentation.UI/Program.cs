@@ -24,6 +24,9 @@ builder.Services.AddSingleton<ITokenStorage, SessionTokenStorage>();
 builder.Services.AddSingleton<AuthSession>();
 builder.Services.AddScoped<IBrowserInterop, BrowserInterop>();
 builder.Services.AddScoped<IThemeService, ThemeService>();
+builder.Services.AddScoped<ILanguageService, LanguageService>();
+// Eigener Lokalisierer (folgt dem Sprachdienst); der geschlossene Typ hat Vorrang vor der Standardregistrierung von AddLocalization.
+builder.Services.AddScoped<Microsoft.Extensions.Localization.IStringLocalizer<SharedResource>, LanguageLocalizer>();
 builder.Services.AddSingleton<NotificationCounter>();
 builder.Services.AddSingleton<IAccessTokenProvider>(sp => sp.GetRequiredService<AuthSession>());
 
@@ -36,10 +39,7 @@ var host = builder.Build();
 
 await host.Services.GetRequiredService<AuthSession>().InitializeAsync();
 
-// Sprache aus dem Browser (Englisch, sonst Deutsch).
-var browserLanguage = await host.Services.GetRequiredService<IJSRuntime>().InvokeAsync<string?>("getBrowserLanguage");
-var culture = new CultureInfo(browserLanguage?.StartsWith("en", StringComparison.OrdinalIgnoreCase) == true ? "en" : "de");
-CultureInfo.DefaultThreadCurrentCulture = culture;
-CultureInfo.DefaultThreadCurrentUICulture = culture;
+// Sprache: gespeicherte Wahl, sonst Browsersprache (Englisch, sonst Deutsch).
+await host.Services.GetRequiredService<ILanguageService>().InitializeAsync();
 
 await host.RunAsync();
