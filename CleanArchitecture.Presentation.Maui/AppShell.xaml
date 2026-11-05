@@ -27,6 +27,15 @@
             Route="export"
             Title="{loc:Translate Tab_Export}"
             ContentTemplate="{DataTemplate views:ExportPage}" />
+        <ShellContent
+            Route="reminders"
+            Title="{loc:Translate Tab_Reminders}"
+            ContentTemplate="{DataTemplate views:RemindersPage}" />
+        <ShellContent
+            x:Name="NotificationsTab"
+            Route="notifications"
+            Title="{loc:Translate Tab_Notifications}"
+            ContentTemplate="{DataTemplate views:NotificationsPage}" />
     </TabBar>
 
 </Shell>

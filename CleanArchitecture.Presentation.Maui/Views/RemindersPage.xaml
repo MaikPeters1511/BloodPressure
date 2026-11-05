@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:CleanArchitecture.Presentation.Maui.Localization"
+             xmlns:vm="clr-namespace:CleanArchitecture.Presentation.Maui.Core.ViewModels;assembly=CleanArchitecture.Presentation.Maui.Core"
+             x:Class="CleanArchitecture.Presentation.Maui.Views.RemindersPage"
+             x:DataType="vm:RemindersViewModel"
+             Title="{loc:Translate Reminders_Title}">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="560">
+            <Label Text="{loc:Translate Reminders_Title}" Style="{StaticResource Headline}"
+                   SemanticProperties.HeadingLevel="Level1" />
+            <Label Text="{Binding Hint}" />
+
+            <Label Text="{loc:Translate Reminders_Zone}" />
+            <Entry Text="{Binding TimeZoneId}" AutomationId="ZoneEntry" MinimumHeightRequest="44"
+                   Keyboard="Plain" SemanticProperties.Description="{loc:Translate Reminders_Zone}"
+                   SemanticProperties.Hint="{loc:Translate Reminders_ZoneHelp}" />
+            <Label Text="{loc:Translate Reminders_ZoneHelp}" FontSize="13" />
+
+            <Label Text="{loc:Translate Reminders_Times}" Style="{StaticResource SubHeadline}"
+                   SemanticProperties.HeadingLevel="Level2" />
+            <Label Text="{loc:Translate Reminders_None}" IsVisible="{Binding HasNone}" />
+
+            <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Times}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ReminderTimeItem">
+                        <HorizontalStackLayout Spacing="12">
+                            <TimePicker Time="{Binding Time}" MinimumHeightRequest="44" MinimumWidthRequest="140"
+                                        SemanticProperties.Description="{Binding Label}" />
+                            <Button Text="{loc:Translate Delete}" MinimumHeightRequest="44"
+                                    Style="{StaticResource OutlineButton}"
+                                    SemanticProperties.Description="{Binding RemoveLabel}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RemindersViewModel}}, x:DataType=vm:RemindersViewModel, Path=RemoveTimeCommand}"
+                                    CommandParameter="{Binding .}" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Button Text="{loc:Translate Reminders_Add}" Command="{Binding AddTimeCommand}" IsEnabled="{Binding CanAdd}"
+                    MinimumHeightRequest="44" Style="{StaticResource OutlineButton}" AutomationId="AddTimeButton" />
+
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Errors}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Label Text="{Binding .}" TextColor="{AppThemeBinding Light=#B02A37, Dark=#EA868F}" />
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Button Text="{loc:Translate Form_Save}" Command="{Binding SaveCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    MinimumHeightRequest="44" AutomationId="SaveRemindersButton" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+            <Label Text="{Binding StatusMessage}"
+                   IsVisible="{Binding StatusMessage, Converter={StaticResource IsNotNullConverter}}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

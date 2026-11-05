@@ -30,6 +30,11 @@
                        IsVisible="{Binding Message, Converter={StaticResource IsNotNullConverter}}"
                        TextColor="{AppThemeBinding Light=#B02A37, Dark=#EA868F}" />
 
+                <Button Text="{Binding ToggleFormText}" Command="{Binding ToggleFormCommand}"
+                        MinimumHeightRequest="44" AutomationId="ToggleFormButton"
+                        Style="{StaticResource OutlineButton}" />
+
+                <VerticalStackLayout Spacing="12" IsVisible="{Binding IsFormVisible}">
                 <Label Text="{loc:Translate Form_Title}"
                        Style="{StaticResource SubHeadline}"
                        SemanticProperties.HeadingLevel="Level2" />
@@ -67,6 +72,8 @@
                         IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
                         AutomationId="SaveButton"
                         MinimumHeightRequest="44" />
+
+                </VerticalStackLayout>
 
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
             </VerticalStackLayout>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:CleanArchitecture.Presentation.Maui.Localization"
+             xmlns:vm="clr-namespace:CleanArchitecture.Presentation.Maui.Core.ViewModels;assembly=CleanArchitecture.Presentation.Maui.Core"
+             x:Class="CleanArchitecture.Presentation.Maui.Views.NotificationsPage"
+             x:DataType="vm:NotificationsViewModel"
+             Title="{loc:Translate Notifications_Title}">
+
+    <CollectionView ItemsSource="{Binding Items}" AutomationId="NotificationsList">
+        <CollectionView.Header>
+            <VerticalStackLayout Padding="16" Spacing="12">
+                <Label Text="{loc:Translate Notifications_Title}" Style="{StaticResource Headline}"
+                       SemanticProperties.HeadingLevel="Level1" />
+                <Label Text="{loc:Translate Disclaimer_Medical}" FontSize="13" />
+                <Label Text="{Binding Message}"
+                       IsVisible="{Binding Message, Converter={StaticResource IsNotNullConverter}}"
+                       TextColor="{AppThemeBinding Light=#B02A37, Dark=#EA868F}" />
+                <Label Text="{loc:Translate Notifications_Empty}" IsVisible="{Binding IsEmpty}" AutomationId="EmptyLabel" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+            </VerticalStackLayout>
+        </CollectionView.Header>
+
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="vm:NotificationItem">
+                <Border Margin="16,4" Padding="12" StrokeThickness="1"
+                        SemanticProperties.Description="{Binding Summary}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsCritical}" Value="True">
+                            <Setter Property="Stroke" Value="{AppThemeBinding Light=#B02A37, Dark=#EA868F}" />
+                            <Setter Property="StrokeThickness" Value="2" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <VerticalStackLayout Spacing="6">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="{Binding Title}" FontAttributes="Bold" VerticalOptions="Center" />
+                            <Border IsVisible="{Binding HasCategory}" Padding="10,4" StrokeThickness="0"
+                                    BackgroundColor="{Binding CategoryLevel, Converter={StaticResource CategoryBackgroundConverter}}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="6" />
+                                </Border.StrokeShape>
+                                <Label Text="{Binding CategoryText}" FontSize="13" FontAttributes="Bold"
+                                       TextColor="{Binding CategoryLevel, Converter={StaticResource CategoryTextColorConverter}}" />
+                            </Border>
+                            <Label Text="{loc:Translate Notifications_New}" IsVisible="{Binding IsUnread}"
+                                   FontAttributes="Bold" VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#0A58CA, Dark=#6EA8FE}" />
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding Message}" />
+                        <Label Text="{Binding DateText}" FontSize="13" />
+                        <Button Text="{loc:Translate Notifications_MarkRead}" IsVisible="{Binding IsUnread}"
+                                MinimumHeightRequest="44" HorizontalOptions="Start"
+                                Style="{StaticResource OutlineButton}" AutomationId="MarkReadButton"
+                                SemanticProperties.Description="{loc:Translate Notifications_MarkRead}"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:NotificationsViewModel}}, x:DataType=vm:NotificationsViewModel, Path=MarkReadCommand}"
+                                CommandParameter="{Binding .}" />
+                    </VerticalStackLayout>
+                </Border>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+</ContentPage>
