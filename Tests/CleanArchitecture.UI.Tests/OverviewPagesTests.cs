@@ -328,13 +328,30 @@ public class NotificationsPageTests
     [Test]
     public async Task ShowsNewestFirst_AndEmptyState()
     {
-        var (host, cut) = await OpenAsync(Note("MeasurementReminder", true, 1), Note("MeasurementReminder", true, 9));
+        var (host, cut) = await OpenAsync(Note("Info", true, 1), Note("Info", true, 9));
         using var _ = host;
         await Assert.That(cut.FindAll("li.notification")[0].TextContent).Contains("Text 9");
 
         var (host2, cut2) = await OpenAsync();
         using var __ = host2;
         await Assert.That(cut2.Find("#notifications-empty").TextContent).IsNotEmpty();
+    }
+
+    [Test]
+    public async Task CriticalAndReminder_AreShownInTheUiLanguage_NotWithTheServerText()
+    {
+        using var host = new UiHost("en");
+        host.Notifications.Items.Add(Note("CriticalReading", false, 5, "Hypertension"));
+        host.Notifications.Items.Add(Note("MeasurementReminder", false, 4));
+        await host.SignInAsync();
+        var cut = host.Context.Render<Notifications>();
+        cut.WaitForState(() => cut.FindAll("[aria-busy=true]").Count == 0);
+
+        var text = cut.Markup;
+
+        await Assert.That(text).Contains("severely elevated blood pressure");
+        await Assert.That(text).Contains("Time for your blood pressure measurement.");
+        await Assert.That(text).DoesNotContain("Text 5");
     }
 
     [Test]

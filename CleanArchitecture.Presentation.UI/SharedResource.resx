@@ -100,4 +100,6 @@
   <data name="Category_NonElevated" xml:space="preserve"><value>Nicht erhöht</value></data>
   <data name="Category_Elevated" xml:space="preserve"><value>Erhöht</value></data>
   <data name="Category_Hypertension" xml:space="preserve"><value>Bluthochdruck</value></data>
+  <data name="Notification_CriticalText" xml:space="preserve"><value>Eine Messung liegt im Bereich eines stark erhöhten Blutdrucks (Kategorie {0}). Das ist keine Diagnose. Bitte bei Beschwerden oder anhaltend hohen Werten ärztlichen Rat einholen.</value></data>
+  <data name="Notification_ReminderText" xml:space="preserve"><value>Zeit für deine Blutdruckmessung.</value></data>
 </root>

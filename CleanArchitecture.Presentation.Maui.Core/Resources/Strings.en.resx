@@ -34,7 +34,7 @@
   <data name="Delete_Yes" xml:space="preserve"><value>Delete</value></data>
   <data name="Delete_Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Conflict" xml:space="preserve"><value>The measurement was changed in the meantime. The list was reloaded.</value></data>
-  <data name="Tab_Measurements" xml:space="preserve"><value>Measurements</value></data>
+  <data name="Tab_Measurements" xml:space="preserve"><value>Readings</value></data>
   <data name="Tab_Statistics" xml:space="preserve"><value>Statistics</value></data>
   <data name="Tab_Export" xml:space="preserve"><value>Export</value></data>
   <data name="Range_From" xml:space="preserve"><value>From</value></data>
@@ -90,4 +90,6 @@
   <data name="Category_NonElevated" xml:space="preserve"><value>Not elevated</value></data>
   <data name="Category_Elevated" xml:space="preserve"><value>Elevated</value></data>
   <data name="Category_Hypertension" xml:space="preserve"><value>Hypertension</value></data>
+  <data name="Notification_CriticalText" xml:space="preserve"><value>A measurement is in the range of severely elevated blood pressure (category {0}). This is not a diagnosis. In case of symptoms or persistently high values, please seek medical advice.</value></data>
+  <data name="Notification_ReminderText" xml:space="preserve"><value>Time for your blood pressure measurement.</value></data>
 </root>

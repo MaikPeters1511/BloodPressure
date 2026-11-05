@@ -145,8 +145,16 @@ public sealed partial class NotificationsViewModel : ObservableObject
         var local = TimeZoneInfo.ConvertTimeFromUtc(dto.CreatedAt.ToUniversalTime(), _time.LocalTimeZone).ToString("g", _l.Culture);
         return Rebuild(new NotificationItem(
             dto.Id, critical, dto.IsRead, critical ? _l["Notifications_Warning"] : _l["Notifications_Reminder"],
-            categoryText, level, dto.Message, local, ""));
+            categoryText, level, LocalizedMessage(dto, categoryText), local, ""));
     }
+
+    // Der Text kommt vom Server auf Deutsch; bekannte Typen werden in der App-Sprache dargestellt, unbekannte zeigen den Servertext.
+    private string LocalizedMessage(NotificationDto dto, string? categoryText) => dto.Type switch
+    {
+        "CriticalReading" => _l.Format("Notification_CriticalText", categoryText ?? _l["Category_Hypertension"]),
+        "MeasurementReminder" => _l["Notification_ReminderText"],
+        _ => dto.Message
+    };
 
     private NotificationItem Rebuild(NotificationItem item)
     {

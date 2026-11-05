@@ -100,4 +100,6 @@
   <data name="Category_NonElevated" xml:space="preserve"><value>Not elevated</value></data>
   <data name="Category_Elevated" xml:space="preserve"><value>Elevated</value></data>
   <data name="Category_Hypertension" xml:space="preserve"><value>Hypertension</value></data>
+  <data name="Notification_CriticalText" xml:space="preserve"><value>A measurement is in the range of severely elevated blood pressure (category {0}). This is not a diagnosis. In case of symptoms or persistently high values, please seek medical advice.</value></data>
+  <data name="Notification_ReminderText" xml:space="preserve"><value>Time for your blood pressure measurement.</value></data>
 </root>

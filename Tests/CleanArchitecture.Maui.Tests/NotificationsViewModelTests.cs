@@ -46,7 +46,7 @@ public class NotificationsViewModelTests
     [Test]
     public async Task Initialize_ShowsNewestFirst_AndSetsUnreadCounter()
     {
-        var vm = await CreateAsync(true, Note("MeasurementReminder", true, 1), Note("CriticalReading", false, 9), Note("MeasurementReminder", false, 5));
+        var vm = await CreateAsync(true, Note("Info", true, 1), Note("Info", false, 9), Note("Info", false, 5));
 
         await vm.InitializeCommand.ExecuteAsync(null);
 
@@ -78,7 +78,54 @@ public class NotificationsViewModelTests
         await Assert.That(item.CategoryLevel).IsEqualTo(CategoryLevel.High);
         await Assert.That(item.Summary).Contains("Warnung");
         await Assert.That(item.Summary).Contains("Neu");
-        await Assert.That(item.Summary).Contains("Text 5");
+        await Assert.That(item.Summary).Contains("stark erhöhten Blutdrucks");
+    }
+
+    [Test]
+    public async Task CriticalReading_UsesLocalizedText_NotTheServerText()
+    {
+        var vm = await CreateAsync(true, Note("CriticalReading", false, 5, "Hypertension"));
+
+        await vm.InitializeCommand.ExecuteAsync(null);
+
+        await Assert.That(vm.Items[0].Message).Contains("stark erhöhten Blutdrucks");
+        await Assert.That(vm.Items[0].Message).Contains("Bluthochdruck");
+        await Assert.That(vm.Items[0].Message).DoesNotContain("Text 5");
+    }
+
+    [Test]
+    public async Task CriticalReading_InEnglish_IsEnglish()
+    {
+        _api.Items.Add(Note("CriticalReading", false, 5, "Hypertension"));
+        _session = new SessionService(_store, _auth, _time);
+        await _session.LoginAsync("a@example.test", "pw");
+        _counter = new NotificationCounter(_api);
+        var vm = new NotificationsViewModel(_api, _counter, _session, _nav, _dialogs, new ResxLocalizer(Culture.En), _time);
+
+        await vm.InitializeCommand.ExecuteAsync(null);
+
+        await Assert.That(vm.Items[0].Message).Contains("severely elevated blood pressure");
+        await Assert.That(vm.Items[0].Message).Contains("Hypertension");
+    }
+
+    [Test]
+    public async Task Reminder_UsesLocalizedText()
+    {
+        var vm = await CreateAsync(true, Note("MeasurementReminder", false, 5));
+
+        await vm.InitializeCommand.ExecuteAsync(null);
+
+        await Assert.That(vm.Items[0].Message).IsEqualTo("Zeit für deine Blutdruckmessung.");
+    }
+
+    [Test]
+    public async Task UnknownType_FallsBackToTheServerText()
+    {
+        var vm = await CreateAsync(true, Note("Something", false, 5));
+
+        await vm.InitializeCommand.ExecuteAsync(null);
+
+        await Assert.That(vm.Items[0].Message).IsEqualTo("Text 5");
     }
 
     [Test]

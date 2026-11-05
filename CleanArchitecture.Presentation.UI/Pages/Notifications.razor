@@ -47,7 +47,7 @@
                             <span class="badge text-bg-primary ms-2">@L["Notifications_New"]</span>
                         }
                     </p>
-                    <p class="mb-1">@n.Message</p>
+                    <p class="mb-1">@MessageText(n)</p>
                     <p class="mb-2 text-muted small">@time</p>
                     @if (!n.IsRead)
                     {
@@ -103,6 +103,20 @@
             _focusId = null;
             await element.FocusAsync();
         }
+    }
+
+    // Der Text kommt vom Server auf Deutsch; bekannte Typen werden in der Sprache der Oberfläche dargestellt.
+    private string MessageText(NotificationDto n) => n.Type switch
+    {
+        "CriticalReading" => L["Notification_CriticalText", CategoryName(n.Category)].Value,
+        "MeasurementReminder" => L["Notification_ReminderText"].Value,
+        _ => n.Message
+    };
+
+    private string CategoryName(string? category)
+    {
+        var name = L[$"Category_{category ?? "Hypertension"}"];
+        return name.ResourceNotFound ? category ?? "" : name.Value;
     }
 
     private async Task MarkReadAsync(NotificationDto notification)
