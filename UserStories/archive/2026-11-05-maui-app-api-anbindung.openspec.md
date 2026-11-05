@@ -1,6 +1,6 @@
 # Change: MAUI-App – Anmeldung, Messwerte, Auswertung, Export, Erinnerungen, Hinweise
 
-> **Status:** archived (2026-11-05). Offen vermerkt: Screenreader-Durchlauf (VoiceOver/TalkBack) durch eine Person, Mac Catalyst und Windows nicht geprüft, iOS-Simulator seit dem Xcode-Update 27.2 lokal nicht baubar.
+> **Status:** archived (2026-11-05). Offen vermerkt: Screenreader-Durchlauf (VoiceOver/TalkBack) durch eine Person, Mac Catalyst und Windows nicht geprüft.
 > Ablage: (archiviert als `UserStories/archive/2026-11-05-maui-app-api-anbindung.openspec.md`)
 > Baut auf: `UserStories/specs/frontend-oberflaeche.openspec.md` (gleiche Fähigkeiten wie die Blazor-Oberfläche), Refit-Clients in `CleanArchitecture.Contracts`.
 
