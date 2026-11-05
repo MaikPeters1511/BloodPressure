@@ -1,7 +1,7 @@
 # Change: Blazor-Oberfläche für Statistik, Export, Erinnerungen und Hinweise
 
-> **Status:** in-progress
-> Ablage: `UserStories/frontend-blazor-oberflaeche.openspec.md` (nach Abschluss: `UserStories/archive/YYYY-MM-DD-frontend-blazor-oberflaeche.openspec.md`)
+> **Status:** archived (2026-11-05)
+> Ablage: `UserStories/archive/2026-11-05-frontend-blazor-oberflaeche.openspec.md`; Requirements übernommen nach `UserStories/specs/frontend-oberflaeche.openspec.md`
 > Baut auf: `frontend-blazor-api-anpassung.openspec.md` (Login, Messwerte), Epics 4, 5, 6.
 
 ## 1. Proposal (Why & What)
@@ -177,4 +177,6 @@ Entfällt.
 - [x] Keine neue NuGet-Abhängigkeit; kein Lizenzschlüssel im Repository.
 - [x] Im Browser geprüft: sichtbarer Fokusindikator an allen 14 bedienbaren Elementen der Auswertung, Fokusziele nach Aktionen, Accessibility-Baum (Labels, Formulare, Diagramm `role=img` + Tabelle). **Nicht** geprüft: echter Screenreader, Mobilbreite.
 - [x] Download von CSV und PDF im echten Browser geprüft: CSV-Inhalt (Semikolon, 5 Zeilen, Kategorien) und PDF (`%PDF-1.4` … `%%EOF`, 34 KB) stimmen; Dateinamen korrekt.
-- [ ] Spec archiviert, Requirements in `UserStories/specs/frontend-oberflaeche.openspec.md` übernommen.
+- [x] Spec archiviert, Requirements in `UserStories/specs/frontend-oberflaeche.openspec.md` übernommen.
+
+> Nachträglich (siehe `frontend-a11y-mobil-abnahme.openspec.md`): Das Browser-Review am 2026-11-04 zeigte, dass die Kategorie-Badges anfangs keine Farben hatten (Stylesheet-Lücke) – behoben in PR 43. Ein echter Screenreader-Durchlauf steht weiterhin aus.
