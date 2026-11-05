@@ -14,7 +14,7 @@ Nach der Anmeldung stehen fünf Bereiche bereit: **Messwerte** (Liste mit Katego
 
 ## MAUI-App (iOS, Android, Mac Catalyst)
 
-Stand: Anmeldung (Registrieren, Abmelden, gespeicherte Anmeldung im sicheren Speicher), Messwerte (Liste mit Nachladen, Anlegen, Löschen), Auswertung (Kennzahlen und Verlaufsdiagramm je Tag/Woche/Monat) Export (CSV/PDF über den Teilen-Dialog), Erinnerungen (Zeitzone, bis zu 5 Uhrzeiten) und Hinweise (Warnungen, als gelesen markieren, Zähler im Tab-Titel). Offen: A11y-Abnahme mit Screenreader (siehe `UserStories/maui-app-api-anbindung.openspec.md`).
+Stand: Anmeldung (Registrieren, Abmelden, gespeicherte Anmeldung im sicheren Speicher), Messwerte (Liste mit Nachladen, Anlegen, Löschen), Auswertung (Kennzahlen und Verlaufsdiagramm je Tag/Woche/Monat) Export (CSV/PDF über den Teilen-Dialog), Erinnerungen (Zeitzone, bis zu 5 Uhrzeiten) und Hinweise (Warnungen, als gelesen markieren, Zähler im Tab-Titel). Barrierefreiheit: statischer XAML-Test in der CI, Geräte-Anleitung in `docs/a11y/maui-screenreader-pruefung.md` (Screenreader-Durchlauf noch offen) (siehe `UserStories/maui-app-api-anbindung.openspec.md`).
 
 - Logik (ViewModels, Sitzung, Texte DE/EN) liegt in `CleanArchitecture.Presentation.Maui.Core` und ist über `dotnet test --project Tests/CleanArchitecture.Maui.Tests` testbar; Entscheidung in `docs/adr/0004-maui-core-und-mvvm-toolkit.md`.
 - **API-Adresse:** `CleanArchitecture.Presentation.Maui/appsettings.json` (`Api:BaseUrl`, vor einem Release-Build setzen, nur HTTPS); Debug-Builds nutzen `appsettings.Debug.json` (`http://localhost:5000`, im Android-Emulator automatisch `10.0.2.2`).

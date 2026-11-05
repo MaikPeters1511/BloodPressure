@@ -1,6 +1,6 @@
 # Change: MAUI-App – Anmeldung, Messwerte, Auswertung, Export, Erinnerungen, Hinweise
 
-> **Status:** in-progress (Phase 1 bis 3 umgesetzt)
+> **Status:** in-progress (Phase 1 bis 4 umgesetzt; offen: Screenreader-Durchlauf auf dem Gerät)
 > Ablage: `UserStories/maui-app-api-anbindung.openspec.md` (nach Abschluss: `UserStories/archive/YYYY-MM-DD-maui-app-api-anbindung.openspec.md`)
 > Baut auf: `UserStories/specs/frontend-oberflaeche.openspec.md` (gleiche Fähigkeiten wie die Blazor-Oberfläche), Refit-Clients in `CleanArchitecture.Contracts`.
 
@@ -148,7 +148,7 @@ Entfällt.
 - [x] T4 (frontend) Phase 2: Auswertung (GraphicsView + Tabelle), Export (Teilen)
 - [x] T5 (frontend) Phase 3: Erinnerungen, Hinweise, Zähler
 - [ ] T6 (qa) Lauf im iOS-Simulator (und Mac Catalyst) gegen die echte API, Screenshots als Nachweis
-- [ ] T7 (ux) A11y-Review: VoiceOver/TalkBack-Anleitung nach Muster `docs/a11y/screenreader-pruefung.md`, Schriftvergrößerung, Zielgrößen
+- [x] T7 (ux) A11y-Review: statischer XAML-Test in der CI, Gegenprobe, Accessibility-Baum der Mac-App (Login), Geräte-Anleitung `docs/a11y/maui-screenreader-pruefung.md`. **Offen: Durchlauf mit VoiceOver/TalkBack durch eine Person**
 - [ ] T8 (devops) CI: ViewModel-Tests laufen bereits über `dotnet test`; optional macOS-Job für `dotnet build` des MAUI-Projekts (Kosten/Nutzen abwägen)
 - [x] T9 (doc, Stand Phase 1) README: Start der App, API-Adresse, Emulator-Hinweise
 
