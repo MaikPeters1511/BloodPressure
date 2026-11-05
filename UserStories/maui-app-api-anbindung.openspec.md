@@ -1,6 +1,6 @@
 # Change: MAUI-App – Anmeldung, Messwerte, Auswertung, Export, Erinnerungen, Hinweise
 
-> **Status:** in-progress (Phase 1)
+> **Status:** in-progress (Phase 1 und 2 umgesetzt)
 > Ablage: `UserStories/maui-app-api-anbindung.openspec.md` (nach Abschluss: `UserStories/archive/YYYY-MM-DD-maui-app-api-anbindung.openspec.md`)
 > Baut auf: `UserStories/specs/frontend-oberflaeche.openspec.md` (gleiche Fähigkeiten wie die Blazor-Oberfläche), Refit-Clients in `CleanArchitecture.Contracts`.
 
@@ -145,7 +145,7 @@ Entfällt.
 - [x] T1 (architect) Entscheidung MVVM-Bibliothek und Core-Aufteilung als ADR
 - [x] T2 (frontend) Phase 1 Tests (Red): Sitzung/Token, LoginViewModel, MeasurementsViewModel (Validierung, Paging, Löschen, 401/409)
 - [x] T3 (frontend) Core-Projekt, `SecureStorage`-Adapter, DI, Konfiguration der API-Adresse, Login- und Messwerte-Views, Shell
-- [ ] T4 (frontend) Phase 2: Auswertung (GraphicsView + Tabelle), Export (Teilen)
+- [x] T4 (frontend) Phase 2: Auswertung (GraphicsView + Tabelle), Export (Teilen)
 - [ ] T5 (frontend) Phase 3: Erinnerungen, Hinweise, Zähler
 - [ ] T6 (qa) Lauf im iOS-Simulator (und Mac Catalyst) gegen die echte API, Screenshots als Nachweis
 - [ ] T7 (ux) A11y-Review: VoiceOver/TalkBack-Anleitung nach Muster `docs/a11y/screenreader-pruefung.md`, Schriftvergrößerung, Zielgrößen

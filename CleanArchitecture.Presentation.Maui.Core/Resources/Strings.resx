@@ -40,4 +40,30 @@
   <data name="Category_Grade1" xml:space="preserve"><value>Hypertonie Grad 1</value></data>
   <data name="Category_Grade2" xml:space="preserve"><value>Hypertonie Grad 2</value></data>
   <data name="Category_Grade3" xml:space="preserve"><value>Hypertonie Grad 3</value></data>
+  <data name="Tab_Measurements" xml:space="preserve"><value>Messwerte</value></data>
+  <data name="Tab_Statistics" xml:space="preserve"><value>Auswertung</value></data>
+  <data name="Tab_Export" xml:space="preserve"><value>Export</value></data>
+  <data name="Range_From" xml:space="preserve"><value>Von</value></data>
+  <data name="Range_To" xml:space="preserve"><value>Bis</value></data>
+  <data name="Range_Apply" xml:space="preserve"><value>Anwenden</value></data>
+  <data name="Range_Order" xml:space="preserve"><value>„Von“ darf nicht nach „Bis“ liegen.</value></data>
+  <data name="Stats_Title" xml:space="preserve"><value>Auswertung</value></data>
+  <data name="Stats_Interval" xml:space="preserve"><value>Intervall</value></data>
+  <data name="Interval_Day" xml:space="preserve"><value>Tag</value></data>
+  <data name="Interval_Week" xml:space="preserve"><value>Woche</value></data>
+  <data name="Interval_Month" xml:space="preserve"><value>Monat</value></data>
+  <data name="Stats_Empty" xml:space="preserve"><value>Für diesen Zeitraum gibt es keine Messungen.</value></data>
+  <data name="Stats_ChartLabel" xml:space="preserve"><value>Verlauf der Durchschnittswerte für systolisch, diastolisch und Puls. Die Werte stehen in der Tabelle darunter.</value></data>
+  <data name="Stats_Table" xml:space="preserve"><value>Kennzahlen je Zeitabschnitt</value></data>
+  <data name="Stats_Legend" xml:space="preserve"><value>Angezeigt sind Durchschnitt (Minimum–Maximum) je Zeitabschnitt.</value></data>
+  <data name="Stats_RowSummary" xml:space="preserve"><value>{0}: {1} Messungen. Systolisch {2}. Diastolisch {3}. Puls {4}.</value></data>
+  <data name="Disclaimer_Medical" xml:space="preserve"><value>Diese Anwendung ersetzt keine ärztliche Beratung. Besprich auffällige Werte mit deiner Ärztin oder deinem Arzt.</value></data>
+  <data name="Export_Title" xml:space="preserve"><value>Export</value></data>
+  <data name="Export_Hint" xml:space="preserve"><value>Lade deine Messungen als Datei (höchstens {0:N0} Messungen). Ohne Zeitraum werden alle exportiert.</value></data>
+  <data name="Export_Format" xml:space="preserve"><value>Format</value></data>
+  <data name="Export_UseRange" xml:space="preserve"><value>Zeitraum einschränken</value></data>
+  <data name="Export_Download" xml:space="preserve"><value>Exportieren</value></data>
+  <data name="Export_Busy" xml:space="preserve"><value>Datei wird erstellt …</value></data>
+  <data name="Export_Done" xml:space="preserve"><value>Die Datei {0} wurde bereitgestellt.</value></data>
+  <data name="Export_TooMany" xml:space="preserve"><value>Der Zeitraum enthält zu viele Messungen (mehr als {0:N0}). Bitte wähle einen kleineren Zeitraum.</value></data>
 </root>

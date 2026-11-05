@@ -4,17 +4,29 @@
     x:Class="CleanArchitecture.Presentation.Maui.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:CleanArchitecture.Presentation.Maui.Localization"
     xmlns:views="clr-namespace:CleanArchitecture.Presentation.Maui.Views"
     Shell.FlyoutBehavior="Disabled"
-    Shell.NavBarIsVisible="True"
-    Shell.TabBarIsVisible="False">
+    Shell.NavBarIsVisible="True">
 
     <ShellContent
         Route="login"
+        Shell.TabBarIsVisible="False"
         ContentTemplate="{DataTemplate views:LoginPage}" />
 
-    <ShellContent
-        Route="measurements"
-        ContentTemplate="{DataTemplate views:MeasurementsPage}" />
+    <TabBar>
+        <ShellContent
+            Route="measurements"
+            Title="{loc:Translate Tab_Measurements}"
+            ContentTemplate="{DataTemplate views:MeasurementsPage}" />
+        <ShellContent
+            Route="statistics"
+            Title="{loc:Translate Tab_Statistics}"
+            ContentTemplate="{DataTemplate views:StatisticsPage}" />
+        <ShellContent
+            Route="export"
+            Title="{loc:Translate Tab_Export}"
+            ContentTemplate="{DataTemplate views:ExportPage}" />
+    </TabBar>
 
 </Shell>

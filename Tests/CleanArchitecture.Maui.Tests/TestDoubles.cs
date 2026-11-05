@@ -95,8 +95,32 @@ public sealed class FakeBloodPressureApi : IBloodPressureApi
 
     public Task<BloodPressureDto> GetByIdAsync(int id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     public Task UpdateAsync(int id, BloodPressureRequest request, string? ifMatch = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
-    public Task<IReadOnlyList<StatisticsBucketDto>> GetStatisticsAsync(DateTime? from = null, DateTime? to = null, string? interval = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
-    public Task<Stream> ExportAsync(string? format = null, DateTime? from = null, DateTime? to = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+    public List<StatisticsBucketDto> Buckets { get; } = [];
+    public List<(DateTime? From, DateTime? To, string? Interval)> StatisticsCalls { get; } = [];
+    public Exception? StatisticsFailWith { get; set; }
+
+    public Task<IReadOnlyList<StatisticsBucketDto>> GetStatisticsAsync(DateTime? from = null, DateTime? to = null, string? interval = null, CancellationToken cancellationToken = default)
+    {
+        StatisticsCalls.Add((from, to, interval));
+        return StatisticsFailWith is not null
+            ? Task.FromException<IReadOnlyList<StatisticsBucketDto>>(StatisticsFailWith)
+            : Task.FromResult<IReadOnlyList<StatisticsBucketDto>>(Buckets.ToList());
+    }
+
+    public List<(string? Format, DateTime? From, DateTime? To)> ExportCalls { get; } = [];
+    public Exception? ExportFailWith { get; set; }
+    public Task<Stream>? ExportGate { get; set; }
+
+    public async Task<Stream> ExportAsync(string? format = null, DateTime? from = null, DateTime? to = null, CancellationToken cancellationToken = default)
+    {
+        ExportCalls.Add((format, from, to));
+        if (ExportGate is not null)
+        {
+            await ExportGate;
+        }
+
+        return ExportFailWith is not null ? throw ExportFailWith : new MemoryStream("a;b"u8.ToArray());
+    }
 
     public static BloodPressureDto Make(int id, int sys = 120, int dia = 80, DateTime? at = null, int pulse = 65, int oxygen = 98, string category = "Normal", uint version = 7)
         => new(id, sys, dia, at ?? new DateTime(2026, 10, 1, 8, 0, 0, DateTimeKind.Utc).AddMinutes(id), pulse, oxygen, category, version);
@@ -130,6 +154,23 @@ public sealed class FakeDialogs : IDialogService
     }
 
     public void Announce(string message) => Announcements.Add(message);
+}
+
+public sealed class FakeShare : IShareService
+{
+    public List<(string Name, string Content)> Shared { get; } = [];
+    public Exception? FailWith { get; set; }
+
+    public async Task ShareFileAsync(string fileName, Stream content, string title)
+    {
+        if (FailWith is not null)
+        {
+            throw FailWith;
+        }
+
+        using var reader = new StreamReader(content);
+        Shared.Add((fileName, await reader.ReadToEndAsync()));
+    }
 }
 
 public static class ApiExceptions

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:CleanArchitecture.Presentation.Maui.Localization"
+             xmlns:vm="clr-namespace:CleanArchitecture.Presentation.Maui.Core.ViewModels;assembly=CleanArchitecture.Presentation.Maui.Core"
+             x:Class="CleanArchitecture.Presentation.Maui.Views.StatisticsPage"
+             x:DataType="vm:StatisticsViewModel"
+             Title="{loc:Translate Stats_Title}">
+
+    <CollectionView ItemsSource="{Binding Rows}" AutomationId="StatisticsList">
+
+        <CollectionView.Header>
+            <VerticalStackLayout Padding="16" Spacing="12">
+                <Label Text="{loc:Translate Stats_Title}" Style="{StaticResource Headline}"
+                       SemanticProperties.HeadingLevel="Level1" />
+                <Label Text="{loc:Translate Disclaimer_Medical}" FontSize="13" />
+
+                <Label Text="{loc:Translate Range_From}" />
+                <DatePicker Date="{Binding FromDate}" MinimumHeightRequest="44" AutomationId="FromDate"
+                            SemanticProperties.Description="{loc:Translate Range_From}" />
+                <Label Text="{loc:Translate Range_To}" />
+                <DatePicker Date="{Binding ToDate}" MinimumHeightRequest="44" AutomationId="ToDate"
+                            SemanticProperties.Description="{loc:Translate Range_To}" />
+                <Label Text="{loc:Translate Stats_Interval}" />
+                <Picker ItemsSource="{Binding IntervalOptions}" SelectedIndex="{Binding SelectedInterval}"
+                        MinimumHeightRequest="44" AutomationId="IntervalPicker"
+                        SemanticProperties.Description="{loc:Translate Stats_Interval}" />
+                <Button Text="{loc:Translate Range_Apply}" Command="{Binding ApplyCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        MinimumHeightRequest="44" AutomationId="ApplyButton" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+                <Label Text="{Binding Message}"
+                       IsVisible="{Binding Message, Converter={StaticResource IsNotNullConverter}}"
+                       TextColor="{AppThemeBinding Light=#B02A37, Dark=#EA868F}" />
+                <Label Text="{loc:Translate Stats_Empty}" IsVisible="{Binding IsEmpty}" AutomationId="EmptyLabel" />
+
+                <GraphicsView x:Name="Chart" HeightRequest="240" IsVisible="{Binding HasData}"
+                              AutomationId="Chart"
+                              SemanticProperties.Description="{Binding ChartDescription}" />
+
+                <HorizontalStackLayout Spacing="16" IsVisible="{Binding HasData}"
+                                       BindableLayout.ItemsSource="{Binding ChartSeries}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ChartSeriesData">
+                            <HorizontalStackLayout Spacing="6" SemanticProperties.Description="{Binding Name}">
+                                <Label Text="{Binding Style, Converter={StaticResource LineStyleGlyphConverter}}" />
+                                <Label Text="{Binding Name}" />
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+
+                <Label Text="{loc:Translate Stats_Table}" Style="{StaticResource SubHeadline}"
+                       SemanticProperties.HeadingLevel="Level2" IsVisible="{Binding HasData}" />
+            </VerticalStackLayout>
+        </CollectionView.Header>
+
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="vm:StatisticsRow">
+                <Border Margin="16,4" Padding="12" StrokeThickness="1" SemanticProperties.Description="{Binding Summary}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding PeriodText}" FontAttributes="Bold" />
+                        <Label Text="{Binding Count, StringFormat='{0}×'}" />
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{loc:Translate Col_Systolic}" />
+                                    <Span Text=": " />
+                                    <Span Text="{Binding Systolic}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{loc:Translate Col_Diastolic}" />
+                                    <Span Text=": " />
+                                    <Span Text="{Binding Diastolic}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{loc:Translate Col_Pulse}" />
+                                    <Span Text=": " />
+                                    <Span Text="{Binding Pulse}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </VerticalStackLayout>
+                </Border>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+
+        <CollectionView.Footer>
+            <Label Text="{loc:Translate Stats_Legend}" FontSize="12" Padding="16" IsVisible="{Binding HasData}" />
+        </CollectionView.Footer>
+    </CollectionView>
+</ContentPage>
