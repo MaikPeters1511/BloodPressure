@@ -1,7 +1,7 @@
 # Change: Profil- und Einstellungsseite (Darstellung, Alter, Größe, Gewicht)
 
-> **Status:** in-progress (umgesetzt; offen: Screenreader-Durchlauf, Android-Prüfung)
-> Ablage: `UserStories/profil-einstellungen.openspec.md` (nach Abschluss: `UserStories/archive/YYYY-MM-DD-profil-einstellungen.openspec.md`)
+> **Status:** archived (2026-11-05). Offen vermerkt: Screenreader-Durchlauf durch eine Person, Windows-Build der MAUI-App.
+> Ablage: `UserStories/profil-einstellungen.openspec.md` (archiviert als `UserStories/archive/2026-11-05-profil-einstellungen.openspec.md`; dauerhafte Requirements: `UserStories/specs/profil-einstellungen.openspec.md`)
 > Baut auf: Identity-Anmeldung (Epic 1), Refit-Clients in `CleanArchitecture.Contracts`, Web-Oberfläche (`UserStories/specs/frontend-oberflaeche.openspec.md`) und MAUI-App (`UserStories/maui-app-api-anbindung.openspec.md`).
 
 ## 1. Proposal (Why & What)
@@ -150,15 +150,15 @@ Entfällt. (Profildaten dürfen später nur nach eigener Entscheidung und ohne P
 - [x] T7 (qa) axe-core-Lauf (`Tests/a11y/check.mjs`) um die neue Seite erweitern; hell/dunkel × 3 Breiten; Browser-Prüfung gegen die echte API
 - [x] T8 (qa) MAUI geprüft gegen die lokale API: iOS 26.5 Simulator und Android 35 Emulator – Seite, Wechsel auf Dunkel sofort (iOS zusätzlich nach Kaltstart), Eingabe, BMI live, Speichern (Server liefert `{"age":42,"heightCm":180,"weightKg":82.5}`), Löschen mit Bestätigung (Abbrechen ändert nichts, „Löschen“ leert das Profil auf dem Server), Diagramm im dunklen Modus lesbar. **Nicht geprüft:** Windows-Build, Screenreader (T9). Beobachtung (kein Fehler): Beim erneuten Öffnen der Seite bleibt die letzte Statusmeldung („Das Profil wurde gespeichert.“) stehen.
 - [x] T8b (qa) Migration auf einer Datenbank mit Bestandsdaten: `Tests/CleanArchitecture.Tests/MigrationDataTests.cs` (Kategorien → `Hypertension`, Hinweistext, Rollback auf `Grade3`, doppelte Migration)
-- [~] T9 (ux) Review: Tastatur, Fokus, Ansagen, Zielgrößen; Screenreader-Abläufe in beide Anleitungen (`docs/a11y/`) ergänzen
+- [~] T9 (ux) Review: Tastatur, Fokus, Ansagen und Zielgrößen automatisiert geprüft (axe, statischer XAML-Test); **offen:** Screenreader-Durchlauf durch eine Person nach den Anleitungen in `docs/a11y/`
 - [x] T10 (doc) README (neue Seite, Theme-Hinweis), Specs aktualisieren
 
 ## 9. Acceptance Criteria (DoD)
-- [ ] Jedes Scenario aus Abschnitt 3 ist durch einen automatisierten Test abgedeckt und grün (CI).
-- [ ] Migration läuft auf leerer und auf bestehender Datenbank; bestehende Daten bleiben unverändert.
-- [ ] Theme-Wahl wirkt sofort, bleibt nach Neustart erhalten und folgt bei „System“ dem Gerät (Web und MAUI im echten Browser/Simulator geprüft); kein Aufblitzen im falschen Schema beim Laden.
-- [ ] axe-core: keine Verstöße „serious/critical“ auf der neuen Seite in beiden Schemata (Web); statischer XAML-Test grün (MAUI).
-- [ ] Keine Profilangaben in Exporten, Logs oder Hinweisen (Test bzw. Review).
-- [ ] BMI ohne Kategorie, mit Hinweis „keine Diagnose“.
-- [ ] Screenreader-Durchlauf durch eine Person oder ausdrücklich als offen vermerkt (nicht als bestanden ausgeben).
-- [ ] Spec archiviert, Requirements nach `UserStories/specs/profil-einstellungen.openspec.md` übernommen.
+- [x] Jedes Scenario aus Abschnitt 3 ist durch einen automatisierten Test abgedeckt und grün (CI). — CI auf `main` grün (Tests in `Tests/`).
+- [x] Migration läuft auf leerer und auf bestehender Datenbank; bestehende Daten bleiben unverändert. — `MigrationDataTests`.
+- [x] Theme-Wahl wirkt sofort, bleibt nach Neustart erhalten und folgt bei „System“ dem Gerät (Web und MAUI im echten Browser/Simulator geprüft); kein Aufblitzen im falschen Schema beim Laden. — Web im Browser, MAUI auf iOS-Simulator und Android-Emulator geprüft.
+- [x] axe-core: keine Verstöße „serious/critical“ auf der neuen Seite in beiden Schemata (Web); statischer XAML-Test grün (MAUI). — Job `A11y` in der CI grün.
+- [x] Keine Profilangaben in Exporten, Logs oder Hinweisen (Test bzw. Review). — Test `Export_ContainsNoProfileData`; Review: Profil-Handler und -Controller enthalten keine Logaufrufe.
+- [x] BMI ohne Kategorie, mit Hinweis „keine Diagnose“. — `ProfileCalculator`-Tests und Anzeige „Dies ist keine Diagnose“.
+- [~] Screenreader-Durchlauf durch eine Person oder ausdrücklich als offen vermerkt (nicht als bestanden ausgeben). — **Offen vermerkt, nicht als bestanden ausgegeben.**
+- [x] Spec archiviert, Requirements nach `UserStories/specs/profil-einstellungen.openspec.md` übernommen. — Archiviert am 2026-11-05.
