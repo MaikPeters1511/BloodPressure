@@ -173,6 +173,55 @@ public sealed class FakeShare : IShareService
     }
 }
 
+public sealed class FakeReminderApi : IReminderApi
+{
+    public ReminderSettingsDto Stored { get; set; } = new("UTC", []);
+    public Exception? GetFailWith { get; set; }
+    public Exception? PutFailWith { get; set; }
+    public List<ReminderSettingsDto> Puts { get; } = [];
+
+    public Task<ReminderSettingsDto> GetAsync(CancellationToken cancellationToken = default)
+        => GetFailWith is not null ? Task.FromException<ReminderSettingsDto>(GetFailWith) : Task.FromResult(Stored);
+
+    public Task<ReminderSettingsDto> PutAsync(ReminderSettingsDto settings, CancellationToken cancellationToken = default)
+    {
+        Puts.Add(settings);
+        if (PutFailWith is not null)
+        {
+            return Task.FromException<ReminderSettingsDto>(PutFailWith);
+        }
+
+        Stored = settings;
+        return Task.FromResult(settings);
+    }
+}
+
+public sealed class FakeNotificationApi : INotificationApi
+{
+    public List<NotificationDto> Items { get; } = [];
+    public List<Guid> MarkedRead { get; } = [];
+    public Exception? GetFailWith { get; set; }
+    public Exception? MarkFailWith { get; set; }
+
+    public Task<IReadOnlyList<NotificationDto>> GetAllAsync(CancellationToken cancellationToken = default)
+        => GetFailWith is not null
+            ? Task.FromException<IReadOnlyList<NotificationDto>>(GetFailWith)
+            : Task.FromResult<IReadOnlyList<NotificationDto>>(Items.ToList());
+
+    public Task MarkAsReadAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        if (MarkFailWith is not null)
+        {
+            return Task.FromException(MarkFailWith);
+        }
+
+        MarkedRead.Add(id);
+        var index = Items.FindIndex(n => n.Id == id);
+        Items[index] = Items[index] with { IsRead = true };
+        return Task.CompletedTask;
+    }
+}
+
 public static class ApiExceptions
 {
     public static ApiException Create(HttpStatusCode status, string? json = null)

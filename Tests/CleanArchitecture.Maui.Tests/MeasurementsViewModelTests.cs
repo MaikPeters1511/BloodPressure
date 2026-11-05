@@ -227,3 +227,34 @@ public class MeasurementsViewModelTests
         await Assert.That(_nav.Visited).IsEquivalentTo(new[] { "login" });
     }
 }
+
+[Category("Unit")]
+public class MeasurementsFormVisibilityTests
+{
+    [Test]
+    public async Task Form_StartsHidden_ToggleShowsAndHides_AndSuccessfulCreateHidesIt()
+    {
+        var store = new FakeSecureStore();
+        var auth = new FakeAuthApi();
+        var api = new FakeBloodPressureApi();
+        var time = Clock.Fixed();
+        var session = new SessionService(store, auth, time);
+        await session.LoginAsync("a@example.test", "pw");
+        var vm = new MeasurementsViewModel(api, session, new FakeNavigator(), new FakeDialogs(), new ResxLocalizer(Culture.De), time);
+        await vm.InitializeCommand.ExecuteAsync(null);
+
+        await Assert.That(vm.IsFormVisible).IsFalse();
+        vm.ToggleFormCommand.Execute(null);
+        await Assert.That(vm.IsFormVisible).IsTrue();
+        await Assert.That(vm.ToggleFormText).IsEqualTo("Formular schließen");
+
+        vm.SystolicText = "120";
+        vm.DiastolicText = "80";
+        vm.PulseText = "65";
+        vm.OxygenText = "98";
+        await vm.CreateCommand.ExecuteAsync(null);
+
+        await Assert.That(vm.IsFormVisible).IsFalse();
+        await Assert.That(vm.ToggleFormText).IsEqualTo("Neue Messung hinzufügen");
+    }
+}

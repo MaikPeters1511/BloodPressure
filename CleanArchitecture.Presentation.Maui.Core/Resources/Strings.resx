@@ -66,4 +66,31 @@
   <data name="Export_Busy" xml:space="preserve"><value>Datei wird erstellt …</value></data>
   <data name="Export_Done" xml:space="preserve"><value>Die Datei {0} wurde bereitgestellt.</value></data>
   <data name="Export_TooMany" xml:space="preserve"><value>Der Zeitraum enthält zu viele Messungen (mehr als {0:N0}). Bitte wähle einen kleineren Zeitraum.</value></data>
+  <data name="Tab_Reminders" xml:space="preserve"><value>Erinnerungen</value></data>
+  <data name="Tab_Notifications" xml:space="preserve"><value>Hinweise</value></data>
+  <data name="Form_Show" xml:space="preserve"><value>Neue Messung hinzufügen</value></data>
+  <data name="Form_Hide" xml:space="preserve"><value>Formular schließen</value></data>
+  <data name="Reminders_Title" xml:space="preserve"><value>Erinnerungen</value></data>
+  <data name="Reminders_Hint" xml:space="preserve"><value>Tägliche Erinnerungen, bis zu {0} Uhrzeiten.</value></data>
+  <data name="Reminders_Zone" xml:space="preserve"><value>Zeitzone</value></data>
+  <data name="Reminders_ZoneHelp" xml:space="preserve"><value>IANA-Name, z. B. Europe/Berlin.</value></data>
+  <data name="Reminders_Times" xml:space="preserve"><value>Uhrzeiten</value></data>
+  <data name="Reminders_TimeN" xml:space="preserve"><value>Uhrzeit {0}</value></data>
+  <data name="Reminders_Remove" xml:space="preserve"><value>Uhrzeit {0} entfernen</value></data>
+  <data name="Reminders_Removed" xml:space="preserve"><value>{0} wurde entfernt.</value></data>
+  <data name="Reminders_None" xml:space="preserve"><value>Es sind keine Erinnerungen eingestellt.</value></data>
+  <data name="Reminders_Add" xml:space="preserve"><value>Uhrzeit hinzufügen</value></data>
+  <data name="Reminders_Saved" xml:space="preserve"><value>Die Erinnerungen wurden gespeichert.</value></data>
+  <data name="Reminders_ZoneMissing" xml:space="preserve"><value>Bitte gib eine Zeitzone an.</value></data>
+  <data name="Reminders_TimeDuplicate" xml:space="preserve"><value>Jede Uhrzeit darf nur einmal vorkommen.</value></data>
+  <data name="Notifications_Title" xml:space="preserve"><value>Hinweise</value></data>
+  <data name="Notifications_Empty" xml:space="preserve"><value>Es liegen keine Hinweise vor.</value></data>
+  <data name="Notifications_Warning" xml:space="preserve"><value>Warnung</value></data>
+  <data name="Notifications_Reminder" xml:space="preserve"><value>Erinnerung</value></data>
+  <data name="Notifications_New" xml:space="preserve"><value>Neu</value></data>
+  <data name="Notifications_Read" xml:space="preserve"><value>Gelesen</value></data>
+  <data name="Notifications_MarkRead" xml:space="preserve"><value>Als gelesen markieren</value></data>
+  <data name="Notifications_MarkedRead" xml:space="preserve"><value>Der Hinweis wurde als gelesen markiert.</value></data>
+  <data name="Notifications_Summary" xml:space="preserve"><value>{0}. {1}. {2}. {3}</value></data>
+  <data name="Notifications_Unread" xml:space="preserve"><value>{0} ungelesen</value></data>
 </root>

@@ -49,6 +49,8 @@ public static class MauiProgram
         services.AddSingleton<IDialogService, MauiDialogService>();
         services.AddSingleton<IShareService, MauiShareService>();
         services.AddSingleton<SessionService>();
+        services.AddSingleton<NotificationCounter>();
+        services.AddSingleton<AppShell>();
         services.AddSingleton<IAccessTokenProvider>(sp => sp.GetRequiredService<SessionService>());
         services.AddBloodPressureApiClient(apiBase);
 
@@ -56,10 +58,14 @@ public static class MauiProgram
         services.AddTransient<MeasurementsViewModel>();
         services.AddTransient<StatisticsViewModel>();
         services.AddTransient<ExportViewModel>();
+        services.AddTransient<RemindersViewModel>();
+        services.AddTransient<NotificationsViewModel>();
         services.AddTransient<LoginPage>();
         services.AddTransient<MeasurementsPage>();
         services.AddTransient<StatisticsPage>();
         services.AddTransient<ExportPage>();
+        services.AddTransient<RemindersPage>();
+        services.AddTransient<NotificationsPage>();
 
         return builder.Build();
     }

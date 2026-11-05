@@ -66,4 +66,31 @@
   <data name="Export_Busy" xml:space="preserve"><value>Creating file …</value></data>
   <data name="Export_Done" xml:space="preserve"><value>The file {0} was provided.</value></data>
   <data name="Export_TooMany" xml:space="preserve"><value>The period contains too many measurements (more than {0:N0}). Please choose a smaller period.</value></data>
+  <data name="Tab_Reminders" xml:space="preserve"><value>Reminders</value></data>
+  <data name="Tab_Notifications" xml:space="preserve"><value>Notices</value></data>
+  <data name="Form_Show" xml:space="preserve"><value>Add new measurement</value></data>
+  <data name="Form_Hide" xml:space="preserve"><value>Close form</value></data>
+  <data name="Reminders_Title" xml:space="preserve"><value>Reminders</value></data>
+  <data name="Reminders_Hint" xml:space="preserve"><value>Daily reminders, up to {0} times.</value></data>
+  <data name="Reminders_Zone" xml:space="preserve"><value>Time zone</value></data>
+  <data name="Reminders_ZoneHelp" xml:space="preserve"><value>IANA name, e.g. Europe/Berlin.</value></data>
+  <data name="Reminders_Times" xml:space="preserve"><value>Times</value></data>
+  <data name="Reminders_TimeN" xml:space="preserve"><value>Time {0}</value></data>
+  <data name="Reminders_Remove" xml:space="preserve"><value>Remove time {0}</value></data>
+  <data name="Reminders_Removed" xml:space="preserve"><value>{0} was removed.</value></data>
+  <data name="Reminders_None" xml:space="preserve"><value>No reminders are set.</value></data>
+  <data name="Reminders_Add" xml:space="preserve"><value>Add time</value></data>
+  <data name="Reminders_Saved" xml:space="preserve"><value>The reminders were saved.</value></data>
+  <data name="Reminders_ZoneMissing" xml:space="preserve"><value>Please enter a time zone.</value></data>
+  <data name="Reminders_TimeDuplicate" xml:space="preserve"><value>Each time may only appear once.</value></data>
+  <data name="Notifications_Title" xml:space="preserve"><value>Notices</value></data>
+  <data name="Notifications_Empty" xml:space="preserve"><value>There are no notices.</value></data>
+  <data name="Notifications_Warning" xml:space="preserve"><value>Warning</value></data>
+  <data name="Notifications_Reminder" xml:space="preserve"><value>Reminder</value></data>
+  <data name="Notifications_New" xml:space="preserve"><value>New</value></data>
+  <data name="Notifications_Read" xml:space="preserve"><value>Read</value></data>
+  <data name="Notifications_MarkRead" xml:space="preserve"><value>Mark as read</value></data>
+  <data name="Notifications_MarkedRead" xml:space="preserve"><value>The notice was marked as read.</value></data>
+  <data name="Notifications_Summary" xml:space="preserve"><value>{0}. {1}. {2}. {3}</value></data>
+  <data name="Notifications_Unread" xml:space="preserve"><value>{0} unread</value></data>
 </root>

@@ -54,6 +54,12 @@ public sealed partial class MeasurementsViewModel : ObservableObject
     private bool _isBusy;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ToggleFormText))]
+    private bool _isFormVisible;
+
+    public string ToggleFormText => _l[IsFormVisible ? "Form_Hide" : "Form_Show"];
+
+    [ObservableProperty]
     private string? _message;
 
     [ObservableProperty]
@@ -73,6 +79,9 @@ public sealed partial class MeasurementsViewModel : ObservableObject
 
     [ObservableProperty]
     private TimeSpan _measuredTime;
+
+    [RelayCommand]
+    private void ToggleForm() => IsFormVisible = !IsFormVisible;
 
     [RelayCommand]
     private async Task InitializeAsync()
@@ -123,6 +132,7 @@ public sealed partial class MeasurementsViewModel : ObservableObject
             await _api.CreateAsync(new BloodPressureRequest(systolic, diastolic, utc, pulse, oxygen));
             SystolicText = DiastolicText = PulseText = OxygenText = "";
             Message = null;
+            IsFormVisible = false;
             _dialogs.Announce(_l["M_Saved"]);
         }
         catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
