@@ -48,6 +48,9 @@ public static class MauiProgram
         services.AddSingleton<INavigator, ShellNavigator>();
         services.AddSingleton<IDialogService, MauiDialogService>();
         services.AddSingleton<IShareService, MauiShareService>();
+        services.AddSingleton<ISettingsStore, MauiSettingsStore>();
+        services.AddSingleton<IThemeApplier, MauiThemeApplier>();
+        services.AddSingleton<ThemeSettings>();
         services.AddSingleton<SessionService>();
         services.AddSingleton<NotificationCounter>();
         services.AddSingleton<AppShell>();
@@ -60,12 +63,14 @@ public static class MauiProgram
         services.AddTransient<ExportViewModel>();
         services.AddTransient<RemindersViewModel>();
         services.AddTransient<NotificationsViewModel>();
+        services.AddTransient<ProfileViewModel>();
         services.AddTransient<LoginPage>();
         services.AddTransient<MeasurementsPage>();
         services.AddTransient<StatisticsPage>();
         services.AddTransient<ExportPage>();
         services.AddTransient<RemindersPage>();
         services.AddTransient<NotificationsPage>();
+        services.AddTransient<ProfilePage>();
 
         return builder.Build();
     }

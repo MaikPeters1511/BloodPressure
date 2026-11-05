@@ -1,6 +1,6 @@
 # Change: Profil- und Einstellungsseite (Darstellung, Alter, Größe, Gewicht)
 
-> **Status:** proposed
+> **Status:** in-progress (umgesetzt; offen: Screenreader-Durchlauf, Android-Prüfung)
 > Ablage: `UserStories/profil-einstellungen.openspec.md` (nach Abschluss: `UserStories/archive/YYYY-MM-DD-profil-einstellungen.openspec.md`)
 > Baut auf: Identity-Anmeldung (Epic 1), Refit-Clients in `CleanArchitecture.Contracts`, Web-Oberfläche (`UserStories/specs/frontend-oberflaeche.openspec.md`) und MAUI-App (`UserStories/maui-app-api-anbindung.openspec.md`).
 
@@ -141,16 +141,16 @@ Entfällt. (Profildaten dürfen später nur nach eigener Entscheidung und ohne P
 - **Alternativen:** Theme am Server speichern (geräteübergreifend, aber Netzabhängigkeit und unnötige Daten) – verworfen; Alter als Zahl speichern – verworfen (veraltet).
 
 ## 8. Tasks (Implementierungs-Checkliste)
-- [ ] T1 (architect) Klärung Theme-Umbau Web (`data-theme` vs. Systemschema, Verhalten von `app.min.css`), ADR falls nötig
-- [ ] T2 (backend) Tests (Red) aus den Scenarios: Domain (Alter/Geburtsjahr, Grenzen), Handler, API (GET/PUT/DELETE, 400/401, Mandantentrennung), Export ohne Profildaten
-- [ ] T3 (backend) Domain, Application, Infrastruktur, Migration `AddUserProfile`, Controller, OpenAPI-Beschreibung
-- [ ] T4 (backend/frontend) `IProfileApi` (Refit) und DTOs
-- [ ] T5 (frontend) Web: `ThemeService`, Theme-Umbau `styles.css`, `Profile.razor`, Navigation, bUnit-Tests (inkl. `localStorage` blockiert, DE/EN-Parität)
-- [ ] T6 (frontend) MAUI: `ThemeService`, `ProfileViewModel` + Core-Tests, `ProfilePage`, Navigation, statischer XAML-A11y-Test grün
-- [ ] T7 (qa) axe-core-Lauf (`Tests/a11y/check.mjs`) um die neue Seite erweitern; hell/dunkel × 3 Breiten; Browser-Prüfung gegen die echte API
-- [ ] T8 (qa) MAUI auf iOS-Simulator und Android-Emulator: Theme-Wechsel (inkl. Diagramm), Profil speichern/löschen, Screenshots als Nachweis
-- [ ] T9 (ux) Review: Tastatur, Fokus, Ansagen, Zielgrößen; Screenreader-Abläufe in beide Anleitungen (`docs/a11y/`) ergänzen
-- [ ] T10 (doc) README (neue Seite, Theme-Hinweis), Specs aktualisieren
+- [x] T1 (architect) Klärung Theme-Umbau Web (`data-theme` vs. Systemschema, Verhalten von `app.min.css`), ADR falls nötig
+- [x] T2 (backend) Tests (Red) aus den Scenarios: Domain (Alter/Geburtsjahr, Grenzen), Handler, API (GET/PUT/DELETE, 400/401, Mandantentrennung), Export ohne Profildaten
+- [x] T3 (backend) Domain, Application, Infrastruktur, Migration `AddUserProfile`, Controller, OpenAPI-Beschreibung
+- [x] T4 (backend/frontend) `IProfileApi` (Refit) und DTOs
+- [x] T5 (frontend) Web: `ThemeService`, Theme-Umbau `styles.css`, `Profile.razor`, Navigation, bUnit-Tests (inkl. `localStorage` blockiert, DE/EN-Parität)
+- [x] T6 (frontend) MAUI: `ThemeService`, `ProfileViewModel` + Core-Tests, `ProfilePage`, Navigation, statischer XAML-A11y-Test grün
+- [x] T7 (qa) axe-core-Lauf (`Tests/a11y/check.mjs`) um die neue Seite erweitern; hell/dunkel × 3 Breiten; Browser-Prüfung gegen die echte API
+- [~] T8 (qa) MAUI: iOS-Simulator geprüft (Seite, Wechsel auf Dunkel sofort, bleibt nach Kaltstart); **offen:** Profil speichern/löschen in der laufenden App, Android-Emulator, Diagramm im dunklen Modus
+- [~] T9 (ux) Review: Tastatur, Fokus, Ansagen, Zielgrößen; Screenreader-Abläufe in beide Anleitungen (`docs/a11y/`) ergänzen
+- [x] T10 (doc) README (neue Seite, Theme-Hinweis), Specs aktualisieren
 
 ## 9. Acceptance Criteria (DoD)
 - [ ] Jedes Scenario aus Abschnitt 3 ist durch einen automatisierten Test abgedeckt und grün (CI).

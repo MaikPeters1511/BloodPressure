@@ -8,6 +8,10 @@
              Title="{loc:Translate M_Title}">
 
     <ContentPage.ToolbarItems>
+        <ToolbarItem Text="{loc:Translate Tab_Profile}"
+                     Command="{Binding OpenProfileCommand}"
+                     AutomationId="ProfileButton"
+                     SemanticProperties.Description="{loc:Translate Profile_Title}" />
         <ToolbarItem Text="{loc:Translate Logout}"
                      Command="{Binding LogoutCommand}"
                      AutomationId="LogoutButton"

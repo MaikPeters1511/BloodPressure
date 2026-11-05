@@ -139,6 +139,7 @@ public sealed class FakeNavigator : INavigator
     public List<string> Visited { get; } = [];
     public Task GoToLoginAsync() { Visited.Add("login"); return Task.CompletedTask; }
     public Task GoToMeasurementsAsync() { Visited.Add("measurements"); return Task.CompletedTask; }
+    public Task GoToProfileAsync() { Visited.Add("profile"); return Task.CompletedTask; }
 }
 
 public sealed class FakeDialogs : IDialogService
@@ -220,6 +221,60 @@ public sealed class FakeNotificationApi : INotificationApi
         Items[index] = Items[index] with { IsRead = true };
         return Task.CompletedTask;
     }
+}
+
+public sealed class FakeProfileApi : IProfileApi
+{
+    public ProfileDto Stored { get; set; } = new(null, null, null);
+    public Exception? GetFailWith { get; set; }
+    public Exception? PutFailWith { get; set; }
+    public List<ProfileDto> Puts { get; } = [];
+    public int Deletes { get; private set; }
+
+    public Task<ProfileDto> GetAsync(CancellationToken cancellationToken = default)
+        => GetFailWith is not null ? Task.FromException<ProfileDto>(GetFailWith) : Task.FromResult(Stored);
+
+    public Task<ProfileDto> PutAsync(ProfileDto profile, CancellationToken cancellationToken = default)
+    {
+        Puts.Add(profile);
+        if (PutFailWith is not null)
+        {
+            return Task.FromException<ProfileDto>(PutFailWith);
+        }
+
+        Stored = profile;
+        return Task.FromResult(profile);
+    }
+
+    public Task DeleteAsync(CancellationToken cancellationToken = default)
+    {
+        Deletes++;
+        Stored = new ProfileDto(null, null, null);
+        return Task.CompletedTask;
+    }
+}
+
+public sealed class FakeSettingsStore : ISettingsStore
+{
+    public Dictionary<string, string> Items { get; } = [];
+    public string? Get(string key) => Items.GetValueOrDefault(key);
+    public void Set(string key, string? value)
+    {
+        if (value is null)
+        {
+            Items.Remove(key);
+        }
+        else
+        {
+            Items[key] = value;
+        }
+    }
+}
+
+public sealed class FakeThemeApplier : IThemeApplier
+{
+    public List<string> Applied { get; } = [];
+    public void Apply(string theme) => Applied.Add(theme);
 }
 
 public static class ApiExceptions
