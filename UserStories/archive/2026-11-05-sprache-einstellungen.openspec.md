@@ -1,6 +1,6 @@
 # Change: Sprache in „Profil & Einstellungen“ umstellen (Deutsch / Englisch)
 
-> **Status:** archived (2026-11-05). Offen vermerkt: Screenreader-Durchlauf durch eine Person (Abläufe 15 und 17), iOS-Simulator, Mac Catalyst und Windows nicht geprüft.
+> **Status:** archived (2026-11-05). Offen vermerkt: Screenreader-Durchlauf durch eine Person (Abläufe 15 und 17), Mac Catalyst und Windows nicht geprüft. Der iOS-Simulator wurde nachträglich geprüft (siehe T5).
 > Ablage: (archiviert als `UserStories/archive/2026-11-05-sprache-einstellungen.openspec.md`; dauerhafte Requirements: `UserStories/specs/profil-einstellungen.openspec.md`)
 > Baut auf: `UserStories/specs/profil-einstellungen.openspec.md` (Darstellung je Gerät, gleiche Ablage und gleiches Muster), Web-Oberfläche (`UserStories/specs/frontend-oberflaeche.openspec.md`) und MAUI-App (`UserStories/maui-app-api-anbindung.openspec.md`).
 
@@ -120,12 +120,12 @@ Entfällt.
 - [x] T2 (frontend/qa) Tests (Red) aus den Scenarios: Web (bUnit): Auswahl, Speichern/Lesen über die JavaScript-Schnittstelle, Standard bei `fr`/`en`, Zahlenformat, ungespeicherte Eingaben, Statusansage, `lang`; MAUI Core: `LanguageSettings`, `ResxLocalizer` mit wechselbarer Kultur, `ProfileViewModel`, DE/EN-Parität der neuen Schlüssel
 - [x] T3 (frontend) Web: `LanguageService`, Start in `Program.cs`, Abschnitt in `Profile.razor`, Layout-Neurender, `lang`-Attribut, Resx DE/EN
 - [x] T4 (frontend) MAUI: `LanguageSettings`, `ResxLocalizer`, `ProfileViewModel`, `ProfilePage`, Shell-Neuaufbau, Resx DE/EN, statischer XAML-A11y-Test
-- [x] T5 (qa) `Tests/a11y/check.mjs` um die Sprachwahl erweitern (deutsch und englisch, hell/dunkel); Browser-Prüfung gegen die echte API (`check.mjs`: 87 Prüfungen, davon alle Seiten in Englisch bei 1280/375/320 px und der Laufzeit-Wechsel); MAUI auf dem **Android-Emulator** geprüft (Wechsel auf Deutsch, Tab-Titel, Anmeldung bleibt, Neustart behält die Wahl, „System“ folgt dem Gerät). **Nicht geprüft:** iOS-Simulator (der Build scheiterte an der installierten Xcode-Version 27.2 gegen das iOS-SDK 27.0), Mac Catalyst, Windows; blockierter `localStorage` nur im JavaScript per try/catch umgesetzt, nicht in einem Browser getestet
+- [x] T5 (qa) `Tests/a11y/check.mjs` um die Sprachwahl erweitern (deutsch und englisch, hell/dunkel); Browser-Prüfung gegen die echte API (`check.mjs`: 87 Prüfungen, davon alle Seiten in Englisch bei 1280/375/320 px und der Laufzeit-Wechsel); MAUI auf dem **Android-Emulator** geprüft (Wechsel auf Deutsch, Tab-Titel, Anmeldung bleibt, Neustart behält die Wahl, „System“ folgt dem Gerät). **Nachträglich geprüft (2026-11-05):** iOS-26.5-Simulator (iPhone 17) – Wechsel auf English (Titel, Tabs, Seite, Anmeldung bleibt) und Neustart behält die Wahl; der Build lief mit `-p:ValidateXcodeVersion=false`, weil die iOS-Workload 27.1 Xcode 27.1 verlangt und 27.2 installiert ist. **Nicht geprüft:** Mac Catalyst, Windows; blockierter `localStorage` nur im JavaScript per try/catch umgesetzt, nicht in einem Browser getestet
 - [x] T6 (ux/doc) Screenreader-Abläufe in `docs/a11y/screenreader-pruefung.md` und `docs/a11y/maui-screenreader-pruefung.md` ergänzen; README (Profilseite, Sprachwahl)
 
 ## 9. Acceptance Criteria (DoD)
 - [x] Jedes Scenario aus Abschnitt 3 ist durch einen automatisierten Test abgedeckt und grün (CI). — CI auf `main` grün (PR 59). Nicht automatisiert: „Speicher nicht verfügbar“ (JavaScript) und „Gerätesprache ohne Wahl“ in der App-Oberfläche.
-- [~] Sprachwahl wirkt sofort in Web und MAUI, bleibt nach Neuladen/Neustart erhalten und folgt bei „System“ dem Gerät (Browser und Android-Emulator geprüft; iOS-Simulator offen, siehe T5).
+- [~] Sprachwahl wirkt sofort in Web und MAUI, bleibt nach Neuladen/Neustart erhalten und folgt bei „System“ dem Gerät (Browser, Android-Emulator und iOS-Simulator geprüft, siehe T5).
 - [x] Alle sichtbaren Texte beider Oberflächen sind in beiden Sprachen vorhanden (DE/EN-Paritätstests grün); keine hartcodierten sichtbaren Texte.
 - [x] axe-core (Job `A11y`): keine Verstöße „serious/critical“ in beiden Sprachen und Schemata; statischer XAML-Test grün. — Lokal 87 von 87 und Job `A11y` in der CI grün.
 - [x] Keine Sprachangabe wird an den Server gesendet (Test bzw. Review). — Test `SetChoice_NeverSendsAnythingToTheServer` (Dienst kennt nur JavaScript); in der App nur `ISettingsStore`.
