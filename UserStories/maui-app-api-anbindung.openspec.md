@@ -158,5 +158,5 @@ Entfällt.
 - [ ] Keine Tokens/Passwörter im Klartext gespeichert oder geloggt; Release-Build lehnt `http://` ab.
 - [ ] DE/EN-Paritätstest grün; keine hartcodierten sichtbaren Texte.
 - [ ] Screenreader-Prüfung (VoiceOver/TalkBack) durch eine Person protokolliert, oder offen vermerkt (nicht als bestanden ausgeben).
-- [ ] Android- und Windows-Build: geprüft oder ausdrücklich als ungeprüft ausgewiesen.
+- [x] Android-Build und -Lauf geprüft (Emulator API 35: Anmeldung, Messwerte, Auswertung mit Diagramm, Erinnerungen, Hinweise); Windows-Build ausdrücklich ungeprüft. Offene Befunde: Hinweistexte kommen deutsch vom Server (nicht lokalisiert), erster Tab-Titel auf schmalen Bildschirmen abgeschnitten.
 - [ ] Spec archiviert, Requirements nach `UserStories/specs/maui-app.openspec.md` übernommen.
