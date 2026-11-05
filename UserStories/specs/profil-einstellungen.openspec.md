@@ -1,6 +1,7 @@
 # Capability: Profil und Einstellungen (Darstellung, Alter, Größe, Gewicht)
 
 > Dauerhafte Capability-Spec. Quelle: archivierte Änderung `UserStories/archive/2026-11-05-profil-einstellungen.openspec.md`.
+> Erweitert um die Sprachwahl (archivierte Änderung `UserStories/archive/2026-11-05-sprache-einstellungen.openspec.md`).
 > Offen: Screenreader-Durchlauf durch eine Person (Web: VoiceOver/NVDA, MAUI: VoiceOver/TalkBack) laut `docs/a11y/`; Windows-Build der MAUI-App nicht geprüft.
 
 ## Requirements
@@ -93,3 +94,70 @@ Das System SHALL die Seite in der Navigation (Web) bzw. als Tab/Menüeintrag (MA
 
 ### REMOVED Requirements
 _Entfällt._
+
+#### Requirement: Sprache wählen
+Das System SHALL auf der Seite **Profil & Einstellungen** die Sprachen *System*, *Deutsch* und *English* anbieten, die Wahl sofort anwenden und je Gerät lokal speichern (Web: `localStorage`, MAUI: `Preferences`); ohne gespeicherte Wahl gilt *System*. Bei *System* gilt die Browser- bzw. Gerätesprache: Englisch, wenn sie mit `en` beginnt, sonst Deutsch. Die Wahl SHALL NOT an den Server gesendet werden. Die Einträge heißen in jeder Oberflächensprache gleich („System“ wird übersetzt, „Deutsch“ und „English“ stehen in ihrer eigenen Sprache und tragen ein passendes `lang`-Attribut bzw. `SemanticProperties`-Sprachhinweis, soweit die Plattform es zulässt).
+
+##### Scenario: Auf Englisch wechseln
+- **GIVEN** die Oberfläche ist deutsch
+- **WHEN** der Nutzer „English“ wählt
+- **THEN** erscheinen alle sichtbaren Texte der Seite sofort auf Englisch und bleiben nach Neuladen bzw. App-Neustart englisch
+
+##### Scenario: Zurück auf System
+- **GIVEN** „English“ ist gewählt, das Gerät steht auf Deutsch
+- **WHEN** der Nutzer „System“ wählt
+- **THEN** wechselt die Oberfläche auf Deutsch, und die gespeicherte Wahl wird entfernt
+
+##### Scenario: Gerätesprache ohne Wahl
+- **GIVEN** keine gespeicherte Wahl und Browser-/Gerätesprache `fr`
+- **WHEN** die App startet
+- **THEN** erscheint die Oberfläche auf Deutsch
+
+##### Scenario: Speicher nicht verfügbar
+- **GIVEN** der lokale Speicher ist blockiert (z. B. privates Fenster)
+- **WHEN** der Nutzer eine Sprache wählt
+- **THEN** gilt sie bis zum Neuladen, und die Seite bleibt bedienbar (kein Fehlerdialog)
+
+#### Requirement: Sprachwechsel wirkt auf die ganze Oberfläche
+Das System SHALL beim Sprachwechsel alle sichtbaren Texte (Navigation, Seitentitel, Tab-Titel, Meldungen, Dialoge, Statusansagen), die Zahlen- und Datumsformate (z. B. BMI „25,5“ / „25.5“, Datum und Uhrzeit) und in der Web-Oberfläche das `lang`-Attribut von `<html>` auf die gewählte Sprache umstellen, ohne dass der Nutzer sich erneut anmelden muss.
+
+##### Scenario: Navigation und andere Seiten
+- **GIVEN** der Nutzer hat auf „English“ gewechselt
+- **WHEN** er zu Messwerten, Auswertung, Export, Erinnerungen oder Hinweisen navigiert
+- **THEN** sind Seitentitel, Beschriftungen, Kategorien und Meldungen englisch
+
+##### Scenario: Zahlenformat
+- **GIVEN** Gewicht 82,5 ist gespeichert
+- **WHEN** der Nutzer auf „English“ wechselt
+- **THEN** zeigt das Gewichtsfeld „82.5“ und der BMI „25.5“; beim Wechsel zurück „82,5“ und „25,5“; beide Schreibweisen bleiben bei der Eingabe zulässig
+
+##### Scenario: Ungespeicherte Eingaben bleiben (nur Web; in der App gehen sie beim Neuaufbau der Oberfläche verloren)
+- **GIVEN** der Nutzer hat im Profil Alter und Größe eingegeben, aber noch nicht gespeichert
+- **WHEN** er die Sprache wechselt
+- **THEN** bleiben die eingegebenen Werte erhalten (nur die Formatierung passt sich an)
+
+##### Scenario: Sprache der Seite (Web)
+- **GIVEN** „English“ ist gewählt
+- **WHEN** die Seite gerendert wird
+- **THEN** steht `<html lang="en">`, bei Deutsch `lang="de"`
+
+#### Requirement: Sprachwechsel in der MAUI-App
+Das System SHALL in der MAUI-App nach dem Wechsel die Oberfläche (Shell mit Tab-Titeln und die geöffneten Seiten) in der neuen Sprache neu aufbauen und danach wieder die Profilseite anzeigen; wo die Plattform dies nicht zulässt, SHALL die App einen deutlichen Hinweis auf den nötigen Neustart anzeigen statt scheinbar unverändert zu bleiben.
+
+##### Scenario: Tab-Titel
+- **GIVEN** die App ist deutsch
+- **WHEN** der Nutzer „English“ wählt
+- **THEN** heißen die Tabs „Readings“, „Statistics“, „Export“, „Reminders“, „Notices“ (der Zähler ungelesener Hinweise bleibt erhalten), und der Nutzer bleibt angemeldet
+
+#### Requirement: Barrierefreiheit der Sprachwahl
+Das System SHALL die Sprachwahl als Gruppe mit sichtbarer Überschrift „Sprache“ bereitstellen (Web: `fieldset`/`legend` mit Radiobuttons; MAUI: gruppierte `RadioButton`s mit `SemanticProperties`), per Tastatur bedienbar, mit Zielgröße von mindestens 24 × 24 px, und den Wechsel **in der neuen Sprache** über eine Statusansage (Web: `aria-live`; MAUI: `SemanticScreenReader.Announce`) mitteilen.
+
+##### Scenario: Statusansage
+- **GIVEN** ein Screenreader ist aktiv
+- **WHEN** der Nutzer die Sprache wechselt
+- **THEN** wird einmalig „Sprache: English“ bzw. „Sprache: Deutsch“ angesagt, und der Fokus bleibt auf dem gewählten Eintrag
+
+##### Scenario: Automatisierte Prüfung
+- **GIVEN** die Profilseite mit dem Abschnitt „Sprache“
+- **WHEN** der axe-core-Lauf (hell/dunkel, 1280/375/320 px, deutsch und englisch) und der statische XAML-Test laufen
+- **THEN** gibt es keine Verstöße der Schwere „serious/critical“

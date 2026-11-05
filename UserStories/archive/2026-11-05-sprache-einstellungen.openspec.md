@@ -1,7 +1,7 @@
 # Change: Sprache in „Profil & Einstellungen“ umstellen (Deutsch / Englisch)
 
-> **Status:** in-progress
-> Ablage: `UserStories/sprache-einstellungen.openspec.md` (nach Abschluss: `UserStories/archive/YYYY-MM-DD-sprache-einstellungen.openspec.md`)
+> **Status:** archived (2026-11-05). Offen vermerkt: Screenreader-Durchlauf durch eine Person (Abläufe 15 und 17), iOS-Simulator, Mac Catalyst und Windows nicht geprüft.
+> Ablage: `UserStories/sprache-einstellungen.openspec.md` (archiviert als `UserStories/archive/2026-11-05-sprache-einstellungen.openspec.md`; dauerhafte Requirements: `UserStories/specs/profil-einstellungen.openspec.md`)
 > Baut auf: `UserStories/specs/profil-einstellungen.openspec.md` (Darstellung je Gerät, gleiche Ablage und gleiches Muster), Web-Oberfläche (`UserStories/specs/frontend-oberflaeche.openspec.md`) und MAUI-App (`UserStories/maui-app-api-anbindung.openspec.md`).
 
 ## 1. Proposal (Why & What)
@@ -124,10 +124,10 @@ Entfällt.
 - [x] T6 (ux/doc) Screenreader-Abläufe in `docs/a11y/screenreader-pruefung.md` und `docs/a11y/maui-screenreader-pruefung.md` ergänzen; README (Profilseite, Sprachwahl)
 
 ## 9. Acceptance Criteria (DoD)
-- [~] Jedes Scenario aus Abschnitt 3 ist durch einen automatisierten Test abgedeckt und grün (CI). — Lokal grün; die CI steht aus. Nicht automatisiert: „Speicher nicht verfügbar“ (JavaScript) und „Gerätesprache ohne Wahl“ in der App-Oberfläche.
+- [x] Jedes Scenario aus Abschnitt 3 ist durch einen automatisierten Test abgedeckt und grün (CI). — CI auf `main` grün (PR 59). Nicht automatisiert: „Speicher nicht verfügbar“ (JavaScript) und „Gerätesprache ohne Wahl“ in der App-Oberfläche.
 - [~] Sprachwahl wirkt sofort in Web und MAUI, bleibt nach Neuladen/Neustart erhalten und folgt bei „System“ dem Gerät (Browser und Android-Emulator geprüft; iOS-Simulator offen, siehe T5).
 - [x] Alle sichtbaren Texte beider Oberflächen sind in beiden Sprachen vorhanden (DE/EN-Paritätstests grün); keine hartcodierten sichtbaren Texte.
-- [~] axe-core (Job `A11y`): keine Verstöße „serious/critical“ in beiden Sprachen und Schemata; statischer XAML-Test grün. — Lokal 87 von 87 grün; CI steht aus.
+- [x] axe-core (Job `A11y`): keine Verstöße „serious/critical“ in beiden Sprachen und Schemata; statischer XAML-Test grün. — Lokal 87 von 87 und Job `A11y` in der CI grün.
 - [x] Keine Sprachangabe wird an den Server gesendet (Test bzw. Review). — Test `SetChoice_NeverSendsAnythingToTheServer` (Dienst kennt nur JavaScript); in der App nur `ISettingsStore`.
 - [~] Screenreader-Durchlauf durch eine Person oder ausdrücklich als offen vermerkt (nicht als bestanden ausgeben). — **Offen**; Abläufe 15 (Web) und 17 (App) stehen in den Anleitungen.
-- [ ] Spec archiviert, Requirements nach `UserStories/specs/profil-einstellungen.openspec.md` übernommen.
+- [x] Spec archiviert, Requirements nach `UserStories/specs/profil-einstellungen.openspec.md` übernommen. — Archiviert am 2026-11-05.
