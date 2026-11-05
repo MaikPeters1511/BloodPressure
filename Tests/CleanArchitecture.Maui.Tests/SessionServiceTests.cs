@@ -1,0 +1,102 @@
+using System.Net;
+using CleanArchitecture.Presentation.Maui.Core.Services;
+
+namespace CleanArchitecture.Maui.Tests;
+
+[Category("Unit")]
+public class SessionServiceTests
+{
+    private readonly FakeSecureStore _store = new();
+    private readonly FakeAuthApi _auth = new();
+    private readonly Microsoft.Extensions.Time.Testing.FakeTimeProvider _time = Clock.Fixed();
+
+    private SessionService Create() => new(_store, _auth, _time);
+
+    [Test]
+    public async Task Login_StoresTokensOnlyInSecureStore_AndAuthenticates()
+    {
+        var session = Create();
+
+        await session.LoginAsync("a@example.test", "pw");
+
+        await Assert.That(session.IsAuthenticated).IsTrue();
+        await Assert.That(_store.Items.Count).IsEqualTo(3);
+        await Assert.That(await session.GetAccessTokenAsync(CancellationToken.None)).IsEqualTo("access-1");
+    }
+
+    [Test]
+    public async Task Login_Fails_StoresNothing()
+    {
+        _auth.OnLogin = _ => Task.FromException<CleanArchitecture.Contracts.TokenResponse>(ApiExceptions.Create(HttpStatusCode.Unauthorized));
+        var session = Create();
+
+        await Assert.That(async () => await session.LoginAsync("a@example.test", "bad")).Throws<Refit.ApiException>();
+
+        await Assert.That(session.IsAuthenticated).IsFalse();
+        await Assert.That(_store.Items).IsEmpty();
+    }
+
+    [Test]
+    public async Task Initialize_RestoresSessionFromStore()
+    {
+        var first = Create();
+        await first.LoginAsync("a@example.test", "pw");
+
+        var restored = Create();
+        await restored.InitializeAsync();
+
+        await Assert.That(restored.IsAuthenticated).IsTrue();
+        await Assert.That(await restored.GetAccessTokenAsync(CancellationToken.None)).IsEqualTo("access-1");
+    }
+
+    [Test]
+    public async Task ExpiredAccessToken_IsRefreshed()
+    {
+        var session = Create();
+        await session.LoginAsync("a@example.test", "pw");
+        _time.Advance(TimeSpan.FromHours(2));
+
+        var token = await session.GetAccessTokenAsync(CancellationToken.None);
+
+        await Assert.That(token).IsEqualTo("access-2");
+        await Assert.That(_auth.Calls).Contains("refresh");
+    }
+
+    [Test]
+    public async Task RefreshFails_ClearsSession()
+    {
+        var session = Create();
+        await session.LoginAsync("a@example.test", "pw");
+        _auth.OnRefresh = _ => Task.FromException<CleanArchitecture.Contracts.TokenResponse>(ApiExceptions.Create(HttpStatusCode.Unauthorized));
+        _time.Advance(TimeSpan.FromHours(2));
+
+        var token = await session.GetAccessTokenAsync(CancellationToken.None);
+
+        await Assert.That(token).IsNull();
+        await Assert.That(session.IsAuthenticated).IsFalse();
+        await Assert.That(_store.Items).IsEmpty();
+    }
+
+    [Test]
+    public async Task Logout_RemovesAllTokens()
+    {
+        var session = Create();
+        await session.LoginAsync("a@example.test", "pw");
+
+        await session.LogoutAsync();
+
+        await Assert.That(session.IsAuthenticated).IsFalse();
+        await Assert.That(_store.Items).IsEmpty();
+    }
+
+    [Test]
+    public async Task Register_LogsInAfterwards()
+    {
+        var session = Create();
+
+        await session.RegisterAsync("a@example.test", "pw");
+
+        await Assert.That(_auth.Calls).IsEquivalentTo(new[] { "register", "login" });
+        await Assert.That(session.IsAuthenticated).IsTrue();
+    }
+}

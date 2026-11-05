@@ -1,12 +1,32 @@
-﻿namespace CleanArchitecture.Presentation.Maui;
+using CleanArchitecture.Presentation.Maui.Core.Services;
+
+namespace CleanArchitecture.Presentation.Maui;
 
 public partial class App : Application
 {
-    public App()
+    private readonly SessionService _session;
+    private readonly INavigator _navigator;
+
+    public App(SessionService session, INavigator navigator)
     {
         InitializeComponent();
+        _session = session;
+        _navigator = navigator;
     }
 
     // Seit .NET 10 wird die Shell über CreateWindow gesetzt (MainPage.set ist veraltet).
-    protected override Window CreateWindow(IActivationState? activationState) => new(new AppShell());
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        var window = new Window(new AppShell());
+        window.Created += async (_, _) =>
+        {
+            // Gespeicherte Anmeldung wiederherstellen; sonst bleibt die Anmeldeseite stehen.
+            await _session.InitializeAsync();
+            if (_session.IsAuthenticated)
+            {
+                await _navigator.GoToMeasurementsAsync();
+            }
+        };
+        return window;
+    }
 }

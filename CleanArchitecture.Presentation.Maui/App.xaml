@@ -3,6 +3,7 @@
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CleanArchitecture.Presentation.Maui"
+             xmlns:conv="clr-namespace:CleanArchitecture.Presentation.Maui.Converters"
              x:Class="CleanArchitecture.Presentation.Maui.App">
     <Application.Resources>
         <ResourceDictionary>
@@ -10,6 +11,18 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <conv:IsNotNullConverter x:Key="IsNotNullConverter" />
+            <conv:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <conv:CategoryBackgroundConverter x:Key="CategoryBackgroundConverter" />
+            <conv:CategoryTextColorConverter x:Key="CategoryTextColorConverter" />
+
+            <Style x:Key="OutlineButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="BorderWidth" Value="1" />
+                <Setter Property="BorderColor" Value="{AppThemeBinding Light=#495057, Dark=#ADB5BD}" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#212529, Dark=#F1F3F5}" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

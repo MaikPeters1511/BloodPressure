@@ -60,6 +60,18 @@
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0"/>
+    </ItemGroup>
+
+
+    <ItemGroup>
+        <ProjectReference Include="..\CleanArchitecture.Presentation.Maui.Core\CleanArchitecture.Presentation.Maui.Core.csproj" />
+    </ItemGroup>
+
+    <!-- Konfiguration als eingebettete Ressource: appsettings.json (Release, API-Adresse vor dem Build setzen) und nur im Debug appsettings.Debug.json. -->
+    <ItemGroup>
+        <EmbeddedResource Include="appsettings.json" LogicalName="appsettings.json" />
+        <EmbeddedResource Include="appsettings.Debug.json" LogicalName="appsettings.Debug.json" Condition="'$(Configuration)' == 'Debug'" />
     </ItemGroup>
 
 </Project>

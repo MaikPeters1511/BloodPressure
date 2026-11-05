@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:CleanArchitecture.Presentation.Maui.Localization"
+             xmlns:vm="clr-namespace:CleanArchitecture.Presentation.Maui.Core.ViewModels;assembly=CleanArchitecture.Presentation.Maui.Core"
+             x:Class="CleanArchitecture.Presentation.Maui.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Title="{loc:Translate Login_Title}">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16" MaximumWidthRequest="480">
+            <Label Text="{loc:Translate Login_Title}"
+                   Style="{StaticResource Headline}"
+                   SemanticProperties.HeadingLevel="Level1" />
+
+            <Label Text="{loc:Translate Login_Email}" x:Name="EmailLabel" />
+            <Entry x:Name="EmailEntry"
+                   Text="{Binding Email}"
+                   Keyboard="Email"
+                   AutomationId="EmailEntry"
+                   MinimumHeightRequest="44"
+                   SemanticProperties.Description="{loc:Translate Login_Email}" />
+
+            <Label Text="{loc:Translate Login_Password}" />
+            <Entry Text="{Binding Password}"
+                   IsPassword="True"
+                   AutomationId="PasswordEntry"
+                   MinimumHeightRequest="44"
+                   SemanticProperties.Description="{loc:Translate Login_Password}"
+                   ReturnCommand="{Binding LoginCommand}" />
+
+            <Label Text="{Binding ErrorMessage}"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"
+                   TextColor="{AppThemeBinding Light=#B02A37, Dark=#EA868F}"
+                   AutomationId="ErrorLabel" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+            <Button Text="{loc:Translate Login_Submit}"
+                    Command="{Binding LoginCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    AutomationId="LoginButton"
+                    MinimumHeightRequest="44" />
+            <Button Text="{loc:Translate Login_Register}"
+                    Command="{Binding RegisterCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    AutomationId="RegisterButton"
+                    MinimumHeightRequest="44"
+                    Style="{StaticResource OutlineButton}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

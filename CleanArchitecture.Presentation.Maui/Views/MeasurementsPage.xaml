@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:CleanArchitecture.Presentation.Maui.Localization"
+             xmlns:vm="clr-namespace:CleanArchitecture.Presentation.Maui.Core.ViewModels;assembly=CleanArchitecture.Presentation.Maui.Core"
+             x:Class="CleanArchitecture.Presentation.Maui.Views.MeasurementsPage"
+             x:DataType="vm:MeasurementsViewModel"
+             Title="{loc:Translate M_Title}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="{loc:Translate Logout}"
+                     Command="{Binding LogoutCommand}"
+                     AutomationId="LogoutButton"
+                     SemanticProperties.Description="{loc:Translate Logout}" />
+    </ContentPage.ToolbarItems>
+
+    <CollectionView ItemsSource="{Binding Items}"
+                    RemainingItemsThreshold="3"
+                    RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
+                    AutomationId="MeasurementsList">
+
+        <CollectionView.Header>
+            <VerticalStackLayout Padding="16" Spacing="12">
+                <Label Text="{loc:Translate M_Title}"
+                       Style="{StaticResource Headline}"
+                       SemanticProperties.HeadingLevel="Level1" />
+                <Label Text="{loc:Translate M_Disclaimer}" FontSize="13" />
+
+                <Label Text="{Binding Message}"
+                       IsVisible="{Binding Message, Converter={StaticResource IsNotNullConverter}}"
+                       TextColor="{AppThemeBinding Light=#B02A37, Dark=#EA868F}" />
+
+                <Label Text="{loc:Translate Form_Title}"
+                       Style="{StaticResource SubHeadline}"
+                       SemanticProperties.HeadingLevel="Level2" />
+
+                <Label Text="{loc:Translate Col_Systolic}" />
+                <Entry Text="{Binding SystolicText}" Keyboard="Numeric" AutomationId="SystolicEntry" MinimumHeightRequest="44"
+                       SemanticProperties.Description="{loc:Translate Col_Systolic}" />
+                <Label Text="{loc:Translate Col_Diastolic}" />
+                <Entry Text="{Binding DiastolicText}" Keyboard="Numeric" AutomationId="DiastolicEntry" MinimumHeightRequest="44"
+                       SemanticProperties.Description="{loc:Translate Col_Diastolic}" />
+                <Label Text="{loc:Translate Col_Pulse}" />
+                <Entry Text="{Binding PulseText}" Keyboard="Numeric" AutomationId="PulseEntry" MinimumHeightRequest="44"
+                       SemanticProperties.Description="{loc:Translate Col_Pulse}" />
+                <Label Text="{loc:Translate Col_Oxygen}" />
+                <Entry Text="{Binding OxygenText}" Keyboard="Numeric" AutomationId="OxygenEntry" MinimumHeightRequest="44"
+                       SemanticProperties.Description="{loc:Translate Col_Oxygen}" />
+
+                <Label Text="{loc:Translate Form_Date}" />
+                <DatePicker Date="{Binding MeasuredDate}" MinimumHeightRequest="44"
+                            SemanticProperties.Description="{loc:Translate Form_Date}" />
+                <Label Text="{loc:Translate Form_Time}" />
+                <TimePicker Time="{Binding MeasuredTime}" MinimumHeightRequest="44"
+                            SemanticProperties.Description="{loc:Translate Form_Time}" />
+
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding FormErrors}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Label Text="{Binding .}" TextColor="{AppThemeBinding Light=#B02A37, Dark=#EA868F}" />
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Button Text="{loc:Translate Form_Save}"
+                        Command="{Binding CreateCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        AutomationId="SaveButton"
+                        MinimumHeightRequest="44" />
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+            </VerticalStackLayout>
+        </CollectionView.Header>
+
+        <CollectionView.EmptyView>
+            <Label Text="{loc:Translate M_Empty}" Padding="16" />
+        </CollectionView.EmptyView>
+
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="vm:MeasurementItem">
+                <Border Margin="16,4" Padding="12" StrokeThickness="1"
+                        SemanticProperties.Description="{Binding Summary}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="{Binding DateText}" FontAttributes="Bold" />
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding Systolic}" />
+                                    <Span Text=" / " />
+                                    <Span Text="{Binding Diastolic}" />
+                                    <Span Text=" mmHg" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{loc:Translate Col_Pulse}" />
+                                    <Span Text=": " />
+                                    <Span Text="{Binding Pulse}" />
+                                    <Span Text="   " />
+                                    <Span Text="{loc:Translate Col_Oxygen}" />
+                                    <Span Text=": " />
+                                    <Span Text="{Binding Oxygen}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Border HorizontalOptions="Start" Padding="10,4" StrokeThickness="0"
+                                BackgroundColor="{Binding CategoryLevel, Converter={StaticResource CategoryBackgroundConverter}}">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="6" />
+                            </Border.StrokeShape>
+                            <Label Text="{Binding CategoryText}" FontSize="13" FontAttributes="Bold"
+                                   TextColor="{Binding CategoryLevel, Converter={StaticResource CategoryTextColorConverter}}" />
+                        </Border>
+                        <Button Text="{loc:Translate Delete}"
+                                MinimumHeightRequest="44"
+                                HorizontalOptions="Start"
+                                Style="{StaticResource OutlineButton}"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MeasurementsViewModel}}, x:DataType=vm:MeasurementsViewModel, Path=DeleteCommand}"
+                                CommandParameter="{Binding .}"
+                                SemanticProperties.Description="{loc:Translate Delete}"
+                                AutomationId="DeleteButton" />
+                    </VerticalStackLayout>
+                </Border>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+</ContentPage>

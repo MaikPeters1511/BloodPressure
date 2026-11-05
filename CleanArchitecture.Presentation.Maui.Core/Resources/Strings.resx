@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Login_Title" xml:space="preserve"><value>Anmelden</value></data>
+  <data name="Login_Email" xml:space="preserve"><value>E-Mail</value></data>
+  <data name="Login_Password" xml:space="preserve"><value>Passwort</value></data>
+  <data name="Login_Submit" xml:space="preserve"><value>Anmelden</value></data>
+  <data name="Login_Register" xml:space="preserve"><value>Registrieren</value></data>
+  <data name="Login_Missing" xml:space="preserve"><value>Bitte gib E-Mail und Passwort ein.</value></data>
+  <data name="Login_Failed" xml:space="preserve"><value>E-Mail oder Passwort ist falsch.</value></data>
+  <data name="Error_Generic" xml:space="preserve"><value>Etwas ist schiefgegangen. Bitte versuche es später erneut.</value></data>
+  <data name="M_Title" xml:space="preserve"><value>Messwerte</value></data>
+  <data name="M_Empty" xml:space="preserve"><value>Es sind noch keine Messwerte vorhanden.</value></data>
+  <data name="M_Disclaimer" xml:space="preserve"><value>Die Kategorie ist eine Einordnung nach ESC/ESH 2018 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.</value></data>
+  <data name="M_Saved" xml:space="preserve"><value>Die Messung wurde gespeichert.</value></data>
+  <data name="M_ItemSummary" xml:space="preserve"><value>{0}: {1} zu {2} mmHg, Puls {3}, Sauerstoff {4} Prozent, {5}</value></data>
+  <data name="M_LoadMore" xml:space="preserve"><value>Mehr laden</value></data>
+  <data name="Logout" xml:space="preserve"><value>Abmelden</value></data>
+  <data name="Col_Systolic" xml:space="preserve"><value>Systolisch</value></data>
+  <data name="Col_Diastolic" xml:space="preserve"><value>Diastolisch</value></data>
+  <data name="Col_Pulse" xml:space="preserve"><value>Puls</value></data>
+  <data name="Col_Oxygen" xml:space="preserve"><value>Sauerstoff (%)</value></data>
+  <data name="Form_Title" xml:space="preserve"><value>Neue Messung</value></data>
+  <data name="Form_Date" xml:space="preserve"><value>Datum</value></data>
+  <data name="Form_Time" xml:space="preserve"><value>Uhrzeit</value></data>
+  <data name="Form_Save" xml:space="preserve"><value>Speichern</value></data>
+  <data name="Form_Missing" xml:space="preserve"><value>Bitte fülle alle Felder mit Zahlen aus.</value></data>
+  <data name="Delete" xml:space="preserve"><value>Löschen</value></data>
+  <data name="Delete_Title" xml:space="preserve"><value>Messung löschen</value></data>
+  <data name="Delete_Confirm" xml:space="preserve"><value>Möchtest du die Messung vom {0} löschen?</value></data>
+  <data name="Delete_Yes" xml:space="preserve"><value>Löschen</value></data>
+  <data name="Delete_Cancel" xml:space="preserve"><value>Abbrechen</value></data>
+  <data name="Conflict" xml:space="preserve"><value>Die Messung wurde zwischenzeitlich geändert. Die Liste wurde neu geladen.</value></data>
+  <data name="Category_Optimal" xml:space="preserve"><value>Optimal</value></data>
+  <data name="Category_Normal" xml:space="preserve"><value>Normal</value></data>
+  <data name="Category_HighNormal" xml:space="preserve"><value>Hochnormal</value></data>
+  <data name="Category_Grade1" xml:space="preserve"><value>Hypertonie Grad 1</value></data>
+  <data name="Category_Grade2" xml:space="preserve"><value>Hypertonie Grad 2</value></data>
+  <data name="Category_Grade3" xml:space="preserve"><value>Hypertonie Grad 3</value></data>
+</root>
