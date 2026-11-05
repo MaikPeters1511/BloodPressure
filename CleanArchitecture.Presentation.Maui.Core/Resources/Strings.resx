@@ -60,7 +60,7 @@
   <data name="Export_Busy" xml:space="preserve"><value>Datei wird erstellt …</value></data>
   <data name="Export_Done" xml:space="preserve"><value>Die Datei {0} wurde bereitgestellt.</value></data>
   <data name="Export_TooMany" xml:space="preserve"><value>Der Zeitraum enthält zu viele Messungen (mehr als {0:N0}). Bitte wähle einen kleineren Zeitraum.</value></data>
-  <data name="Tab_Reminders" xml:space="preserve"><value>Erinnerungen</value></data>
+  <data name="Tab_Reminders" xml:space="preserve"><value>Erinnerung</value></data>
   <data name="Tab_Notifications" xml:space="preserve"><value>Hinweise</value></data>
   <data name="Form_Show" xml:space="preserve"><value>Neue Messung hinzufügen</value></data>
   <data name="Form_Hide" xml:space="preserve"><value>Formular schließen</value></data>
@@ -90,4 +90,6 @@
   <data name="Category_NonElevated" xml:space="preserve"><value>Nicht erhöht</value></data>
   <data name="Category_Elevated" xml:space="preserve"><value>Erhöht</value></data>
   <data name="Category_Hypertension" xml:space="preserve"><value>Bluthochdruck</value></data>
+  <data name="Notification_CriticalText" xml:space="preserve"><value>Eine Messung liegt im Bereich eines stark erhöhten Blutdrucks (Kategorie {0}). Das ist keine Diagnose. Bitte bei Beschwerden oder anhaltend hohen Werten ärztlichen Rat einholen.</value></data>
+  <data name="Notification_ReminderText" xml:space="preserve"><value>Zeit für deine Blutdruckmessung.</value></data>
 </root>
