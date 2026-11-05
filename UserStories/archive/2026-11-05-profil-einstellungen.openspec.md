@@ -1,7 +1,7 @@
 # Change: Profil- und Einstellungsseite (Darstellung, Alter, Größe, Gewicht)
 
 > **Status:** archived (2026-11-05). Offen vermerkt: Screenreader-Durchlauf durch eine Person, Windows-Build der MAUI-App.
-> Ablage: `UserStories/profil-einstellungen.openspec.md` (archiviert als `UserStories/archive/2026-11-05-profil-einstellungen.openspec.md`; dauerhafte Requirements: `UserStories/specs/profil-einstellungen.openspec.md`)
+> Ablage: (archiviert als `UserStories/archive/2026-11-05-profil-einstellungen.openspec.md`; dauerhafte Requirements: `UserStories/specs/profil-einstellungen.openspec.md`)
 > Baut auf: Identity-Anmeldung (Epic 1), Refit-Clients in `CleanArchitecture.Contracts`, Web-Oberfläche (`UserStories/specs/frontend-oberflaeche.openspec.md`) und MAUI-App (`UserStories/maui-app-api-anbindung.openspec.md`).
 
 ## 1. Proposal (Why & What)

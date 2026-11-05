@@ -1,7 +1,7 @@
 # Change: Blazor-UI an die abgesicherte API anpassen
 
-> **Status:** in-progress
-> Ablage: `UserStories/frontend-blazor-api-anpassung.openspec.md` (nach Abschluss: `UserStories/archive/YYYY-MM-DD-frontend-blazor-api-anpassung.openspec.md`)
+> **Status:** archived (2026-11-05).
+> Ablage: (archiviert als `UserStories/archive/2026-11-05-frontend-blazor-api-anpassung.openspec.md`)
 
 ## 1. Proposal (Why & What)
 - **Why:** Die Blazor-UI passt nicht mehr zur API: Sie baut nicht (.NET 8 gegen .NET-10-Projekte), ruft die API ohne Token auf (jetzt 401), liest das alte Listenformat und nutzt eine hartcodierte URL (`https://localhost:5000`) mit Newtonsoft. Texte sind hartcodiert (gegen die i18n-Vorgabe).
@@ -154,4 +154,4 @@ Die Seite „API“ (`Api.razor`) entfällt; ihre Funktion übernimmt „Messwer
 - [x] Jedes Scenario ist durch einen bUnit-Test abgedeckt und grün (32 Tests).
 - [x] UI baut und startet gegen die laufende API (Login, Liste, Anlegen, Löschen), im Browser geprüft.
 - [x] Keine hartcodierten sichtbaren Texte in den neuen Seiten; keine Newtonsoft-Abhängigkeit. (Die Vorlagenseiten Counter und Weather sind unverändert und nicht mehr verlinkt.)
-- [ ] Spec archiviert.
+- [x] Spec archiviert. — Archiviert

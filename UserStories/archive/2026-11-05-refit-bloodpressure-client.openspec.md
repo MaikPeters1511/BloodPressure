@@ -1,7 +1,7 @@
 # Change: Typisierter Refit-Client für die BloodPressure-API
 
-> **Status:** in-progress
-> Ablage: `UserStories/refit-bloodpressure-client.openspec.md` (nach Abschluss: `UserStories/archive/YYYY-MM-DD-refit-bloodpressure-client.openspec.md`)
+> **Status:** archived (2026-11-05). Offen vermerkt: Doku/OpenAPI nicht gesondert nachgeprüft.
+> Ablage: (archiviert als `UserStories/archive/2026-11-05-refit-bloodpressure-client.openspec.md`)
 
 ## 1. Proposal (Why & What)
 - **Why:** Konsumenten der API (Integrationstests, später Blazor und MAUI) sprechen die Endpunkte heute per Hand-gebautem `HttpClient` und eigener JSON-Deserialisierung an (`Api.razor` mit hartcodierter URL `https://localhost:5000` und Newtonsoft). Das ist fehleranfällig und driftet von der API weg. Ein einziges Refit-Interface ist die gemeinsame, compilergeprüfte Vertragsdefinition.
@@ -101,13 +101,13 @@ Entfällt.
 - [x] 1. Tests aus den Scenarios schreiben (Red) – Ordner `Tests/` (WebApplicationFactory + Refit)
 - [x] 2. `CleanArchitecture.Contracts` anlegen, DTO/Request verschieben, `IBloodPressureApi`-Interface implementieren (Domain → Application → Infrastructure → Web)
 - [x] 3. `AddBloodPressureApiClient` ergänzen und Aspire-Service-Discovery prüfen
-- [ ] 4. Frontend-Umstellung: **nicht in dieser Change** (Folge-Spec für `frontend-agent`)
-- [ ] 5. QA: Integrationstests grün, JSON-Vertrag unverändert (qa-agent)
-- [ ] 6. Doku/OpenAPI aktualisiert (doc-agent)
+- [x] 4. Frontend-Umstellung: **nicht in dieser Change** (Folge-Spec für `frontend-agent`) — Umgesetzt in der Folge-Spec `frontend-blazor-api-anpassung`
+- [x] 5. QA: Integrationstests grün, JSON-Vertrag unverändert (qa-agent) — `BloodPressureApiClientTests` inkl. Round-Trip grün in der CI
+- [~] 6. Doku/OpenAPI aktualisiert (doc-agent) — Nicht gesondert nachgeprüft
 
 ## 9. Acceptance Criteria (DoD)
-- [ ] Jedes Scenario aus Abschnitt 3 ist durch einen automatisierten Test (TUnit) abgedeckt und grün.
-- [ ] Build ohne Fehler; keine neuen NuGet-Schwachstellenwarnungen durch `Refit`.
-- [ ] Kein hartcodierter Host im Client-Code.
-- [ ] JSON-Format der API ist feldgleich zum Stand vor der Change (Round-Trip-Test).
-- [ ] Spec ist archiviert (Status `archived`, Requirements nach `UserStories/specs/bloodpressure-api.openspec.md` übernommen).
+- [x] Jedes Scenario aus Abschnitt 3 ist durch einen automatisierten Test (TUnit) abgedeckt und grün. — `Tests/CleanArchitecture.Tests/BloodPressureApiClientTests.cs`
+- [x] Build ohne Fehler; keine neuen NuGet-Schwachstellenwarnungen durch `Refit`. — Der CI-Schritt „Check vulnerable NuGet packages“ besteht
+- [x] Kein hartcodierter Host im Client-Code. — Die Adresse kommt aus der Konfiguration (`Api:BaseUrl`)
+- [x] JSON-Format der API ist feldgleich zum Stand vor der Change (Round-Trip-Test). — Test `RoundTrip_ReturnsAllFieldsUnchanged`
+- [x] Spec ist archiviert (Status `archived`, Requirements nach `UserStories/specs/bloodpressure-api.openspec.md` übernommen). — Archiviert

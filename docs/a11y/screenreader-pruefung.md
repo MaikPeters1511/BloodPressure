@@ -1,6 +1,6 @@
 # Barrierefreiheits-Prüfung der Blazor-Oberfläche
 
-Spec: `UserStories/frontend-a11y-mobil-abnahme.openspec.md`. Dieses Dokument hat zwei Teile: die **automatisierte Prüfung** (wiederholbar, Browser) und die **Screenreader-Prüfung** (von einer Person auszuführen und zu protokollieren).
+Spec: `UserStories/archive/2026-11-05-frontend-a11y-mobil-abnahme.openspec.md`. Dieses Dokument hat zwei Teile: die **automatisierte Prüfung** (wiederholbar, Browser) und die **Screenreader-Prüfung** (von einer Person auszuführen und zu protokollieren).
 
 ## 1. Umgebung vorbereiten (lokal, kein Produktivsystem)
 

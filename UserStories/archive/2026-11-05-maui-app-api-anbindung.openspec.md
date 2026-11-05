@@ -1,7 +1,7 @@
 # Change: MAUI-App – Anmeldung, Messwerte, Auswertung, Export, Erinnerungen, Hinweise
 
-> **Status:** in-progress (Phase 1 bis 4 umgesetzt; offen: Screenreader-Durchlauf auf dem Gerät)
-> Ablage: `UserStories/maui-app-api-anbindung.openspec.md` (nach Abschluss: `UserStories/archive/YYYY-MM-DD-maui-app-api-anbindung.openspec.md`)
+> **Status:** archived (2026-11-05). Offen vermerkt: Screenreader-Durchlauf (VoiceOver/TalkBack) durch eine Person, Mac Catalyst und Windows nicht geprüft, iOS-Simulator seit dem Xcode-Update 27.2 lokal nicht baubar.
+> Ablage: (archiviert als `UserStories/archive/2026-11-05-maui-app-api-anbindung.openspec.md`)
 > Baut auf: `UserStories/specs/frontend-oberflaeche.openspec.md` (gleiche Fähigkeiten wie die Blazor-Oberfläche), Refit-Clients in `CleanArchitecture.Contracts`.
 
 ## 0. Ausgangslage (Korrektur)
@@ -147,16 +147,16 @@ Entfällt.
 - [x] T3 (frontend) Core-Projekt, `SecureStorage`-Adapter, DI, Konfiguration der API-Adresse, Login- und Messwerte-Views, Shell
 - [x] T4 (frontend) Phase 2: Auswertung (GraphicsView + Tabelle), Export (Teilen)
 - [x] T5 (frontend) Phase 3: Erinnerungen, Hinweise, Zähler
-- [ ] T6 (qa) Lauf im iOS-Simulator (und Mac Catalyst) gegen die echte API, Screenshots als Nachweis
+- [~] T6 (qa) Lauf im iOS-Simulator (und Mac Catalyst) gegen die echte API, Screenshots als Nachweis — Durchgespielt auf iOS-26.5-Simulator und Android-35-Emulator gegen die echte API; Mac Catalyst nicht
 - [x] T7 (ux) A11y-Review: statischer XAML-Test in der CI, Gegenprobe, Accessibility-Baum der Mac-App (Login), Geräte-Anleitung `docs/a11y/maui-screenreader-pruefung.md`. **Offen: Durchlauf mit VoiceOver/TalkBack durch eine Person**
-- [ ] T8 (devops) CI: ViewModel-Tests laufen bereits über `dotnet test`; optional macOS-Job für `dotnet build` des MAUI-Projekts (Kosten/Nutzen abwägen)
+- [~] T8 (devops) CI: ViewModel-Tests laufen bereits über `dotnet test`; optional macOS-Job für `dotnet build` des MAUI-Projekts (Kosten/Nutzen abwägen) — Bewusst nicht umgesetzt: kein macOS-Job in der CI (Kosten); ViewModel-Tests laufen über `dotnet test`, XAML-Test statisch
 - [x] T9 (doc, Stand Phase 1) README: Start der App, API-Adresse, Emulator-Hinweise
 
 ## 9. Acceptance Criteria (DoD)
-- [ ] Jedes Scenario aus Abschnitt 3, das Logik betrifft, ist durch einen Core-Test abgedeckt und grün (CI).
-- [ ] Views im Simulator manuell durchgespielt (Anmelden → Messung anlegen → Auswertung → Export → Erinnerung → Hinweis) mit Nachweis.
-- [ ] Keine Tokens/Passwörter im Klartext gespeichert oder geloggt; Release-Build lehnt `http://` ab.
-- [ ] DE/EN-Paritätstest grün; keine hartcodierten sichtbaren Texte.
-- [ ] Screenreader-Prüfung (VoiceOver/TalkBack) durch eine Person protokolliert, oder offen vermerkt (nicht als bestanden ausgeben).
+- [x] Jedes Scenario aus Abschnitt 3, das Logik betrifft, ist durch einen Core-Test abgedeckt und grün (CI). — Core-Tests in `Tests/CleanArchitecture.Maui.Tests` grün in der CI
+- [x] Views im Simulator manuell durchgespielt (Anmelden → Messung anlegen → Auswertung → Export → Erinnerung → Hinweis) mit Nachweis. — iOS-Simulator und Android-Emulator (siehe T6)
+- [x] Keine Tokens/Passwörter im Klartext gespeichert oder geloggt; Release-Build lehnt `http://` ab. — Tokens im sicheren Speicher (`SecureStorage`); Release-Build lehnt `http://` ab (`ApiEndpointTests`)
+- [x] DE/EN-Paritätstest grün; keine hartcodierten sichtbaren Texte. — `ResourcesTests` grün
+- [~] Screenreader-Prüfung (VoiceOver/TalkBack) durch eine Person protokolliert, oder offen vermerkt (nicht als bestanden ausgeben). — **Offen vermerkt, nicht als bestanden ausgegeben** (`docs/a11y/maui-screenreader-pruefung.md`)
 - [x] Android-Build und -Lauf geprüft (Emulator API 35: Anmeldung, Messwerte, Auswertung mit Diagramm, Erinnerungen, Hinweise); Windows-Build ausdrücklich ungeprüft. Zwei Befunde (deutsche Hinweistexte vom Server, abgeschnittener erster Tab-Titel) wurden behoben und auf dem Emulator bestätigt.
-- [ ] Spec archiviert, Requirements nach `UserStories/specs/maui-app.openspec.md` übernommen.
+- [x] Spec archiviert, Requirements nach `UserStories/specs/maui-app.openspec.md` übernommen. — Archiviert

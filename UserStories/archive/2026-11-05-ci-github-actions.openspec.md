@@ -1,7 +1,7 @@
 # Change: CI-Pipeline mit GitHub Actions (Build & Tests)
 
-> **Status:** in-progress
-> Ablage: `UserStories/ci-github-actions.openspec.md` (nach Abschluss: `UserStories/archive/YYYY-MM-DD-ci-github-actions.openspec.md`)
+> **Status:** archived (2026-11-05). Offen vermerkt: kein gezielt provozierter roter und abgebrochener Lauf des Jobs `CI`; der CI-Hinweis im README beschreibt bisher nur den CD-Schritt.
+> Ablage: (archiviert als `UserStories/archive/2026-11-05-ci-github-actions.openspec.md`)
 
 ## 1. Proposal (Why & What)
 - **Why:** Seit dem Entfernen von `.github/workflows` läuft keine automatische Prüfung mehr. `CLAUDE.md` verlangt aber, dass jeder PR passing Tests (CI/CD) hat. Ohne Pipeline kann ein defekter Stand unbemerkt in `main` gelangen.
@@ -114,13 +114,13 @@ Entfällt.
 - [x] 1. Workflow-Datei als Testfall prüfen: lokale Befehlsfolge (Restore, Build Release, Test, Vulnerable-Check) läuft auf dem Backend-Filter grün durch (Red/Green der Befehlskette)
 - [x] 2. `CleanArchitecture.Backend.slnf` anlegen
 - [x] 3. `.github/workflows/ci.yml` schreiben (devops-agent)
-- [ ] 4. Pipeline am PR verifizieren: grüner Lauf und absichtlich roter Lauf (qa-agent)
-- [ ] 5. Branch-Protection mit erforderlichem Check `CI` einrichten (Repo-Eigentümer)
-- [ ] 6. README um CI-Hinweis ergänzen (doc-agent)
+- [~] 4. Pipeline am PR verifizieren: grüner Lauf und absichtlich roter Lauf (qa-agent) — Grüne Läufe an allen PRs, roter Lauf z. B. beim Job `A11y` in PR 44 beobachtet; ein absichtlich roter Lauf des Jobs `CI` wurde nicht eigens ausgeführt
+- [x] 5. Branch-Protection mit erforderlichem Check `CI` einrichten (Repo-Eigentümer) — `main` verlangt den Check `CI` (per API geprüft); `A11y` ist bewusst kein Pflicht-Check
+- [~] 6. README um CI-Hinweis ergänzen (doc-agent) — Das README beschreibt den CD-Schritt nach der CI; ein eigener CI-Absatz fehlt
 
 ## 9. Acceptance Criteria (DoD)
-- [ ] Jedes Scenario aus Abschnitt 3 ist durch einen Workflow-Lauf nachgewiesen (grün, rot, abgebrochen, Artefakt vorhanden).
-- [ ] Der Workflow läuft ohne Secrets und mit `contents: read`.
-- [ ] Lokal und in der Pipeline ergibt `dotnet test` dasselbe Ergebnis (15 Tests grün).
-- [ ] Der Check `CI` ist am PR sichtbar.
-- [ ] Spec ist archiviert (Status `archived`, Requirements nach `UserStories/specs/ci.openspec.md` übernommen).
+- [~] Jedes Scenario aus Abschnitt 3 ist durch einen Workflow-Lauf nachgewiesen (grün, rot, abgebrochen, Artefakt vorhanden). — Grün, Artefakt-Upload und Abbruch durch `concurrency` sind im Workflow umgesetzt; rot und Abbruch nicht gezielt nachgewiesen
+- [x] Der Workflow läuft ohne Secrets und mit `contents: read`. — `permissions: contents: read`, keine `secrets.*` im Workflow
+- [x] Lokal und in der Pipeline ergibt `dotnet test` dasselbe Ergebnis (15 Tests grün). — Lokal und in der CI laufen dieselben Tests grün (inzwischen deutlich mehr als 15)
+- [x] Der Check `CI` ist am PR sichtbar. — Sichtbar an jedem PR
+- [x] Spec ist archiviert (Status `archived`, Requirements nach `UserStories/specs/ci.openspec.md` übernommen). — Archiviert
