@@ -3,7 +3,12 @@ using Android.Runtime;
 
 namespace CleanArchitecture.Presentation.Maui;
 
+// Klartext-HTTP (lokale API) nur in Debug-Builds; Release-Builds verlangen HTTPS (siehe ApiEndpoint).
+#if DEBUG
+[Application(UsesCleartextTraffic = true)]
+#else
 [Application]
+#endif
 public class MainApplication : MauiApplication
 {
     public MainApplication(IntPtr handle, JniHandleOwnership ownership)

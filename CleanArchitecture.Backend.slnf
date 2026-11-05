@@ -8,8 +8,10 @@
       "CleanArchitecture.Domain\\CleanArchitecture.Domain.csproj",
       "CleanArchitecture.Infrastructure\\CleanArchitecture.Infrastructure.csproj",
       "CleanArchitecture.Presentation.API\\CleanArchitecture.Presentation.API.csproj",
+      "CleanArchitecture.Presentation.Maui.Core\\CleanArchitecture.Presentation.Maui.Core.csproj",
       "CleanArchitecture.Presentation.UI\\CleanArchitecture.Presentation.UI.csproj",
       "CleanArchitecture.ServiceDefaults\\CleanArchitecture.ServiceDefaults.csproj",
+      "Tests\\CleanArchitecture.Maui.Tests\\CleanArchitecture.Maui.Tests.csproj",
       "Tests\\CleanArchitecture.Tests\\CleanArchitecture.Tests.csproj",
       "Tests\\CleanArchitecture.UI.Tests\\CleanArchitecture.UI.Tests.csproj"
     ]
