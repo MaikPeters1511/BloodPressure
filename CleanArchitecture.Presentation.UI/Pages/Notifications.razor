@@ -5,6 +5,7 @@
 @using CleanArchitecture.Presentation.UI.Services
 @using Microsoft.Extensions.Localization
 @using Refit
+@inject ILanguageService Language
 @inject INotificationApi Api
 @inject NotificationCounter Counter
 @inject AuthSession Session
@@ -33,7 +34,7 @@
         @foreach (var n in _items)
         {
             var critical = n.Type == "CriticalReading";
-            var time = TimeZoneInfo.ConvertTimeFromUtc(n.CreatedAt.ToUniversalTime(), Time.LocalTimeZone).ToString("g", CultureInfo.CurrentCulture);
+            var time = TimeZoneInfo.ConvertTimeFromUtc(n.CreatedAt.ToUniversalTime(), Time.LocalTimeZone).ToString("g", Language.Culture);
             <li @key="n.Id" tabindex="-1" @ref="_refs[n.Id]" class="card mb-2 notification @(n.IsRead ? "read" : "unread") @(critical ? "border-danger" : "")">
                 <div class="card-body" role="@(critical && !n.IsRead ? "alert" : null)">
                     <p class="mb-1">

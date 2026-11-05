@@ -5,6 +5,7 @@
 @using CleanArchitecture.Presentation.UI.Services
 @using Microsoft.Extensions.Localization
 @using Refit
+@inject ILanguageService Language
 @inject IBloodPressureApi Api
 @inject AuthSession Session
 @inject NavigationManager Navigation
@@ -111,11 +112,11 @@
     private string Period(DateTime utc)
     {
         var local = TimeZoneInfo.ConvertTimeFromUtc(utc.ToUniversalTime(), Time.LocalTimeZone);
-        return _shownInterval == StatisticsQuery.Month ? local.ToString("Y", CultureInfo.CurrentCulture) : local.ToString("d", CultureInfo.CurrentCulture);
+        return _shownInterval == StatisticsQuery.Month ? local.ToString("Y", Language.Culture) : local.ToString("d", Language.Culture);
     }
 
-    private static string Cell(ValueStatsDto v)
-        => string.Create(CultureInfo.CurrentCulture, $"{v.Average:0.#} ({v.Min}–{v.Max})");
+    private string Cell(ValueStatsDto v)
+        => string.Create(Language.Culture, $"{v.Average:0.#} ({v.Min}–{v.Max})");
 
     private async Task LoadAsync()
     {

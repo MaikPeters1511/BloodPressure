@@ -19,11 +19,12 @@ public sealed partial class ProfileViewModel : ObservableObject
     private readonly IDialogService _dialogs;
     private readonly ILocalizer _l;
     private readonly ThemeSettings _theme;
+    private readonly LanguageSettings _language;
     private readonly ILogger _logger;
 
     public ProfileViewModel(
         IProfileApi api, SessionService session, INavigator navigator, IDialogService dialogs,
-        ILocalizer localizer, ThemeSettings theme, ILogger<ProfileViewModel>? logger = null)
+        ILocalizer localizer, ThemeSettings theme, LanguageSettings language, ILogger<ProfileViewModel>? logger = null)
     {
         _api = api;
         _session = session;
@@ -31,8 +32,10 @@ public sealed partial class ProfileViewModel : ObservableObject
         _dialogs = dialogs;
         _l = localizer;
         _theme = theme;
+        _language = language;
         _logger = logger ?? NullLogger<ProfileViewModel>.Instance;
         _selectedTheme = theme.Current;
+        _selectedLanguage = language.Current;
     }
 
     public ObservableCollection<string> Errors { get; } = [];
@@ -59,6 +62,38 @@ public sealed partial class ProfileViewModel : ObservableObject
         SelectedTheme = theme;
         _theme.Set(theme);
         _dialogs.Announce(_l.Format("Theme_Changed", _l[$"Theme_{char.ToUpperInvariant(theme[0])}{theme[1..]}"]));
+    }
+
+    // --- Sprache (je Gerät, lokal) ---
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsLanguageSystem), nameof(IsLanguageGerman), nameof(IsLanguageEnglish))]
+    private string _selectedLanguage;
+
+    public bool IsLanguageSystem { get => SelectedLanguage == LanguageChoice.System; set => SetLanguage(value, LanguageChoice.System); }
+
+    public bool IsLanguageGerman { get => SelectedLanguage == LanguageChoice.German; set => SetLanguage(value, LanguageChoice.German); }
+
+    public bool IsLanguageEnglish { get => SelectedLanguage == LanguageChoice.English; set => SetLanguage(value, LanguageChoice.English); }
+
+    private void SetLanguage(bool selected, string language)
+    {
+        // RadioButton meldet auch das Abwählen (false); nur die neue Auswahl zählt.
+        if (!selected || SelectedLanguage == language)
+        {
+            return;
+        }
+
+        SelectedLanguage = language;
+        _language.Set(language);
+
+        // Die Texte sind jetzt in der neuen Sprache; die Ansage nennt die gewählte Sprache.
+        var name = language switch
+        {
+            LanguageChoice.German => _l["Language_German"],
+            LanguageChoice.English => _l["Language_English"],
+            _ => _l["Language_System"]
+        };
+        _dialogs.Announce(_l.Format("Language_Changed", name));
     }
 
     // --- Profil (am Server) ---

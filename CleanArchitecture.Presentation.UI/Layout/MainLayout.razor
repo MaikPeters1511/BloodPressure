@@ -1,13 +1,44 @@
-﻿@inherits LayoutComponentBase
+@using CleanArchitecture.Presentation.UI.Services
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject ILanguageService Language
+@inject NavigationManager Navigation
+
 <div class="page">
     <div class="sidebar">
-        <NavMenu/>
+        @* Neuer Schlüssel je Sprachwechsel: Navigation und Seite werden in der neuen Sprache neu aufgebaut. *@
+        <NavMenu @key="_version"/>
     </div>
 
     <main>
 
         <article class="content px-4">
-            @Body
+            @if (KeepsOwnState)
+            {
+                @Body
+            }
+            else
+            {
+                <div @key="_version">@Body</div>
+            }
         </article>
     </main>
 </div>
+
+@code {
+    private int _version;
+
+    // Die Profilseite formatiert ihre (evtl. ungespeicherten) Eingaben selbst neu und darf nicht neu aufgebaut werden.
+    private bool KeepsOwnState
+        => Navigation.ToBaseRelativePath(Navigation.Uri).StartsWith("profile", StringComparison.OrdinalIgnoreCase);
+
+    protected override void OnInitialized() => Language.Changed += OnLanguageChanged;
+
+    private void OnLanguageChanged()
+    {
+        _version++;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => Language.Changed -= OnLanguageChanged;
+}

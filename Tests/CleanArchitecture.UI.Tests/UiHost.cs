@@ -21,15 +21,16 @@ public sealed class UiHost : IDisposable
     public FakeBrowser Browser { get; } = new();
     public FakeProfileApi Profile { get; } = new();
     public FakeTheme Theme { get; } = new();
+    public FakeLanguage Language { get; }
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 4, 12, 0, 0, TimeSpan.Zero));
     public AuthSession Session { get; }
 
     public UiHost(string culture = "de")
     {
-        var cultureInfo = new CultureInfo(culture);
+        Language = new FakeLanguage(culture);
         Session = new AuthSession(Storage, Auth, Time);
         Context.Services.AddLogging();
-        Context.Services.AddSingleton<IStringLocalizer<SharedResource>>(new FixedCultureLocalizer(cultureInfo));
+        Context.Services.AddSingleton<IStringLocalizer<SharedResource>>(new FixedCultureLocalizer(() => new CultureInfo(Language.Current)));
         Context.Services.AddSingleton<ITokenStorage>(Storage);
         Context.Services.AddSingleton<IAuthApi>(Auth);
         Context.Services.AddSingleton<IBloodPressureApi>(Api);
@@ -38,6 +39,7 @@ public sealed class UiHost : IDisposable
         Context.Services.AddSingleton<IBrowserInterop>(Browser);
         Context.Services.AddSingleton<IProfileApi>(Profile);
         Context.Services.AddSingleton<IThemeService>(Theme);
+        Context.Services.AddSingleton<ILanguageService>(Language);
         Context.Services.AddSingleton<NotificationCounter>();
         Context.JSInterop.Mode = JSRuntimeMode.Loose;
         Context.Services.AddSingleton<TimeProvider>(Time);

@@ -14,10 +14,12 @@ const API = process.env.API_URL ?? 'http://localhost:5000';
 const UI = process.env.UI_URL ?? 'http://localhost:5296';
 const PAGES = ['measurements', 'statistics', 'export', 'reminders', 'notifications', 'profile'];
 const VIEWPORTS = [{ width: 1280, height: 800 }, { width: 375, height: 812 }, { width: 320, height: 568 }];
-// Systemschema; zusätzlich (nur bei 1280 px) die ausdrücklich gewählte Darstellung, die dem Systemschema widerspricht.
+// Systemschema; zusätzlich (nur bei 1280 px) die ausdrücklich gewählte Darstellung, die dem Systemschema widerspricht,
+// und die ausdrücklich gewählte Sprache Englisch (Browsersprache bleibt Deutsch; englische Texte sind länger, daher alle Breiten).
 const VARIANTS = [
-  { scheme: 'light', forced: null }, { scheme: 'dark', forced: null },
-  { scheme: 'light', forced: 'dark' }, { scheme: 'dark', forced: 'light' },
+  { scheme: 'light', forced: null, lang: null }, { scheme: 'dark', forced: null, lang: null },
+  { scheme: 'light', forced: 'dark', lang: null }, { scheme: 'dark', forced: 'light', lang: null },
+  { scheme: 'light', forced: null, lang: 'en' }, { scheme: 'dark', forced: null, lang: 'en' },
 ];
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
@@ -63,23 +65,24 @@ await seed();
 // A11Y_CHROMIUM: optional Pfad zu einem vorhandenen Chromium (lokal); in der CI installiert Playwright den Browser.
 const browser = await chromium.launch(process.env.A11Y_CHROMIUM ? { executablePath: process.env.A11Y_CHROMIUM } : {});
 try {
-  for (const { scheme: colorScheme, forced } of VARIANTS) {
+  for (const { scheme: colorScheme, forced, lang } of VARIANTS) {
     for (const viewport of VIEWPORTS) {
       if (forced && viewport.width !== 1280) continue;
       // Feste deutsche Browsersprache: die Oberfläche richtet sich nach navigator.language, die Prüfung nutzt die deutschen Beschriftungen.
       const context = await browser.newContext({ viewport, colorScheme, locale: 'de-DE', reducedMotion: 'reduce' });
       if (forced) await context.addInitScript((value) => { try { localStorage.setItem('bp.theme', value); } catch (e) { /* ignorieren */ } }, forced);
+      if (lang) await context.addInitScript((value) => { try { localStorage.setItem('bp.lang', value); } catch (e) { /* ignorieren */ } }, lang);
       const page = await context.newPage();
 
       await page.goto(`${UI}/login`);
       // Bei Fehlern ein Bild ablegen, damit CI-Fehlschläge ohne Raten auswertbar sind.
-      await page.getByLabel('E-Mail').waitFor({ timeout: 30000 }).catch(async (error) => {
+      await page.locator('#email').waitFor({ timeout: 30000 }).catch(async (error) => {
         await page.screenshot({ path: 'a11y-failure.png' });
         throw error;
       });
-      await page.getByLabel('E-Mail').fill(email);
-      await page.getByLabel('Passwort').fill(credential);
-      await page.getByRole('button', { name: 'Anmelden' }).click();
+      await page.locator('#email').fill(email);
+      await page.locator('#password').fill(credential);
+      await page.locator('#login-button').click();
       await page.waitForURL('**/measurements', { timeout: 30000 });
 
       for (const path of PAGES) {
@@ -109,19 +112,68 @@ try {
           themeProblem = state.attr !== forced || (forced === 'dark' ? state.luminance < 0.5 : state.luminance > 0.5);
         }
 
-        const failed = blocking.length > 0 || overflow || tooSmall.length > 0 || themeProblem;
+        // Ausdrücklich gewählte Sprache: lang-Attribut stimmt, und die Überschrift ist nicht deutsch geblieben.
+        let langProblem = false;
+        if (lang) {
+          const state = await page.evaluate(() => ({ lang: document.documentElement.getAttribute('lang'), h1: document.querySelector('main h1, article h1')?.textContent ?? '' }));
+          langProblem = state.lang !== lang || /Messwerte|Auswertung|Erinnerungen|Hinweise|Profil &/.test(state.h1);
+        }
+
+        const failed = blocking.length > 0 || overflow || tooSmall.length > 0 || themeProblem || langProblem;
         if (failed) failures++;
         results.push({
-          page: path, width: viewport.width, scheme: colorScheme, forced, failed, themeProblem,
+          page: path, width: viewport.width, scheme: colorScheme, forced, lang, failed, themeProblem, langProblem,
           violations: axe.violations.map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.map((n) => n.target.join(' ')) })),
           overflow, tooSmall,
         });
-        console.log(`${failed ? 'FAIL' : 'ok  '} ${colorScheme.padEnd(5)} ${(forced ?? '-').padEnd(5)} ${String(viewport.width).padStart(4)} px  ${path}` +
+        console.log(`${failed ? 'FAIL' : 'ok  '} ${colorScheme.padEnd(5)} ${(forced ?? '-').padEnd(5)} ${(lang ?? '-').padEnd(2)} ${String(viewport.width).padStart(4)} px  ${path}` +
           (axe.violations.length ? `  axe: ${axe.violations.map((v) => `${v.id}(${v.impact})`).join(', ')}` : '') +
-          (themeProblem ? '  theme' : '') + (overflow ? '  overflow' : '') + (tooSmall.length ? `  tooSmall: ${tooSmall.map((x) => x.el).join(',')}` : ''));
+          (themeProblem ? '  theme' : '') + (langProblem ? '  lang' : '') + (overflow ? '  overflow' : '') + (tooSmall.length ? `  tooSmall: ${tooSmall.map((x) => x.el).join(',')}` : ''));
       }
       await context.close();
     }
+  }
+
+  // Sprache zur Laufzeit wechseln (Profilseite): Texte, lang-Attribut und Zahlenformat folgen sofort, ungespeicherte Eingaben bleiben.
+  {
+    const context = await browser.newContext({ viewport: VIEWPORTS[0], colorScheme: 'light', locale: 'de-DE', reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(`${UI}/login`);
+    await page.locator('#email').fill(email);
+    await page.locator('#password').fill(credential);
+    await page.locator('#login-button').click();
+    await page.waitForURL('**/measurements', { timeout: 30000 });
+    await openPage(page, 'profile');
+    await page.locator('#profile-age').fill('42');
+    await page.locator('#profile-weight').fill('82,5');
+    await page.locator('#profile-weight').blur();
+    const read = () => page.evaluate(() => ({
+      lang: document.documentElement.getAttribute('lang'),
+      legend: document.querySelector('#language-group legend')?.textContent,
+      age: document.querySelector('#profile-age')?.value,
+      weight: document.querySelector('#profile-weight')?.value,
+      status: document.querySelector('#profile-saved')?.textContent,
+      stored: localStorage.getItem('bp.lang'),
+    }));
+    const steps = [];
+    await page.locator('#language-en').check();
+    await page.waitForFunction(() => document.documentElement.getAttribute('lang') === 'en');
+    await page.waitForFunction(() => document.querySelector('#profile-weight')?.value === '82.5');
+    steps.push(['en', await read(), { lang: 'en', legend: 'Language', age: '42', weight: '82.5', status: 'Language: English', stored: 'en' }]);
+    await page.reload();
+    await page.waitForSelector('#language-group');
+    steps.push(['en nach Neuladen', await read(), { lang: 'en', legend: 'Language', stored: 'en' }]);
+    await page.locator('#language-system').check();
+    await page.waitForFunction(() => document.documentElement.getAttribute('lang') === 'de');
+    steps.push(['system', await read(), { lang: 'de', legend: 'Sprache', stored: null }]);
+    for (const [name, actual, expected] of steps) {
+      const wrong = Object.entries(expected).filter(([key, value]) => actual[key] !== value);
+      const failed = wrong.length > 0;
+      if (failed) failures++;
+      results.push({ page: 'language-switch', step: name, failed, actual, expected });
+      console.log(`${failed ? 'FAIL' : 'ok  '} Sprachwechsel ${name}` + (failed ? `  ${wrong.map(([k, v]) => `${k}: erwartet ${v}, erhalten ${actual[k]}`).join('; ')}` : ''));
+    }
+    await context.close();
   }
 } finally {
   await browser.close();

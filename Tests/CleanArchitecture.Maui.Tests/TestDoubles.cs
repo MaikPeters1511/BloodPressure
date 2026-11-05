@@ -309,3 +309,9 @@ public static class Culture
     public static CultureInfo De { get; } = new("de");
     public static CultureInfo En { get; } = new("en");
 }
+
+public sealed class FakeLanguageApplier : ILanguageApplier
+{
+    public List<CultureInfo> Applied { get; } = [];
+    public void Apply(CultureInfo culture) => Applied.Add(culture);
+}

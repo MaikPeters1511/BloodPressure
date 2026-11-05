@@ -7,6 +7,9 @@ public interface ILocalizer
 {
     CultureInfo Culture { get; }
 
+    /// <summary>Wechselt die Sprache der Texte und Formate (nur Deutsch und Englisch; alles andere gilt als Deutsch).</summary>
+    void SetCulture(CultureInfo culture);
+
     string this[string key] { get; }
 
     string Format(string key, params object[] args);
@@ -20,10 +23,15 @@ public sealed class ResxLocalizer : ILocalizer
 
     public ResxLocalizer(CultureInfo? culture = null)
     {
-        Culture = culture is not null && culture.TwoLetterISOLanguageName == "en" ? new CultureInfo("en") : new CultureInfo("de");
+        Culture = Normalize(culture);
     }
 
-    public CultureInfo Culture { get; }
+    public CultureInfo Culture { get; private set; }
+
+    public void SetCulture(CultureInfo culture) => Culture = Normalize(culture);
+
+    private static CultureInfo Normalize(CultureInfo? culture)
+        => culture is not null && culture.TwoLetterISOLanguageName == "en" ? new CultureInfo("en") : new CultureInfo("de");
 
     public string this[string key] => Resources.GetString(key, Culture) ?? key;
 

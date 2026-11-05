@@ -1,9 +1,86 @@
+using System.Globalization;
 using System.Net;
 using CleanArchitecture.Contracts;
 using CleanArchitecture.Presentation.Maui.Core.Services;
 using CleanArchitecture.Presentation.Maui.Core.ViewModels;
 
 namespace CleanArchitecture.Maui.Tests;
+
+[Category("Unit")]
+public class LanguageSettingsTests
+{
+    private readonly FakeSettingsStore _store = new();
+    private readonly FakeLanguageApplier _applier = new();
+
+    private LanguageSettings Create(CultureInfo device, out ResxLocalizer localizer)
+    {
+        localizer = new ResxLocalizer(LanguageSettings.ResolveStored(_store, device));
+        return new LanguageSettings(_store, localizer, _applier, device);
+    }
+
+    [Test]
+    public async Task Default_IsSystem()
+        => await Assert.That(Create(Culture.De, out _).Current).IsEqualTo("system");
+
+    [Test]
+    [Arguments("en-US", "en")]
+    [Arguments("en-GB", "en")]
+    [Arguments("de-DE", "de")]
+    [Arguments("fr-FR", "de")]
+    public async Task WithoutChoice_TheDeviceLanguageDecides_EnglishOtherwiseGerman(string device, string expected)
+    {
+        Create(new CultureInfo(device), out var localizer);
+
+        await Assert.That(localizer.Culture.Name).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task Set_AppliesImmediately_SwitchesTheTexts_AndStoresLocally()
+    {
+        var settings = Create(Culture.De, out var localizer);
+        await Assert.That(localizer["Tab_Measurements"]).IsEqualTo("Messwerte");
+
+        settings.Set("en");
+
+        await Assert.That(_applier.Applied.Select(c => c.Name)).IsEquivalentTo(new[] { "en" });
+        await Assert.That(_store.Items["bp.language"]).IsEqualTo("en");
+        await Assert.That(settings.Current).IsEqualTo("en");
+        await Assert.That(localizer.Culture.Name).IsEqualTo("en");
+        await Assert.That(localizer["Tab_Measurements"]).IsEqualTo("Readings");
+    }
+
+    [Test]
+    public async Task ChoiceWinsOverTheDeviceLanguage_AfterRestart()
+    {
+        _store.Items["bp.language"] = "de";
+
+        var settings = Create(Culture.En, out var localizer);
+
+        await Assert.That(settings.Current).IsEqualTo("de");
+        await Assert.That(localizer.Culture.Name).IsEqualTo("de");
+    }
+
+    [Test]
+    public async Task System_RemovesTheStoredChoice_AndFollowsTheDevice()
+    {
+        _store.Items["bp.language"] = "en";
+        var settings = Create(Culture.De, out var localizer);
+
+        settings.Set("system");
+
+        await Assert.That(_store.Items.ContainsKey("bp.language")).IsFalse();
+        await Assert.That(localizer.Culture.Name).IsEqualTo("de");
+        await Assert.That(_applier.Applied.Single().Name).IsEqualTo("de");
+    }
+
+    [Test]
+    public async Task UnknownValues_AreTreatedAsSystem()
+    {
+        _store.Items["bp.language"] = "klingon";
+
+        await Assert.That(Create(Culture.De, out _).Current).IsEqualTo("system");
+    }
+}
 
 [Category("Unit")]
 public class ThemeSettingsTests
@@ -72,6 +149,8 @@ public class ProfileViewModelTests
     private readonly FakeDialogs _dialogs = new();
     private readonly FakeSettingsStore _settings = new();
     private readonly FakeThemeApplier _applier = new();
+    private readonly FakeLanguageApplier _languageApplier = new();
+    private ResxLocalizer _localizer = null!;
     private SessionService _session = null!;
 
     private async Task<ProfileViewModel> CreateAsync(ProfileDto? stored = null, bool signedIn = true, string culture = "de")
@@ -87,8 +166,10 @@ public class ProfileViewModelTests
             await _session.LoginAsync("a@example.test", "pw");
         }
 
-        return new ProfileViewModel(_api, _session, _nav, _dialogs, new ResxLocalizer(culture == "de" ? Culture.De : Culture.En),
-            new ThemeSettings(_settings, _applier));
+        var device = culture == "de" ? Culture.De : Culture.En;
+        _localizer = new ResxLocalizer(LanguageSettings.ResolveStored(_settings, device));
+        return new ProfileViewModel(_api, _session, _nav, _dialogs, _localizer,
+            new ThemeSettings(_settings, _applier), new LanguageSettings(_settings, _localizer, _languageApplier, device));
     }
 
     [Test]
@@ -240,6 +321,63 @@ public class ProfileViewModelTests
         await Assert.That(vm.IsThemeDark).IsTrue();
         await Assert.That(_api.Puts).IsEmpty();
         await Assert.That(_dialogs.Announcements).Contains("Darstellung: Dunkel");
+    }
+
+    [Test]
+    public async Task Language_ReflectsStoredChoice_AppliesNewChoice_AnnouncesIt_AndNeverTouchesTheProfileApi()
+    {
+        var vm = await CreateAsync();
+        await Assert.That(vm.IsLanguageSystem).IsTrue();
+
+        vm.IsLanguageEnglish = true;
+
+        await Assert.That(_languageApplier.Applied.Select(c => c.Name)).IsEquivalentTo(new[] { "en" });
+        await Assert.That(_settings.Items["bp.language"]).IsEqualTo("en");
+        await Assert.That(vm.IsLanguageEnglish).IsTrue();
+        await Assert.That(vm.IsLanguageSystem).IsFalse();
+        await Assert.That(_api.Puts).IsEmpty();
+        await Assert.That(_dialogs.Announcements).Contains("Language: English");
+    }
+
+    [Test]
+    public async Task Language_StoredChoice_IsShownAsSelected()
+    {
+        _settings.Items["bp.language"] = "en";
+        var vm = await CreateAsync();
+
+        await Assert.That(vm.IsLanguageEnglish).IsTrue();
+        await Assert.That(_localizer.Culture.Name).IsEqualTo("en");
+    }
+
+    [Test]
+    public async Task Language_SelectingTheSameChoiceAgain_DoesNothing()
+    {
+        var vm = await CreateAsync();
+        vm.IsLanguageGerman = true;
+        _languageApplier.Applied.Clear();
+        _dialogs.Announcements.Clear();
+
+        vm.IsLanguageGerman = true;
+        vm.IsLanguageEnglish = false;
+
+        await Assert.That(_languageApplier.Applied).IsEmpty();
+        await Assert.That(_dialogs.Announcements).IsEmpty();
+    }
+
+    [Test]
+    public async Task Language_SwitchingChangesTheTextsAndNumberFormatAtOnce()
+    {
+        var vm = await CreateAsync(new ProfileDto(42, 180, 82.5m));
+        await vm.InitializeCommand.ExecuteAsync(null);
+        await Assert.That(vm.WeightText).IsEqualTo("82,5");
+        await Assert.That(vm.BmiText).Contains("25,5");
+
+        vm.IsLanguageEnglish = true;
+
+        await Assert.That(vm.BmiText).Contains("25.5");
+        await Assert.That(vm.BmiNote).Contains("not a diagnosis");
+        // Eingaben mit Komma bleiben gültig; ungespeicherte Texte werden nicht verändert.
+        await Assert.That(vm.WeightText).IsEqualTo("82,5");
     }
 
     [Test]

@@ -41,3 +41,30 @@ public sealed class MauiThemeApplier : IThemeApplier
         });
     }
 }
+
+/// <summary>
+/// Wendet die Sprache an, indem die Shell (Tab-Titel und Seiten) in der neuen Sprache neu aufgebaut wird: <c>{loc:Translate}</c>
+/// wird beim Erzeugen der Seite ausgewertet. Danach zeigt die App wieder die Profilseite; die Anmeldung bleibt erhalten.
+/// </summary>
+public sealed class MauiLanguageApplier(IServiceProvider services) : ILanguageApplier
+{
+    public void Apply(System.Globalization.CultureInfo culture)
+        => MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            if (Application.Current?.Windows.FirstOrDefault() is not { } window)
+            {
+                return;
+            }
+
+            (window.Page as AppShell)?.Detach();
+            window.Page = services.GetRequiredService<AppShell>();
+
+            // Die neue Shell braucht einen Augenblick, bevor sie Navigation annimmt.
+            await Task.Delay(100);
+            if (Shell.Current is { } shell)
+            {
+                await shell.GoToAsync("//measurements");
+                await shell.GoToAsync("profile");
+            }
+        });
+}

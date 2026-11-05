@@ -48,6 +48,7 @@ Je Ablauf notieren: **bestanden** oder **Befund** (Seite, Schritt, gehört, erwa
 | 12 | Erinnerungen | Doppelte Uhrzeit speichern. | „Jede Uhrzeit darf nur einmal vorkommen.“ wird angesagt. |
 | 13 | Hinweise | Warnung lesen, „Als gelesen markieren“. | Ansage der Warnung: „Warnung Bluthochdruck. Neu. …“; nach dem Markieren „Der Hinweis wurde als gelesen markiert.“, Zähler im Tab sinkt. |
 | 16 | Profil | „Profil“ in der Navigationsleiste der Messwerte öffnen; Darstellung wechseln; Werte eingeben und speichern. | Optionen „System/Hell/Dunkel“ als Optionsfelder mit Zustand; Ansage „Darstellung: Dunkel“ beim Wechsel; Felder „Alter (Jahre)“, „Größe (cm)“, „Gewicht (kg)“; „Das Profil wurde gespeichert.“; BMI mit „Dies ist keine Diagnose.“; „Profildaten löschen“ fragt nach. |
+| 17 | Sprache | Auf der Profilseite „English“, dann „Deutsch“ und „System“ wählen. | Optionen „System/Deutsch/English“ als Optionsfelder mit Zustand; nach dem Wechsel Ansage „Language: English“ bzw. „Sprache: Deutsch“; die App baut die Oberfläche neu auf und zeigt wieder die Profilseite (Tab-Titel in der neuen Sprache, Anmeldung bleibt). Der Fokus springt auf den Anfang der Seite; das ist beim Neuaufbau nicht vermeidbar. |
 | 14 | Alle | Schriftgröße auf das Maximum stellen (iOS: Dynamische Schrift; Android: Schriftgröße/Anzeigegröße). | Nichts wird abgeschnitten, alle Seiten bleiben bedienbar (Scrollen möglich). |
 | 15 | Alle | Dunkler Modus, Querformat. | Texte und Badges bleiben lesbar; Bedienelemente erreichbar. |
 
