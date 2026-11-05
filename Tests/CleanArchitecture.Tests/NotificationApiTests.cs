@@ -24,7 +24,7 @@ public class NotificationApiTests(PostgresFixture postgres)
 
         var notification = list.Single();
         await Assert.That(notification.Type).IsEqualTo("CriticalReading");
-        await Assert.That(notification.Category).IsEqualTo("Grade3");
+        await Assert.That(notification.Category).IsEqualTo("Hypertension");
         await Assert.That(notification.IsRead).IsFalse();
         await Assert.That(notification.Message).Contains("keine Diagnose");
         await Assert.That(notification.Message).DoesNotContain("185");

@@ -90,7 +90,7 @@ public class BloodPressureApiClientTests
         var loaded = await _api.GetByIdAsync(created.Id);
 
         // Die Version vergibt die Datenbank; alle übrigen Felder müssen unverändert zurückkommen.
-        await Assert.That(loaded with { Version = 0 }).IsEqualTo(new BloodPressureDto(created.Id, 121, 79, Measured, 66, 97, "Normal", 0));
+        await Assert.That(loaded with { Version = 0 }).IsEqualTo(new BloodPressureDto(created.Id, 121, 79, Measured, 66, 97, "Elevated", 0));
     }
 
     [Test]

@@ -19,10 +19,9 @@
 
     private string CssClass => Category switch
     {
-        "Optimal" or "Normal" => "text-bg-success",
-        "HighNormal" => "text-bg-info",
-        "Grade1" => "text-bg-warning",
-        "Grade2" or "Grade3" => "text-bg-danger",
+        "NonElevated" => "text-bg-success",
+        "Elevated" => "text-bg-warning",
+        "Hypertension" => "text-bg-danger",
         _ => "text-bg-secondary"
     };
 }

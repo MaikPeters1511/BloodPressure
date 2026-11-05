@@ -35,12 +35,12 @@ public class StatisticsTests
     [Test]
     public async Task Measurement_ContainsCategory()
     {
-        var created = await _api.CreateAsync(new BloodPressureRequest(118, 76, At(10, 1), 65, 98));
+        var created = await _api.CreateAsync(new BloodPressureRequest(118, 68, At(10, 1), 65, 98));
         var high = await _api.CreateAsync(new BloodPressureRequest(185, 115, At(10, 2), 65, 98));
 
-        await Assert.That(created.Category).IsEqualTo("Optimal");
-        await Assert.That(high.Category).IsEqualTo("Grade3");
-        await Assert.That((await _api.GetByIdAsync(high.Id)).Category).IsEqualTo("Grade3");
+        await Assert.That(created.Category).IsEqualTo("NonElevated");
+        await Assert.That(high.Category).IsEqualTo("Hypertension");
+        await Assert.That((await _api.GetByIdAsync(high.Id)).Category).IsEqualTo("Hypertension");
     }
 
     [Test]

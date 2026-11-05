@@ -14,12 +14,12 @@ namespace CleanArchitecture.Presentation.API.Controllers;
 public class BloodPressureController(IMessageBus bus) : AuthorizedControllerBase
 {
     [HttpGet]
-    [EndpointDescription("Die Kategorie ist eine Einordnung nach ESC/ESH 2018 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.")]
+    [EndpointDescription("Die Kategorie ist eine Einordnung nach ESC 2024 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.")]
         public async Task<PagedResult<BloodPressureDto>> GetBloodPressures([FromQuery] BloodPressureListQuery query, CancellationToken ct)
         => await bus.InvokeAsync<PagedResult<BloodPressureDto>>(new GetBloodPressures(UserId, query), ct);
 
     [HttpGet("statistics")]
-    [EndpointDescription("Die Kategorie ist eine Einordnung nach ESC/ESH 2018 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.")]
+    [EndpointDescription("Die Kategorie ist eine Einordnung nach ESC 2024 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.")]
         public async Task<IReadOnlyList<StatisticsBucketDto>> GetStatistics([FromQuery] StatisticsQuery query, CancellationToken ct)
         => await bus.InvokeAsync<IReadOnlyList<StatisticsBucketDto>>(new GetStatistics(UserId, query), ct);
 
@@ -31,7 +31,7 @@ public class BloodPressureController(IMessageBus bus) : AuthorizedControllerBase
     }
 
     [HttpGet("{id:int}")]
-    [EndpointDescription("Die Kategorie ist eine Einordnung nach ESC/ESH 2018 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen. Der Header ETag enthält die Version für If-Match bei PUT/DELETE.")]
+    [EndpointDescription("Die Kategorie ist eine Einordnung nach ESC 2024 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen. Der Header ETag enthält die Version für If-Match bei PUT/DELETE.")]
     public async Task<ActionResult<BloodPressureDto>> GetBloodPressure(int id, CancellationToken ct)
     {
         var result = await bus.InvokeAsync<BloodPressureDto?>(new GetBloodPressureById(UserId, id), ct);

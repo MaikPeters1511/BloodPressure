@@ -32,7 +32,7 @@
   <data name="M_PageOf" xml:space="preserve"><value>Page {0} of {1}</value></data>
   <data name="M_Prev" xml:space="preserve"><value>Previous page</value></data>
   <data name="M_Next" xml:space="preserve"><value>Next page</value></data>
-  <data name="M_Disclaimer" xml:space="preserve"><value>The category is a classification according to ESC/ESH 2018 and not a diagnosis. Seek medical advice if you have symptoms or unusual readings.</value></data>
+  <data name="M_Disclaimer" xml:space="preserve"><value>The category is a classification according to the ESC 2024 guidelines and not a diagnosis. In case of symptoms or unusual values, seek medical advice.</value></data>
   <data name="Form_Title" xml:space="preserve"><value>Add measurement</value></data>
   <data name="Form_Save" xml:space="preserve"><value>Save</value></data>
   <data name="Form_Time" xml:space="preserve"><value>Time</value></data>
@@ -43,12 +43,6 @@
   <data name="Delete_Yes" xml:space="preserve"><value>Yes, delete</value></data>
   <data name="Delete_Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Conflict" xml:space="preserve"><value>The entry was changed in the meantime. The list has been reloaded.</value></data>
-  <data name="Category_Optimal" xml:space="preserve"><value>Optimal</value></data>
-  <data name="Category_Normal" xml:space="preserve"><value>Normal</value></data>
-  <data name="Category_HighNormal" xml:space="preserve"><value>High normal</value></data>
-  <data name="Category_Grade1" xml:space="preserve"><value>Hypertension grade 1</value></data>
-  <data name="Category_Grade2" xml:space="preserve"><value>Hypertension grade 2</value></data>
-  <data name="Category_Grade3" xml:space="preserve"><value>Hypertension grade 3</value></data>
   <data name="Nav_Menu" xml:space="preserve"><value>Main navigation</value></data>
   <data name="Nav_Statistics" xml:space="preserve"><value>Statistics</value></data>
   <data name="Nav_Export" xml:space="preserve"><value>Export</value></data>
@@ -103,4 +97,7 @@
   <data name="Nav_UnreadAriaOne" xml:space="preserve"><value>1 unread notice</value></data>
   <data name="Notifications_MarkedRead" xml:space="preserve"><value>The notice was marked as read.</value></data>
   <data name="M_Pagination" xml:space="preserve"><value>Pagination</value></data>
+  <data name="Category_NonElevated" xml:space="preserve"><value>Not elevated</value></data>
+  <data name="Category_Elevated" xml:space="preserve"><value>Elevated</value></data>
+  <data name="Category_Hypertension" xml:space="preserve"><value>Hypertension</value></data>
 </root>
