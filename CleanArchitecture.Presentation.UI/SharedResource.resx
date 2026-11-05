@@ -32,7 +32,7 @@
   <data name="M_PageOf" xml:space="preserve"><value>Seite {0} von {1}</value></data>
   <data name="M_Prev" xml:space="preserve"><value>Vorherige Seite</value></data>
   <data name="M_Next" xml:space="preserve"><value>Nächste Seite</value></data>
-  <data name="M_Disclaimer" xml:space="preserve"><value>Die Kategorie ist eine Einordnung nach ESC/ESH 2018 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.</value></data>
+  <data name="M_Disclaimer" xml:space="preserve"><value>Die Kategorie ist eine Einordnung nach den ESC-Leitlinien 2024 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.</value></data>
   <data name="Form_Title" xml:space="preserve"><value>Messwert eintragen</value></data>
   <data name="Form_Save" xml:space="preserve"><value>Speichern</value></data>
   <data name="Form_Time" xml:space="preserve"><value>Zeitpunkt</value></data>
@@ -43,12 +43,6 @@
   <data name="Delete_Yes" xml:space="preserve"><value>Ja, löschen</value></data>
   <data name="Delete_Cancel" xml:space="preserve"><value>Abbrechen</value></data>
   <data name="Conflict" xml:space="preserve"><value>Der Eintrag wurde zwischenzeitlich geändert. Die Liste wurde neu geladen.</value></data>
-  <data name="Category_Optimal" xml:space="preserve"><value>Optimal</value></data>
-  <data name="Category_Normal" xml:space="preserve"><value>Normal</value></data>
-  <data name="Category_HighNormal" xml:space="preserve"><value>Hochnormal</value></data>
-  <data name="Category_Grade1" xml:space="preserve"><value>Hypertonie Grad 1</value></data>
-  <data name="Category_Grade2" xml:space="preserve"><value>Hypertonie Grad 2</value></data>
-  <data name="Category_Grade3" xml:space="preserve"><value>Hypertonie Grad 3</value></data>
   <data name="Nav_Menu" xml:space="preserve"><value>Hauptnavigation</value></data>
   <data name="Nav_Statistics" xml:space="preserve"><value>Auswertung</value></data>
   <data name="Nav_Export" xml:space="preserve"><value>Export</value></data>
@@ -103,4 +97,7 @@
   <data name="Nav_UnreadAriaOne" xml:space="preserve"><value>1 ungelesener Hinweis</value></data>
   <data name="Notifications_MarkedRead" xml:space="preserve"><value>Der Hinweis wurde als gelesen markiert.</value></data>
   <data name="M_Pagination" xml:space="preserve"><value>Seitenwechsel</value></data>
+  <data name="Category_NonElevated" xml:space="preserve"><value>Nicht erhöht</value></data>
+  <data name="Category_Elevated" xml:space="preserve"><value>Erhöht</value></data>
+  <data name="Category_Hypertension" xml:space="preserve"><value>Bluthochdruck</value></data>
 </root>

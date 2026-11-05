@@ -14,7 +14,7 @@
   <data name="Error_Generic" xml:space="preserve"><value>Something went wrong. Please try again later.</value></data>
   <data name="M_Title" xml:space="preserve"><value>Measurements</value></data>
   <data name="M_Empty" xml:space="preserve"><value>There are no measurements yet.</value></data>
-  <data name="M_Disclaimer" xml:space="preserve"><value>The category is a classification according to ESC/ESH 2018 and not a diagnosis. In case of symptoms or unusual values, seek medical advice.</value></data>
+  <data name="M_Disclaimer" xml:space="preserve"><value>The category is a classification according to the ESC 2024 guidelines and not a diagnosis. In case of symptoms or unusual values, seek medical advice.</value></data>
   <data name="M_Saved" xml:space="preserve"><value>The measurement was saved.</value></data>
   <data name="M_ItemSummary" xml:space="preserve"><value>{0}: {1} over {2} mmHg, pulse {3}, oxygen {4} percent, {5}</value></data>
   <data name="M_LoadMore" xml:space="preserve"><value>Load more</value></data>
@@ -34,12 +34,6 @@
   <data name="Delete_Yes" xml:space="preserve"><value>Delete</value></data>
   <data name="Delete_Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Conflict" xml:space="preserve"><value>The measurement was changed in the meantime. The list was reloaded.</value></data>
-  <data name="Category_Optimal" xml:space="preserve"><value>Optimal</value></data>
-  <data name="Category_Normal" xml:space="preserve"><value>Normal</value></data>
-  <data name="Category_HighNormal" xml:space="preserve"><value>High normal</value></data>
-  <data name="Category_Grade1" xml:space="preserve"><value>Hypertension grade 1</value></data>
-  <data name="Category_Grade2" xml:space="preserve"><value>Hypertension grade 2</value></data>
-  <data name="Category_Grade3" xml:space="preserve"><value>Hypertension grade 3</value></data>
   <data name="Tab_Measurements" xml:space="preserve"><value>Measurements</value></data>
   <data name="Tab_Statistics" xml:space="preserve"><value>Statistics</value></data>
   <data name="Tab_Export" xml:space="preserve"><value>Export</value></data>
@@ -93,4 +87,7 @@
   <data name="Notifications_MarkedRead" xml:space="preserve"><value>The notice was marked as read.</value></data>
   <data name="Notifications_Summary" xml:space="preserve"><value>{0}. {1}. {2}. {3}</value></data>
   <data name="Notifications_Unread" xml:space="preserve"><value>{0} unread</value></data>
+  <data name="Category_NonElevated" xml:space="preserve"><value>Not elevated</value></data>
+  <data name="Category_Elevated" xml:space="preserve"><value>Elevated</value></data>
+  <data name="Category_Hypertension" xml:space="preserve"><value>Hypertension</value></data>
 </root>

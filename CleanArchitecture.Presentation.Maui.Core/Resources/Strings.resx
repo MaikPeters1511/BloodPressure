@@ -14,7 +14,7 @@
   <data name="Error_Generic" xml:space="preserve"><value>Etwas ist schiefgegangen. Bitte versuche es später erneut.</value></data>
   <data name="M_Title" xml:space="preserve"><value>Messwerte</value></data>
   <data name="M_Empty" xml:space="preserve"><value>Es sind noch keine Messwerte vorhanden.</value></data>
-  <data name="M_Disclaimer" xml:space="preserve"><value>Die Kategorie ist eine Einordnung nach ESC/ESH 2018 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.</value></data>
+  <data name="M_Disclaimer" xml:space="preserve"><value>Die Kategorie ist eine Einordnung nach den ESC-Leitlinien 2024 und keine Diagnose. Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.</value></data>
   <data name="M_Saved" xml:space="preserve"><value>Die Messung wurde gespeichert.</value></data>
   <data name="M_ItemSummary" xml:space="preserve"><value>{0}: {1} zu {2} mmHg, Puls {3}, Sauerstoff {4} Prozent, {5}</value></data>
   <data name="M_LoadMore" xml:space="preserve"><value>Mehr laden</value></data>
@@ -34,12 +34,6 @@
   <data name="Delete_Yes" xml:space="preserve"><value>Löschen</value></data>
   <data name="Delete_Cancel" xml:space="preserve"><value>Abbrechen</value></data>
   <data name="Conflict" xml:space="preserve"><value>Die Messung wurde zwischenzeitlich geändert. Die Liste wurde neu geladen.</value></data>
-  <data name="Category_Optimal" xml:space="preserve"><value>Optimal</value></data>
-  <data name="Category_Normal" xml:space="preserve"><value>Normal</value></data>
-  <data name="Category_HighNormal" xml:space="preserve"><value>Hochnormal</value></data>
-  <data name="Category_Grade1" xml:space="preserve"><value>Hypertonie Grad 1</value></data>
-  <data name="Category_Grade2" xml:space="preserve"><value>Hypertonie Grad 2</value></data>
-  <data name="Category_Grade3" xml:space="preserve"><value>Hypertonie Grad 3</value></data>
   <data name="Tab_Measurements" xml:space="preserve"><value>Messwerte</value></data>
   <data name="Tab_Statistics" xml:space="preserve"><value>Auswertung</value></data>
   <data name="Tab_Export" xml:space="preserve"><value>Export</value></data>
@@ -93,4 +87,7 @@
   <data name="Notifications_MarkedRead" xml:space="preserve"><value>Der Hinweis wurde als gelesen markiert.</value></data>
   <data name="Notifications_Summary" xml:space="preserve"><value>{0}. {1}. {2}. {3}</value></data>
   <data name="Notifications_Unread" xml:space="preserve"><value>{0} ungelesen</value></data>
+  <data name="Category_NonElevated" xml:space="preserve"><value>Nicht erhöht</value></data>
+  <data name="Category_Elevated" xml:space="preserve"><value>Erhöht</value></data>
+  <data name="Category_Hypertension" xml:space="preserve"><value>Bluthochdruck</value></data>
 </root>

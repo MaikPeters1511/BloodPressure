@@ -340,7 +340,7 @@ public class NotificationsPageTests
     [Test]
     public async Task UnreadCritical_IsMarkedAsWarningWithAlertRole()
     {
-        var (host, cut) = await OpenAsync(Note("CriticalReading", false, 5, "Grade3"));
+        var (host, cut) = await OpenAsync(Note("CriticalReading", false, 5, "Hypertension"));
         using var _ = host;
 
         var item = cut.Find("li.notification");
@@ -348,7 +348,7 @@ public class NotificationsPageTests
         await Assert.That(item.GetAttribute("role")).IsNull();
         await Assert.That(item.QuerySelector("[role=alert]")).IsNotNull();
         await Assert.That(item.TextContent).Contains("Warnung");
-        await Assert.That(item.TextContent).Contains("Hypertonie Grad 3");
+        await Assert.That(item.TextContent).Contains("Bluthochdruck");
     }
 
     [Test]

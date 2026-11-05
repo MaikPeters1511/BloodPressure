@@ -135,10 +135,9 @@ public sealed partial class NotificationsViewModel : ObservableObject
             categoryText = name == $"Category_{category}" ? category : name;
             level = category switch
             {
-                "Optimal" or "Normal" => CategoryLevel.Normal,
-                "HighNormal" => CategoryLevel.Elevated,
-                "Grade1" => CategoryLevel.Warning,
-                "Grade2" or "Grade3" => CategoryLevel.High,
+                "NonElevated" => CategoryLevel.Normal,
+                "Elevated" => CategoryLevel.Warning,
+                                "Hypertension" => CategoryLevel.High,
                 _ => CategoryLevel.Unknown
             };
         }

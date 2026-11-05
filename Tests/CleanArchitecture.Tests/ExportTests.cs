@@ -42,8 +42,8 @@ public class ExportTests
         await Assert.That(response.Content.Headers.ContentDisposition!.DispositionType).IsEqualTo("attachment");
         await Assert.That(lines.Length).IsEqualTo(3);
         await Assert.That(lines[0]).IsEqualTo("Id;DateTimeUtc;Systolisch;Diastolisch;Pulse;Oxygen;Category");
-        await Assert.That(lines[1]).IsEqualTo("1;2026-10-01T08:00:00Z;120;80;65;98;Normal");
-        await Assert.That(lines[2]).IsEqualTo("2;2026-10-02T08:00:00Z;185;115;65;98;Grade3");
+        await Assert.That(lines[1]).IsEqualTo("1;2026-10-01T08:00:00Z;120;80;65;98;Elevated");
+        await Assert.That(lines[2]).IsEqualTo("2;2026-10-02T08:00:00Z;185;115;65;98;Hypertension");
     }
 
     [Test]

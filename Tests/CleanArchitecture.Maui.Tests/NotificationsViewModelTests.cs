@@ -67,14 +67,14 @@ public class NotificationsViewModelTests
     [Test]
     public async Task CriticalReading_IsWarning_WithCategoryText_AndScreenreaderSummary()
     {
-        var vm = await CreateAsync(true, Note("CriticalReading", false, 5, "Grade3"));
+        var vm = await CreateAsync(true, Note("CriticalReading", false, 5, "Hypertension"));
 
         await vm.InitializeCommand.ExecuteAsync(null);
 
         var item = vm.Items[0];
         await Assert.That(item.IsCritical).IsTrue();
         await Assert.That(item.Title).IsEqualTo("Warnung");
-        await Assert.That(item.CategoryText).IsEqualTo("Hypertonie Grad 3");
+        await Assert.That(item.CategoryText).IsEqualTo("Bluthochdruck");
         await Assert.That(item.CategoryLevel).IsEqualTo(CategoryLevel.High);
         await Assert.That(item.Summary).Contains("Warnung");
         await Assert.That(item.Summary).Contains("Neu");

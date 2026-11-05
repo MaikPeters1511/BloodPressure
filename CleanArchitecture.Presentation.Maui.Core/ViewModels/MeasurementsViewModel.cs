@@ -257,10 +257,9 @@ public sealed partial class MeasurementsViewModel : ObservableObject
         var categoryText = name == $"Category_{dto.Category}" ? dto.Category : name;
         var level = dto.Category switch
         {
-            "Optimal" or "Normal" => CategoryLevel.Normal,
-            "HighNormal" => CategoryLevel.Elevated,
-            "Grade1" => CategoryLevel.Warning,
-            "Grade2" or "Grade3" => CategoryLevel.High,
+            "NonElevated" => CategoryLevel.Normal,
+            "Elevated" => CategoryLevel.Warning,
+            "Hypertension" => CategoryLevel.High,
             _ => CategoryLevel.Unknown
         };
 

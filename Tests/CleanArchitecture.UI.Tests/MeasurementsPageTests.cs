@@ -70,14 +70,14 @@ public class MeasurementsPageTests
     {
         var host = new UiHost();
         using var _ = host;
-        host.Api.Items.Add(FakeBloodPressureApi.Make(1, 150, 95, category: "Grade1"));
+        host.Api.Items.Add(FakeBloodPressureApi.Make(1, 150, 95, category: "Hypertension"));
         await host.SignInAsync();
 
         var cut = host.Context.Render<Measurements>();
 
         cut.WaitForAssertion(() => cut.Find("caption"));
         await Assert.That(cut.Find("caption").TextContent).IsEqualTo("Meine Blutdruckmesswerte");
-        await Assert.That(cut.Find("tbody tr").TextContent).Contains("Hypertonie Grad 1");
+        await Assert.That(cut.Find("tbody tr").TextContent).Contains("Bluthochdruck");
         await Assert.That(cut.Markup).Contains("keine Diagnose");
         await Assert.That(cut.FindAll("th[scope=col]").Count).IsGreaterThan(4);
     }
@@ -255,14 +255,14 @@ public class MeasurementsCategoryTests
     public async Task Category_IsShownAsTextBadge()
     {
         using var host = new UiHost();
-        host.Api.Items.Add(FakeBloodPressureApi.Make(1, 165, 100, category: "Grade2"));
+        host.Api.Items.Add(FakeBloodPressureApi.Make(1, 165, 100, category: "Hypertension"));
         await host.SignInAsync();
 
         var cut = host.Context.Render<Measurements>();
         cut.WaitForState(() => cut.FindAll("[aria-busy=true]").Count == 0);
 
         var badge = cut.Find(".category-badge");
-        await Assert.That(badge.TextContent).IsEqualTo("Hypertonie Grad 2");
+        await Assert.That(badge.TextContent).IsEqualTo("Bluthochdruck");
         await Assert.That(badge.ClassList).Contains("text-bg-danger");
     }
 }

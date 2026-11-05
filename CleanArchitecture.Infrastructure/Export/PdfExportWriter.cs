@@ -38,7 +38,7 @@ public sealed class PdfExportWriter : IExportWriter
                 column.Item().Element(container => Summary(container, data));
                 column.Item().Element(container => Table(container, data));
                 column.Item().Text(
-                        "Hinweis: Die Kategorie ist eine Einordnung nach ESC/ESH 2018 und keine Diagnose. " +
+                        "Hinweis: Die Kategorie ist eine Einordnung nach ESC 2024 und keine Diagnose. " +
                         "Bei Beschwerden oder auffälligen Werten ärztlichen Rat einholen.")
                     .FontSize(8).FontColor(Colors.Grey.Darken2);
             });

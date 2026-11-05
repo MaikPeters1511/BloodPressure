@@ -22,11 +22,11 @@ public class Notification
     public DateTime CreatedAt { get; set; }
     public DateTime? ReadAt { get; set; }
 
-    /// <summary>Hinweis, wenn eine Messung als Hypertonie Grad 3 eingeordnet wird; sonst <c>null</c>.</summary>
+    /// <summary>Hinweis, wenn eine Messung stark erhöht ist (ab 180/110 mmHg); sonst <c>null</c>.</summary>
     public static Notification? ForCriticalReading(BloodPressure measurement, DateTime nowUtc)
     {
         var classification = BloodPressureClassifier.Classify(measurement.Systolisch, measurement.Diastolisch);
-        if (classification.Category != BloodPressureCategory.Grade3 || measurement.UserId is null)
+        if (!BloodPressureClassifier.IsSevere(measurement.Systolisch, measurement.Diastolisch) || measurement.UserId is null)
         {
             return null;
         }
@@ -37,7 +37,7 @@ public class Notification
             Type = NotificationType.CriticalReading,
             Category = classification.Category.ToString(),
             BloodPressure = measurement,
-            Message = "Eine Messung liegt in der Kategorie Hypertonie Grad 3. Das ist keine Diagnose. " +
+            Message = "Eine Messung liegt im Bereich eines stark erhöhten Blutdrucks (Kategorie Bluthochdruck). Das ist keine Diagnose. " +
                       "Bitte bei Beschwerden oder anhaltend hohen Werten ärztlichen Rat einholen.",
             CreatedAt = nowUtc
         };

@@ -18,22 +18,22 @@
 ### ADDED Requirements
 
 #### Requirement: Kategorie einer Messung
-Das System SHALL jede Messung nach ESC/ESH 2018 einordnen: Optimal (<120 und <80), Normal (120–129 und/oder 80–84), Hochnormal (130–139 und/oder 85–89), Hypertonie Grad 1 (140–159 und/oder 90–99), Grad 2 (160–179 und/oder 100–109), Grad 3 (≥180 und/oder ≥110). Bei verschiedenen Kategorien von Systolisch und Diastolisch gilt die höhere. Die **isolierte systolische Hypertonie** (systolisch ≥ 140 bei diastolisch < 90) ist ein Zusatzmerkmal (`IsIsolatedSystolic` im Domain-Ergebnis), keine eigene Kategorie; z. B. ist 140/85 „Grad 1“ mit gesetztem Merkmal.
+Das System SHALL jede Messung nach den ESC-Leitlinien 2024 (Praxiswerte) einordnen: **Nicht erhöht** (unter 120 und unter 70 mmHg), **Erhöht** (120–139 und/oder 70–89 mmHg), **Bluthochdruck** (ab 140 und/oder ab 90 mmHg). Die Leitlinie kennt keine Schweregrade 1–3 mehr. Bei verschiedenen Kategorien von Systolisch und Diastolisch gilt die höhere. Die **isolierte systolische Hypertonie** (systolisch ≥ 140 bei diastolisch < 90) bleibt ein Zusatzmerkmal (`IsIsolatedSystolic`), keine eigene Kategorie. Unabhängig von der Kategorie gilt eine Messung ab 180 systolisch oder 110 diastolisch als **stark erhöht** (`IsSevere`) und löst den Hinweis aus. Die API-Werte der Kategorie sind `NonElevated`, `Elevated`, `Hypertension`.
 
-##### Scenario: Optimaler Wert
-- **GIVEN** 118/76
+##### Scenario: Nicht erhöhter Wert
+- **GIVEN** 118/68
 - **WHEN** die Kategorie berechnet wird
-- **THEN** ist sie „Optimal“
+- **THEN** ist sie „Nicht erhöht“
 
 ##### Scenario: Gemischte Kategorien
-- **GIVEN** 132/92
+- **GIVEN** 118/95
 - **WHEN** die Kategorie berechnet wird
-- **THEN** ist sie „Hypertonie Grad 1“ (Diastolisch bestimmt)
+- **THEN** ist sie „Bluthochdruck“ (Diastolisch bestimmt)
 
 ##### Scenario: Grenzwert
-- **GIVEN** 140/85
+- **GIVEN** 119/70 bzw. 140/85
 - **WHEN** die Kategorie berechnet wird
-- **THEN** ist sie „Hypertonie Grad 1“
+- **THEN** ist sie „Erhöht“ bzw. „Bluthochdruck“
 
 #### Requirement: Statistik-Endpunkt
 Das System SHALL `GET /api/BloodPressure/statistics?from&to&interval=day|week|month` bereitstellen, der je Zeitabschnitt Anzahl, Durchschnitt, Minimum und Maximum von Systolisch, Diastolisch und Puls liefert; Abschnitte ohne Messung werden ausgelassen.
@@ -60,7 +60,7 @@ _Entfällt._
 - Risiko: Zeitzone des Nutzers (Tagesgrenze) – eigene Entscheidung, hier UTC.
 
 ## 5. Tasks
-- [ ] T4.1 (architect) Schwellenwerte mit Quelle bestätigen (offen: Umsetzung folgt ESC/ESH 2018 aus dem Gedächtnis, nicht gegen die Leitlinie geprüft)
+- [x] T4.1 (architect) Schwellenwerte: seit 2026-11-05 nach ESC 2024 (ADR 0005); Grenzen aus Sekundärquellen (ESC-Pressemitteilung, Fachpresse) bestätigt, **nicht** gegen den Leitlinientext (Eur Heart J, doi 10.1093/eurheartj/ehae178) geprüft
 - [x] T4.2 (backend) Parametrisierte Tests für Kategorien und Statistik (Red)
 - [x] T4.3 (backend) Domain-Klassifikation, DTO-Erweiterung
 - [x] T4.4 (backend) Statistik-Query, Endpunkt, Refit-Methode

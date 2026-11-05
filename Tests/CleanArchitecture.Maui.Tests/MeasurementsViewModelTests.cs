@@ -86,11 +86,11 @@ public class MeasurementsViewModelTests
     public async Task Item_ShowsCategoryAsLocalizedText()
     {
         var vm = await CreateAsync();
-        _api.Items.Add(FakeBloodPressureApi.Make(1, 165, 100, category: "Grade2"));
+        _api.Items.Add(FakeBloodPressureApi.Make(1, 165, 100, category: "Hypertension"));
 
         await vm.InitializeCommand.ExecuteAsync(null);
 
-        await Assert.That(vm.Items[0].CategoryText).IsEqualTo("Hypertonie Grad 2");
+        await Assert.That(vm.Items[0].CategoryText).IsEqualTo("Bluthochdruck");
         await Assert.That(vm.Items[0].CategoryLevel).IsEqualTo(CategoryLevel.High);
     }
 
@@ -209,11 +209,11 @@ public class MeasurementsViewModelTests
     public async Task EnglishCulture_UsesEnglishTexts()
     {
         var vm = await CreateAsync(culture: "en");
-        _api.Items.Add(FakeBloodPressureApi.Make(1, 165, 100, category: "Grade2"));
+        _api.Items.Add(FakeBloodPressureApi.Make(1, 165, 100, category: "Hypertension"));
 
         await vm.InitializeCommand.ExecuteAsync(null);
 
-        await Assert.That(vm.Items[0].CategoryText).IsEqualTo("Hypertension grade 2");
+        await Assert.That(vm.Items[0].CategoryText).IsEqualTo("Hypertension");
     }
 
     [Test]
