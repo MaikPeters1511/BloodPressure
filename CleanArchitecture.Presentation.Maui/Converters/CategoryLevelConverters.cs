@@ -39,3 +39,16 @@ public sealed class InvertedBoolConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => value is not true;
 }
+
+/// <summary>Zeichen für die Legende, passend zur Linienart der Reihe.</summary>
+public sealed class LineStyleGlyphConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value switch
+    {
+        CleanArchitecture.Presentation.Maui.Core.ViewModels.LineStyle.Dashed => "– – –",
+        CleanArchitecture.Presentation.Maui.Core.ViewModels.LineStyle.Dotted => "· · · ·",
+        _ => "━━━"
+    };
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotSupportedException();
+}

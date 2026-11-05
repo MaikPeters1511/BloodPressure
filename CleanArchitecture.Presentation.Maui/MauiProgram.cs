@@ -47,14 +47,19 @@ public static class MauiProgram
         services.AddSingleton<ISecureStore, MauiSecureStore>();
         services.AddSingleton<INavigator, ShellNavigator>();
         services.AddSingleton<IDialogService, MauiDialogService>();
+        services.AddSingleton<IShareService, MauiShareService>();
         services.AddSingleton<SessionService>();
         services.AddSingleton<IAccessTokenProvider>(sp => sp.GetRequiredService<SessionService>());
         services.AddBloodPressureApiClient(apiBase);
 
         services.AddTransient<LoginViewModel>();
         services.AddTransient<MeasurementsViewModel>();
+        services.AddTransient<StatisticsViewModel>();
+        services.AddTransient<ExportViewModel>();
         services.AddTransient<LoginPage>();
         services.AddTransient<MeasurementsPage>();
+        services.AddTransient<StatisticsPage>();
+        services.AddTransient<ExportPage>();
 
         return builder.Build();
     }

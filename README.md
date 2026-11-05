@@ -14,7 +14,7 @@ Nach der Anmeldung stehen fünf Bereiche bereit: **Messwerte** (Liste mit Katego
 
 ## MAUI-App (iOS, Android, Mac Catalyst)
 
-Stand: Anmeldung (Registrieren, Abmelden, gespeicherte Anmeldung im sicheren Speicher) und Messwerte (Liste mit Nachladen, Anlegen, Löschen). Auswertung, Export, Erinnerungen und Hinweise folgen (siehe `UserStories/maui-app-api-anbindung.openspec.md`).
+Stand: Anmeldung (Registrieren, Abmelden, gespeicherte Anmeldung im sicheren Speicher), Messwerte (Liste mit Nachladen, Anlegen, Löschen), Auswertung (Kennzahlen und Verlaufsdiagramm je Tag/Woche/Monat) und Export (CSV/PDF über den Teilen-Dialog). Erinnerungen und Hinweise folgen (siehe `UserStories/maui-app-api-anbindung.openspec.md`).
 
 - Logik (ViewModels, Sitzung, Texte DE/EN) liegt in `CleanArchitecture.Presentation.Maui.Core` und ist über `dotnet test --project Tests/CleanArchitecture.Maui.Tests` testbar; Entscheidung in `docs/adr/0004-maui-core-und-mvvm-toolkit.md`.
 - **API-Adresse:** `CleanArchitecture.Presentation.Maui/appsettings.json` (`Api:BaseUrl`, vor einem Release-Build setzen, nur HTTPS); Debug-Builds nutzen `appsettings.Debug.json` (`http://localhost:5000`, im Android-Emulator automatisch `10.0.2.2`).

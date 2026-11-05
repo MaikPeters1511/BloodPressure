@@ -14,6 +14,7 @@
 
             <conv:IsNotNullConverter x:Key="IsNotNullConverter" />
             <conv:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <conv:LineStyleGlyphConverter x:Key="LineStyleGlyphConverter" />
             <conv:CategoryBackgroundConverter x:Key="CategoryBackgroundConverter" />
             <conv:CategoryTextColorConverter x:Key="CategoryTextColorConverter" />
 
