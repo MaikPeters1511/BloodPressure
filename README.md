@@ -19,7 +19,8 @@ Stand: Anmeldung (Registrieren, Abmelden, gespeicherte Anmeldung im sicheren Spe
 - Logik (ViewModels, Sitzung, Texte DE/EN) liegt in `CleanArchitecture.Presentation.Maui.Core` und ist über `dotnet test --project Tests/CleanArchitecture.Maui.Tests` testbar; Entscheidung in `docs/adr/0004-maui-core-und-mvvm-toolkit.md`.
 - **API-Adresse:** `CleanArchitecture.Presentation.Maui/appsettings.json` (`Api:BaseUrl`, vor einem Release-Build setzen, nur HTTPS); Debug-Builds nutzen `appsettings.Debug.json` (`http://localhost:5000`, im Android-Emulator automatisch `10.0.2.2`).
 - Bauen z. B. für den iOS-Simulator: `dotnet build CleanArchitecture.Presentation.Maui -f net10.0-ios -p:RuntimeIdentifier=iossimulator-arm64` (bei abweichender Xcode-Version zusätzlich `-p:ValidateXcodeVersion=false`).
-- Bekannt: Der Mac-Catalyst-Build startet unter macOS 27 nicht (Scene-Lifecycle-Abbruch schon in der Projektvorlage); Android- und Windows-Build sind ungeprüft.
+- iOS/macOS 26+ verlangen die Scene-Lifecycle-Anbindung (`SceneDelegate` plus `UIApplicationSceneManifest` in der Info.plist unter `Platforms/iOS` und `Platforms/MacCatalyst`); ohne sie bricht die App beim Start ab. Geprüft: iOS-26.5-Simulator, iOS-27-Simulator, Mac Catalyst unter macOS 27. Nach Änderungen an der Info.plist `bin`/`obj` des Zielframeworks löschen, sonst bleibt die alte Plist im App-Paket.
+- Android- und Windows-Build sind ungeprüft.
 
 ## Container-Image
 
