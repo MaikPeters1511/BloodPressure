@@ -148,7 +148,8 @@ Entfällt. (Profildaten dürfen später nur nach eigener Entscheidung und ohne P
 - [x] T5 (frontend) Web: `ThemeService`, Theme-Umbau `styles.css`, `Profile.razor`, Navigation, bUnit-Tests (inkl. `localStorage` blockiert, DE/EN-Parität)
 - [x] T6 (frontend) MAUI: `ThemeService`, `ProfileViewModel` + Core-Tests, `ProfilePage`, Navigation, statischer XAML-A11y-Test grün
 - [x] T7 (qa) axe-core-Lauf (`Tests/a11y/check.mjs`) um die neue Seite erweitern; hell/dunkel × 3 Breiten; Browser-Prüfung gegen die echte API
-- [~] T8 (qa) MAUI: iOS-Simulator geprüft (Seite, Wechsel auf Dunkel sofort, bleibt nach Kaltstart); **offen:** Profil speichern/löschen in der laufenden App, Android-Emulator, Diagramm im dunklen Modus
+- [x] T8 (qa) MAUI geprüft gegen die lokale API: iOS 26.5 Simulator und Android 35 Emulator – Seite, Wechsel auf Dunkel sofort (iOS zusätzlich nach Kaltstart), Eingabe, BMI live, Speichern (Server liefert `{"age":42,"heightCm":180,"weightKg":82.5}`), Löschen mit Bestätigung (Abbrechen ändert nichts, „Löschen“ leert das Profil auf dem Server), Diagramm im dunklen Modus lesbar. **Nicht geprüft:** Windows-Build, Screenreader (T9). Beobachtung (kein Fehler): Beim erneuten Öffnen der Seite bleibt die letzte Statusmeldung („Das Profil wurde gespeichert.“) stehen.
+- [x] T8b (qa) Migration auf einer Datenbank mit Bestandsdaten: `Tests/CleanArchitecture.Tests/MigrationDataTests.cs` (Kategorien → `Hypertension`, Hinweistext, Rollback auf `Grade3`, doppelte Migration)
 - [~] T9 (ux) Review: Tastatur, Fokus, Ansagen, Zielgrößen; Screenreader-Abläufe in beide Anleitungen (`docs/a11y/`) ergänzen
 - [x] T10 (doc) README (neue Seite, Theme-Hinweis), Specs aktualisieren
 
