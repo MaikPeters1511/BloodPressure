@@ -102,4 +102,24 @@
   <data name="Category_Hypertension" xml:space="preserve"><value>Bluthochdruck</value></data>
   <data name="Notification_CriticalText" xml:space="preserve"><value>Eine Messung liegt im Bereich eines stark erhöhten Blutdrucks (Kategorie {0}). Das ist keine Diagnose. Bitte bei Beschwerden oder anhaltend hohen Werten ärztlichen Rat einholen.</value></data>
   <data name="Notification_ReminderText" xml:space="preserve"><value>Zeit für deine Blutdruckmessung.</value></data>
+  <data name="Nav_Profile" xml:space="preserve"><value>Profil</value></data>
+  <data name="Profile_Title" xml:space="preserve"><value>Profil &amp; Einstellungen</value></data>
+  <data name="Theme_Title" xml:space="preserve"><value>Darstellung</value></data>
+  <data name="Theme_System" xml:space="preserve"><value>System</value></data>
+  <data name="Theme_Light" xml:space="preserve"><value>Hell</value></data>
+  <data name="Theme_Dark" xml:space="preserve"><value>Dunkel</value></data>
+  <data name="Theme_Hint" xml:space="preserve"><value>Gilt nur für dieses Gerät. „System“ folgt der Einstellung deines Geräts.</value></data>
+  <data name="Profile_Personal" xml:space="preserve"><value>Persönliche Angaben</value></data>
+  <data name="Profile_Hint" xml:space="preserve"><value>Alle Angaben sind optional und nur für dich sichtbar. Sie erscheinen nicht in Exporten.</value></data>
+  <data name="Profile_Age" xml:space="preserve"><value>Alter (Jahre)</value></data>
+  <data name="Profile_Height" xml:space="preserve"><value>Größe (cm)</value></data>
+  <data name="Profile_Weight" xml:space="preserve"><value>Gewicht (kg)</value></data>
+  <data name="Profile_Bmi" xml:space="preserve"><value>BMI {0}</value></data>
+  <data name="Profile_BmiNote" xml:space="preserve"><value>Dies ist keine Diagnose.</value></data>
+  <data name="Profile_Invalid" xml:space="preserve"><value>Bitte gib gültige Zahlen ein.</value></data>
+  <data name="Profile_Saved" xml:space="preserve"><value>Das Profil wurde gespeichert.</value></data>
+  <data name="Profile_Delete" xml:space="preserve"><value>Profildaten löschen</value></data>
+  <data name="Profile_DeleteConfirm" xml:space="preserve"><value>Alle Profilangaben wirklich löschen?</value></data>
+  <data name="Profile_Deleted" xml:space="preserve"><value>Die Profilangaben wurden gelöscht.</value></data>
+  <data name="Culture_Name" xml:space="preserve"><value>de</value></data>
 </root>

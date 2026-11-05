@@ -1,0 +1,243 @@
+@page "/profile"
+@using System.Globalization
+@using System.Net
+@using CleanArchitecture.Contracts
+@using CleanArchitecture.Presentation.UI.Services
+@using Microsoft.Extensions.Localization
+@using Refit
+@inject IProfileApi Api
+@inject IThemeService Theme
+@inject AuthSession Session
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+@inject ILogger<Profile> Logger
+
+<PageTitle>@L["Profile_Title"]</PageTitle>
+
+<h1>@L["Profile_Title"]</h1>
+
+<fieldset class="mb-4" id="theme-group">
+    <legend class="fs-6">@L["Theme_Title"]</legend>
+    @foreach (var option in new[] { ThemeChoice.System, ThemeChoice.Light, ThemeChoice.Dark })
+    {
+        var value = option;
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <input type="radio" id="theme-@value" name="theme" value="@value" checked="@(_theme == value)"
+                   @onchange="() => SetThemeAsync(value)" />
+            <label for="theme-@value">@L[$"Theme_{char.ToUpperInvariant(value[0])}{value[1..]}"]</label>
+        </div>
+    }
+    <p class="form-text">@L["Theme_Hint"]</p>
+</fieldset>
+
+<h2 class="fs-5">@L["Profile_Personal"]</h2>
+<p class="form-text">@L["Profile_Hint"]</p>
+
+<form id="profile-form" @onsubmit="SaveAsync" aria-label="@L["Profile_Personal"]" aria-busy="@(_loading ? "true" : "false")">
+    <div class="mb-3">
+        <label for="profile-age" class="form-label">@L["Profile_Age"]</label>
+        <input id="profile-age" class="form-control" inputmode="numeric" autocomplete="off" value="@_age" @onchange="e => _age = e.Value?.ToString() ?? string.Empty" />
+    </div>
+    <div class="mb-3">
+        <label for="profile-height" class="form-label">@L["Profile_Height"]</label>
+        <input id="profile-height" class="form-control" inputmode="numeric" autocomplete="off" value="@_height" @onchange="e => _height = e.Value?.ToString() ?? string.Empty" />
+    </div>
+    <div class="mb-3">
+        <label for="profile-weight" class="form-label">@L["Profile_Weight"]</label>
+        <input id="profile-weight" class="form-control" inputmode="decimal" autocomplete="off" value="@_weight" @onchange="e => _weight = e.Value?.ToString() ?? string.Empty" />
+    </div>
+
+    @if (Bmi is { } bmi)
+    {
+        <p id="profile-bmi"><strong>@L["Profile_Bmi", bmi.ToString("0.0", UiCulture)]</strong> <span class="text-muted">@L["Profile_BmiNote"]</span></p>
+    }
+
+    <div @ref="_errorRegion" tabindex="-1" id="profile-errors">
+        @if (_errors.Count > 0)
+        {
+            <div role="alert" class="alert alert-danger">
+                @foreach (var error in _errors)
+                {
+                    <p class="mb-0">@error</p>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <button id="profile-save" type="submit" class="btn btn-primary" disabled="@(_loading || _saving)">@L["Form_Save"]</button>
+        @if (!_confirmDelete)
+        {
+            <button id="profile-delete" type="button" class="btn btn-outline-danger" @onclick="() => _confirmDelete = true">@L["Profile_Delete"]</button>
+        }
+        else
+        {
+            <span id="profile-delete-question">@L["Profile_DeleteConfirm"]</span>
+            <button id="profile-delete-confirm" type="button" class="btn btn-danger" @onclick="DeleteAsync">@L["Delete_Yes"]</button>
+            <button id="profile-delete-cancel" type="button" class="btn btn-secondary" @onclick="() => _confirmDelete = false">@L["Delete_Cancel"]</button>
+        }
+    </div>
+</form>
+
+@if (_status is not null)
+{
+    <p role="status" id="profile-saved" class="mt-3">@_status</p>
+}
+
+@code {
+    private string _theme = ThemeChoice.System;
+    private string _age = "", _height = "", _weight = "";
+    private bool _loading = true, _saving, _confirmDelete, _focusErrors;
+    private string? _status;
+    private List<string> _errors = [];
+    private ElementReference _errorRegion;
+
+    // Zahlenformat nach Oberflächensprache (nicht nach der Systemkultur des Rechners).
+    private CultureInfo UiCulture => CultureInfo.GetCultureInfo(L["Culture_Name"].Value);
+
+    private decimal? Bmi
+        => TryParse(out var profile) ? ProfileCalculator.Bmi(profile.HeightCm, profile.WeightKg) : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.IsAuthenticated)
+        {
+            Navigation.NavigateTo("login");
+            return;
+        }
+
+        _theme = await Theme.GetAsync();
+        try
+        {
+            Show(await Api.GetAsync());
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await Session.SignOutToLoginAsync(Navigation);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Profil konnte nicht geladen werden");
+            _errors = [L["Error_Generic"].Value];
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusErrors)
+        {
+            _focusErrors = false;
+            await _errorRegion.FocusAsync();
+        }
+    }
+
+    private async Task SetThemeAsync(string value)
+    {
+        _theme = value;
+        await Theme.SetAsync(value);
+    }
+
+    private void Show(ProfileDto profile)
+    {
+        _age = profile.Age?.ToString(UiCulture) ?? "";
+        _height = profile.HeightCm?.ToString(UiCulture) ?? "";
+        _weight = profile.WeightKg?.ToString("0.#", UiCulture) ?? "";
+    }
+
+    // Leere Felder bedeuten "keine Angabe". Beim Gewicht werden Komma und Punkt als Dezimaltrenner akzeptiert.
+    private bool TryParse(out ProfileDto profile)
+    {
+        profile = new ProfileDto(null, null, null);
+        int? age = null, height = null;
+        decimal? weight = null;
+
+        if (!string.IsNullOrWhiteSpace(_age))
+        {
+            if (!int.TryParse(_age.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var a)) return false;
+            age = a;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_height))
+        {
+            if (!int.TryParse(_height.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var h)) return false;
+            height = h;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_weight))
+        {
+            if (!decimal.TryParse(_weight.Trim().Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var w)) return false;
+            weight = w;
+        }
+
+        profile = new ProfileDto(age, height, weight);
+        return true;
+    }
+
+    private async Task SaveAsync()
+    {
+        _status = null;
+        _errors = [];
+        if (!TryParse(out var profile))
+        {
+            Fail([L["Profile_Invalid"].Value]);
+            return;
+        }
+
+        _saving = true;
+        try
+        {
+            Show(await Api.PutAsync(profile));
+            _status = L["Profile_Saved"].Value;
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await Session.SignOutToLoginAsync(Navigation);
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
+        {
+            var messages = await ApiErrors.ValidationMessagesAsync(ex);
+            Fail(messages.Count > 0 ? messages.ToList() : [L["Error_Generic"].Value]);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Profil konnte nicht gespeichert werden");
+            Fail([L["Error_Generic"].Value]);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task DeleteAsync()
+    {
+        _confirmDelete = false;
+        _status = null;
+        _errors = [];
+        try
+        {
+            await Api.DeleteAsync();
+            Show(new ProfileDto(null, null, null));
+            _status = L["Profile_Deleted"].Value;
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await Session.SignOutToLoginAsync(Navigation);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Profil konnte nicht gelöscht werden");
+            Fail([L["Error_Generic"].Value]);
+        }
+    }
+
+    private void Fail(List<string> errors)
+    {
+        _errors = errors;
+        _focusErrors = true;
+    }
+}

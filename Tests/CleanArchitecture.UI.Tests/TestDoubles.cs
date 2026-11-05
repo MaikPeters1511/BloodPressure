@@ -221,3 +221,48 @@ public sealed class FakeBrowser : IBrowserInterop
 
     public Task<string?> GetTimeZoneAsync() => Task.FromResult(TimeZone);
 }
+
+
+public sealed class FakeProfileApi : IProfileApi
+{
+    public ProfileDto Stored { get; set; } = new(null, null, null);
+    public Exception? PutFailWith { get; set; }
+    public List<ProfileDto> Puts { get; } = [];
+    public int Deletes { get; private set; }
+
+    public Task<ProfileDto> GetAsync(CancellationToken cancellationToken = default) => Task.FromResult(Stored);
+
+    public Task<ProfileDto> PutAsync(ProfileDto profile, CancellationToken cancellationToken = default)
+    {
+        Puts.Add(profile);
+        if (PutFailWith is not null)
+        {
+            return Task.FromException<ProfileDto>(PutFailWith);
+        }
+
+        Stored = profile;
+        return Task.FromResult(profile);
+    }
+
+    public Task DeleteAsync(CancellationToken cancellationToken = default)
+    {
+        Deletes++;
+        Stored = new ProfileDto(null, null, null);
+        return Task.CompletedTask;
+    }
+}
+
+public sealed class FakeTheme : IThemeService
+{
+    public string Current { get; set; } = ThemeChoice.System;
+    public List<string> Set { get; } = [];
+
+    public Task<string> GetAsync() => Task.FromResult(Current);
+
+    public Task SetAsync(string theme)
+    {
+        Current = theme;
+        Set.Add(theme);
+        return Task.CompletedTask;
+    }
+}

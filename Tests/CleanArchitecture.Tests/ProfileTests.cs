@@ -209,3 +209,24 @@ public class ProfileApiTests(PostgresFixture postgres)
 
     private sealed record ProblemWithErrors(Dictionary<string, string[]> Errors);
 }
+
+[Category("Unit")]
+public class ProfileCalculatorTests
+{
+    [Test]
+    [Arguments(180, 82.5, 25.5)]
+    [Arguments(170, 70.0, 24.2)]
+    [Arguments(160, 50.0, 19.5)]
+    [Arguments(200, 100.0, 25.0)]
+    public async Task Bmi_IsWeightOverHeightSquared_RoundedToOneDecimal(int height, double weight, double expected)
+        => await Assert.That(ProfileCalculator.Bmi(height, (decimal)weight)).IsEqualTo((decimal)expected);
+
+    [Test]
+    [Arguments(null, 80.0)]
+    public async Task Bmi_MissingHeight_IsNull(int? height, double weight)
+        => await Assert.That(ProfileCalculator.Bmi(height, (decimal)weight)).IsNull();
+
+    [Test]
+    public async Task Bmi_MissingWeight_IsNull()
+        => await Assert.That(ProfileCalculator.Bmi(180, null)).IsNull();
+}
