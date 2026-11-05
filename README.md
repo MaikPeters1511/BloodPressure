@@ -20,7 +20,9 @@ Stand: Anmeldung (Registrieren, Abmelden, gespeicherte Anmeldung im sicheren Spe
 - **API-Adresse:** `CleanArchitecture.Presentation.Maui/appsettings.json` (`Api:BaseUrl`, vor einem Release-Build setzen, nur HTTPS); Debug-Builds nutzen `appsettings.Debug.json` (`http://localhost:5000`, im Android-Emulator automatisch `10.0.2.2`).
 - Bauen z. B. für den iOS-Simulator: `dotnet build CleanArchitecture.Presentation.Maui -f net10.0-ios -p:RuntimeIdentifier=iossimulator-arm64` (bei abweichender Xcode-Version zusätzlich `-p:ValidateXcodeVersion=false`).
 - iOS/macOS 26+ verlangen die Scene-Lifecycle-Anbindung (`SceneDelegate` plus `UIApplicationSceneManifest` in der Info.plist unter `Platforms/iOS` und `Platforms/MacCatalyst`); ohne sie bricht die App beim Start ab. Geprüft: iOS-26.5-Simulator, iOS-27-Simulator, Mac Catalyst unter macOS 27. Nach Änderungen an der Info.plist `bin`/`obj` des Zielframeworks löschen, sonst bleibt die alte Plist im App-Paket.
-- Android- und Windows-Build sind ungeprüft.
+- **Android** (geprüft am 2026-11-05: Emulator API 35, Build mit .NET 10 / Android-Workload 36.1): `dotnet build CleanArchitecture.Presentation.Maui -f net10.0-android -p:AndroidSdkDirectory=$HOME/Library/Android/sdk -p:EmbedAssembliesIntoApk=true`. Der Schalter `EmbedAssembliesIntoApk=true` ist für einen per `adb install` installierten Debug-APK nötig; ohne ihn bricht die App beim Start mit „No assemblies found … Fast Deployment“ ab. Die API muss auf `127.0.0.1:5000` lauschen (der Emulator erreicht sie als `10.0.2.2:5000`). Bekannt: Der erste Tab-Titel ist auf schmalen Bildschirmen abgeschnitten.
+- Windows-Build ist ungeprüft (nur unter Windows baubar).
+- Hinweistexte stammen vom Server und sind deutsch, auch wenn die App englisch ist (Kategorie und Beschriftungen sind lokalisiert).
 
 ## Container-Image
 
