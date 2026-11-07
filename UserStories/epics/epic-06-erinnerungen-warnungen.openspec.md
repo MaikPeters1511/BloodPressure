@@ -71,7 +71,7 @@ _Entfällt._
 - [x] T6.2 (backend) Tests (Red), Domain Event, Handler, Migration
 - [x] T6.3 (backend) Reminder-Endpunkte und Scheduler
 - [x] T6.4 (backend) Benachrichtigungs-Endpunkte, Refit
-- [ ] T6.5 (frontend, Folge-Spec) Anzeige und Push-Registrierung
+- [ ] T6.5 (frontend, Folge-Spec) Anzeige und Push-Registrierung ([Spec](../frontend-push-registrierung.openspec.md))
 
 ## 6. Acceptance Criteria (DoD)
 - [x] Alle Scenarios als Tests grün (Zeit über `TimeProvider` kontrollierbar).
