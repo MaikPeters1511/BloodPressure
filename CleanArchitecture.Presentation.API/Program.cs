@@ -44,7 +44,10 @@ if (builder.Configuration.GetValue("Reminders:WorkerEnabled", true))
 }
 
 builder.Services.AddControllers(options => options.Filters.Add<ValidateRequestFilter>());
-builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
+builder.Services.AddOpenApi(options =>
+{
+    options.AddOperationTransformer(ProblemExamplesTransformer.TransformAsync);
+    options.AddDocumentTransformer((document, _, _) =>
 {
     document.Components ??= new OpenApiComponents();
     document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
@@ -55,7 +58,8 @@ builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document,
         Description = "Access-Token aus POST /api/auth/login"
     };
     return Task.CompletedTask;
-}));
+});
+});
 builder.Services.AddProblemDetails();
 
 // Rate Limiting je Nutzer (angemeldet) bzw. je IP (anonym); Health-Probes sind ausgenommen.
