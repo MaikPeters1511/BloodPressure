@@ -61,7 +61,7 @@ _Entfällt._
 - [x] T3.2 (backend) Validatoren + Action-Filter (statt Wolverine-Middleware)
 - [x] T3.3 (backend) `GlobalExceptionHandler` / Logging anpassen
 - [x] T3.4 (backend) Refit: `ValidationProblemDetails` im Test-Client auswertbar
-- [ ] T3.5 (doc) OpenAPI-Beispiele für Fehler
+- [x] T3.5 (doc) OpenAPI-Beispiele für Fehler (`ProblemExamplesTransformer`: 400, 401, 404, 412, 429 als `application/problem+json`; Test `OpenApiProblemExamplesTests`)
 
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Scenarios als Tests grün.

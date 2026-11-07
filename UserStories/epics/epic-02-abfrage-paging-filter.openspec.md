@@ -59,7 +59,7 @@ _Entfällt._
 - [x] T2.2 (backend) Repository- und Handler-Erweiterung, Migration (Index)
 - [x] T2.3 (backend) Controller + `IBloodPressureApi` anpassen
 - [x] T2.4 (qa) Performance-Smoke mit 100 000 Zeilen (Integrationstest: EXPLAIN nutzt den Index, Seite unter 1 s)
-- [ ] T2.5 (frontend, Folge-Spec) `Api.razor` auf Paging umstellen
+- [x] T2.5 (frontend, Folge-Spec) Paging im Frontend: `Measurements.razor` nutzt Seiten (Vor/Zurück, Seitenanzeige); `Api.razor` existiert nicht mehr
 
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Scenarios als Tests grün.

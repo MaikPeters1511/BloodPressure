@@ -66,4 +66,4 @@ _Entfällt._
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Scenarios an echten Workflow-Läufen nachgewiesen.
 - [x] Container startet mit gesetzten Umgebungsvariablen und ist erreichbar (lokal geprüft: Registrierung, Anlegen, CSV- und PDF-Export im Container gegen Postgres).
-- [ ] Health-Endpunkt: `MapDefaultEndpoints` in den ServiceDefaults mappt `/health` und `/alive` nur in Development. Für Container-Healthchecks in Produktion ist eine bewusste Entscheidung nötig (z. B. nur `/alive` freigeben, nicht öffentlich erreichbar); sie wird in T8.2 durch `sec-agent` getroffen.
+- [x] Health-Endpunkt: Entscheidung umgesetzt. `/alive` (nur "self"-Check, keine Details) gibt es in allen Umgebungen für Container-Healthchecks, `/health` (mit Datenbank) nur in Development (`ServiceDefaults/Extensions.cs`); beide sind vom Rate Limiting ausgenommen.
