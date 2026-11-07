@@ -69,4 +69,4 @@ _Entfällt._
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Grenzwerte (je ±1) sind durch Tests abgedeckt und grün.
 - [ ] Statistik stimmt mit manueller Berechnung überein (Teststichprobe).
-- [ ] Haftungshinweis in der API-Doku.
+- [x] Haftungshinweis in der API-Doku (Test `OpenApiProblemExamplesTests.ClassifyingOperation_HasDisclaimer`).

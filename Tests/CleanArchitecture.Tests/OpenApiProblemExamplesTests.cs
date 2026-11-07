@@ -43,4 +43,31 @@ public class OpenApiProblemExamplesTests
 
         await Assert.That(example.GetProperty("status").GetInt32()).IsEqualTo(int.Parse(status));
     }
+
+    [Test]
+    public async Task ListOperation_DocumentsPagingParametersAndEnvelope()
+    {
+        var doc = await LoadDocumentAsync();
+
+        var op = doc.GetProperty("paths").GetProperty("/api/v1/BloodPressure").GetProperty("get");
+        var parameters = op.GetProperty("parameters").EnumerateArray().Select(p => p.GetProperty("name").GetString()!.ToLowerInvariant()).ToList();
+        var schema = op.GetProperty("responses").GetProperty("200").GetProperty("content").GetProperty("application/json").GetProperty("schema").ToString();
+
+        await Assert.That(parameters).Contains("page");
+        await Assert.That(parameters).Contains("pagesize");
+        await Assert.That(schema).Contains("PagedResult");
+    }
+
+    [Test]
+    [Arguments("/api/v1/BloodPressure", "get")]
+    [Arguments("/api/v1/BloodPressure/statistics", "get")]
+    [Arguments("/api/v1/BloodPressure/{id}", "get")]
+    public async Task ClassifyingOperation_HasDisclaimer(string path, string method)
+    {
+        var doc = await LoadDocumentAsync();
+
+        var description = doc.GetProperty("paths").GetProperty(path).GetProperty(method).GetProperty("description").GetString();
+
+        await Assert.That(description).Contains("keine Diagnose");
+    }
 }
