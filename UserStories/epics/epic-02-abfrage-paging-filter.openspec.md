@@ -62,6 +62,6 @@ _Entfällt._
 - [x] T2.5 (frontend, Folge-Spec) Paging im Frontend: `Measurements.razor` nutzt Seiten (Vor/Zurück, Seitenanzeige); `Api.razor` existiert nicht mehr
 
 ## 6. Acceptance Criteria (DoD)
-- [ ] Alle Scenarios als Tests grün.
+- [x] Alle Scenarios als Tests grün (Gesamtsuite inkl. PostgreSQL-Tests).
 - [ ] Abfrage nutzt den Index (EXPLAIN geprüft), Index-Nutzung bei 100 000 Zeilen per `EXPLAIN` nachgewiesen; die Laufzeit (Test-Grenze 5 s) ist nur eine grobe Schutzgrenze, da Zeitmessungen unter paralleler Last schwanken.
 - [x] OpenAPI zeigt Parameter und Envelope (Test `OpenApiProblemExamplesTests.ListOperation_DocumentsPagingParametersAndEnvelope`).

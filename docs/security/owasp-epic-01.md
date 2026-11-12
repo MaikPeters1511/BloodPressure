@@ -221,3 +221,20 @@ Schweregrad: Mittel > Gering > Info. Kein Befund "Hoch" oder "Kritisch".
 - "OWASP-Prüfung durch sec-agent dokumentiert": mit diesem Dokument erfüllt.
 - "Kein Endpunkt außer den ausdrücklich freigegebenen ist anonym erreichbar": für Controller belegt, für Identity-Endpunkte offen (R-03). Empfehlung: Kriterium erst nach dem Endpunkt-Test abhaken; die übrigen Risiken (R-01 bis R-05) sind vor einer produktiven Veröffentlichung zu bewerten, blockieren aber nicht das Abhaken der Epic-Scenarios.
 - "Alle Scenarios als Tests grün": nicht Gegenstand dieser Prüfung (Tests wurden nicht ausgeführt).
+
+## 8. Umsetzungsstand
+
+| Nr. | Status | Umsetzung |
+|---|---|---|
+| R-01 | Behoben (teilweise) | Passwort-Mindestlänge 12 (`Auth:PasswordMinLength`), Access-Token 30 Minuten (`Auth:AccessTokenMinutes`), Refresh-Token 7 Tage (`Auth:RefreshTokenDays`) in `Program.cs`; Tests `AuthPolicyTests`. Serverseitiger Widerruf beim Logout bleibt offen. |
+| R-02 | Behoben | Eigenes Limit für `/api/auth/*` (`RateLimiting:AuthPermitLimitPerMinute`, Standard 10 je IP und Minute); `ForwardedHeaders` nur mit `ForwardedHeaders:Enabled` und `ForwardedHeaders:KnownProxies`; Test `AuthEndpoints_HaveStricterRateLimit`. |
+| R-03 | Behoben | Test `OnlyAllowedEndpoints_AreAnonymous` gleicht alle Endpunkte mit der Freigabeliste ab (die vier Identity-Zusatzendpunkte sind dort ausdrücklich aufgeführt, nicht entfernt); Lockout-Test `Login_AfterFiveFailedAttempts_LocksAccountEvenWithCorrectPassword`. |
+| R-04 | Offen | Braucht CSP für das UI-Hosting und ggf. ein ADR (BFF mit HttpOnly-Cookie). |
+| R-05 | Behoben für die API | `SecurityHeadersMiddleware` (`nosniff`, `Referrer-Policy`, CSP `default-src 'none'; frame-ancestors 'none'` außerhalb Development) und `UseHsts()`; Test `Responses_CarrySecurityHeaders`. Das UI-Hosting ist nicht abgedeckt. |
+| R-06, R-07, R-08 | Offen | Entwurfsentscheidungen (Altdaten-Übernahme, E-Mail-Bestätigung/MFA, `AuthenticationStateProvider`). |
+| R-09 | Behoben | `android:allowBackup="false"`. Nicht auf einem Gerät geprüft. |
+| R-10 | Offen | Hostnamen sind Betriebskonfiguration (`AllowedHosts` per Umgebungsvariable). |
+| R-11 | Offen | Actions auf Commit-SHA pinnen, Image-Tag und Signatur/SBOM. |
+| R-12 | Behoben (teilweise) | `SecurityEventLoggingMiddleware` protokolliert 401/403, das Rate-Limit protokolliert 429, jeweils ohne Token oder Nutzerdaten; Test `AccessDenied_IsLogged_WithoutCredentials`. Alarmierung bei Häufung bleibt offen. |
+| R-13 | Offen | Dependabot/Renovate. |
+

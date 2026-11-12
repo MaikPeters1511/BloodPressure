@@ -64,6 +64,6 @@ _Entfällt._
 - [x] T3.5 (doc) OpenAPI-Beispiele für Fehler (`ProblemExamplesTransformer`: 400, 401, 404, 412, 429 als `application/problem+json`; Test `OpenApiProblemExamplesTests`)
 
 ## 6. Acceptance Criteria (DoD)
-- [ ] Alle Scenarios als Tests grün.
+- [x] Alle Scenarios als Tests grün (Gesamtsuite inkl. PostgreSQL-Tests).
 - [x] Keine Stacktraces in Antworten (Tests `AcceptanceEvidenceTests.UnhandledException_ReturnsProblemWithoutInternals` und `ValidationError_ReturnsNoStackTrace`).
 - [x] Grenzwerte stehen nur an einer Stelle: `BloodPressureLimits` (Tests `AcceptanceEvidenceTests.Pressure_ValidatorAndDomain_AgreeOnBoundaries`, `Limits_AreDefinedInOnePlaceOnly`).

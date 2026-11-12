@@ -3,6 +3,8 @@ using CleanArchitecture.Application.BloodPressures;
 using CleanArchitecture.Infrastructure;
 using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
 using CleanArchitecture.Presentation.API.Infrastructure;
+using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity.Data;
@@ -33,8 +35,15 @@ builder.Services
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
         options.Lockout.AllowedForNewUsers = true;
+        options.Password.RequiredLength = builder.Configuration.GetValue("Auth:PasswordMinLength", 12);
     })
     .AddEntityFrameworkStores<AddPostgresSqlDbContext>();
+// Explizite Lebensdauer statt Framework-Standard (1 h / 14 Tage); per Konfiguration anpassbar.
+builder.Services.Configure<BearerTokenOptions>(IdentityConstants.BearerScheme, options =>
+{
+    options.BearerTokenExpiration = TimeSpan.FromMinutes(builder.Configuration.GetValue("Auth:AccessTokenMinutes", 30));
+    options.RefreshTokenExpiration = TimeSpan.FromDays(builder.Configuration.GetValue("Auth:RefreshTokenDays", 7));
+});
 builder.Services.AddAuthorization();
 
 // Der Scheduler für Erinnerungen läuft im Hintergrund; per Konfiguration abschaltbar (z. B. in Tests).
@@ -64,6 +73,7 @@ builder.Services.AddProblemDetails();
 
 // Rate Limiting je Nutzer (angemeldet) bzw. je IP (anonym); Health-Probes sind ausgenommen.
 var permitLimit = builder.Configuration.GetValue("RateLimiting:PermitLimitPerMinute", 100);
+var authPermitLimit = builder.Configuration.GetValue("RateLimiting:AuthPermitLimitPerMinute", 10);
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -72,6 +82,17 @@ builder.Services.AddRateLimiter(options =>
         if (context.Request.Path.StartsWithSegments("/alive") || context.Request.Path.StartsWithSegments("/health"))
         {
             return RateLimitPartition.GetNoLimiter("probe");
+        }
+
+        // Anmeldung, Registrierung und Token-Erneuerung: strengeres Limit je IP gegen Passwort-Raten.
+        if (context.Request.Path.StartsWithSegments("/api/auth"))
+        {
+            return RateLimitPartition.GetFixedWindowLimiter($"auth:{context.Connection.RemoteIpAddress}", _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = authPermitLimit,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            });
         }
 
         var key = context.User.FindFirstValue(ClaimTypes.NameIdentifier) is { } userId
@@ -91,6 +112,8 @@ builder.Services.AddRateLimiter(options =>
             context.HttpContext.Response.Headers.RetryAfter = ((int)Math.Ceiling(retryAfter.TotalSeconds)).ToString();
         }
 
+        context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("Security")
+            .LogWarning("Rate limit exceeded for {Method} {Path}", context.HttpContext.Request.Method, context.HttpContext.Request.Path);
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
         await context.HttpContext.Response.WriteAsJsonAsync(
             new Microsoft.AspNetCore.Mvc.ProblemDetails { Status = 429, Title = "Zu viele Anfragen" }, cancellationToken);
@@ -117,6 +140,21 @@ if (builder.Environment.IsDevelopment())
 }
 
 var app = builder.Build();
+
+// Hinter einem Reverse Proxy die echte Client-IP verwenden (Rate Limiting). Nur mit konfigurierten Proxys,
+// sonst ließe sich die IP per Header fälschen: ForwardedHeaders:Enabled=true und ForwardedHeaders:KnownProxies=[...].
+if (builder.Configuration.GetValue("ForwardedHeaders:Enabled", false))
+{
+    var forwarded = new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto };
+    forwarded.KnownIPNetworks.Clear();
+    forwarded.KnownProxies.Clear();
+    foreach (var proxy in builder.Configuration.GetSection("ForwardedHeaders:KnownProxies").Get<string[]>() ?? [])
+    {
+        forwarded.KnownProxies.Add(System.Net.IPAddress.Parse(proxy));
+    }
+
+    app.UseForwardedHeaders(forwarded);
+}
 
 app.UseExceptionHandler();
 
@@ -148,12 +186,15 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
+    app.UseHsts();
     app.UseHttpsRedirection();
 }
 
+app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseCors();
 app.UseAuthentication();
 app.UseRateLimiter();
+app.UseMiddleware<SecurityEventLoggingMiddleware>();
 app.UseAuthorization();
 
 
