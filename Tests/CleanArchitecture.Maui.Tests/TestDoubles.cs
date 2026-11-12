@@ -75,10 +75,6 @@ public sealed class FakeAuthApi : IAuthApi
 
 public sealed class FakeBloodPressureApi : IBloodPressureApi
 {
-    public FakeTwoFactorBackend TwoFactor { get; } = new();
-
-    public Task<TwoFactorResponse> ManageTwoFactorAsync(TwoFactorRequest request, CancellationToken cancellationToken = default) => TwoFactor.HandleAsync(request);
-
     public List<BloodPressureDto> Items { get; } = [];
     public Exception? ListFailWith { get; set; }
     public Exception? CreateFailWith { get; set; }
@@ -209,10 +205,6 @@ public sealed class FakeShare : IShareService
 
 public sealed class FakeReminderApi : IReminderApi
 {
-    public FakeTwoFactorBackend TwoFactor { get; } = new();
-
-    public Task<TwoFactorResponse> ManageTwoFactorAsync(TwoFactorRequest request, CancellationToken cancellationToken = default) => TwoFactor.HandleAsync(request);
-
     public ReminderSettingsDto Stored { get; set; } = new("UTC", []);
     public Exception? GetFailWith { get; set; }
     public Exception? PutFailWith { get; set; }
@@ -365,7 +357,7 @@ public sealed class FakeLanguageApplier : ILanguageApplier
 /// Verhält sich wie <c>POST /api/auth/manage/2fa</c>: leere Anfrage = Status, <c>Enable</c> mit gültigem Code schaltet ein (Codes einmalig),
 /// ein falscher Code ist ein 400 (ValidationProblem).
 /// </summary>
-public sealed class FakeTwoFactorBackend
+public sealed class FakeTwoFactorBackend : ITwoFactorApi
 {
     public const string Key = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
     public const string ValidCode = "123456";
@@ -377,6 +369,8 @@ public sealed class FakeTwoFactorBackend
     public int Generation { get; private set; }
 
     public string[] NewCodes() => Enumerable.Range(1, 10).Select(i => $"code{Generation}-{i:00}").ToArray();
+
+    public Task<TwoFactorResponse> ManageTwoFactorAsync(TwoFactorRequest request, CancellationToken cancellationToken = default) => HandleAsync(request);
 
     public Task<TwoFactorResponse> HandleAsync(TwoFactorRequest request)
     {

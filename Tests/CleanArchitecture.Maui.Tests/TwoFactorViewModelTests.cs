@@ -11,14 +11,13 @@ public class TwoFactorViewModelTests
 {
     private readonly FakeSecureStore _store = new();
     private readonly FakeAuthApi _auth = new();
-    private readonly FakeReminderApi _api = new();
     private readonly FakeNavigator _nav = new();
     private readonly FakeDialogs _dialogs = new();
     private readonly FakeLauncher _launcher = new();
     private SessionService _session = null!;
     private int _focusRequests;
 
-    private FakeTwoFactorBackend Backend => _api.TwoFactor;
+    private readonly FakeTwoFactorBackend Backend = new();
 
     private async Task<TwoFactorViewModel> CreateAsync(bool enabled = false, int codesLeft = 0, string culture = "de", string? email = "a@example.test")
     {
@@ -30,7 +29,7 @@ public class TwoFactorViewModelTests
             await _session.LoginAsync(email, "pw");
         }
 
-        var vm = new TwoFactorViewModel(_api, _session, _nav, _dialogs, new ResxLocalizer(culture == "de" ? Culture.De : Culture.En), _launcher);
+        var vm = new TwoFactorViewModel(Backend, _session, _nav, _dialogs, new ResxLocalizer(culture == "de" ? Culture.De : Culture.En), _launcher);
         vm.FocusCodeRequested += () => _focusRequests++;
         await vm.InitializeCommand.ExecuteAsync(null);
         return vm;

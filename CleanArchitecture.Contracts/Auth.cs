@@ -63,3 +63,10 @@ public interface IAuthApi
     [Post("/api/auth/logout")]
     Task LogoutAsync([Header("Authorization")] string authorization, CancellationToken cancellationToken = default);
 }
+
+/// <summary>Zwei-Faktor-Anmeldung (TOTP) des angemeldeten Nutzers (mit Bearer-Token); siehe <see cref="TwoFactorRequest"/>.</summary>
+public interface ITwoFactorApi
+{
+    [Post("/api/auth/manage/2fa")]
+    Task<TwoFactorResponse> ManageTwoFactorAsync([Body] TwoFactorRequest request, CancellationToken cancellationToken = default);
+}
