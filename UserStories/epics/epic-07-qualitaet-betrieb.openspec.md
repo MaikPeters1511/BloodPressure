@@ -85,4 +85,4 @@ _Entfällt._
 
 ## 6. Acceptance Criteria (DoD)
 - [x] Alle Scenarios als Tests grün, lokal (138 Tests); der CI-Lauf folgt im PR.
-- [ ] CI-Laufzeit steigt um höchstens 3 Minuten (wird am PR-Lauf geprüft).
+- [ ] CI-Laufzeit steigt um höchstens 3 Minuten (wird am PR-Lauf geprüft). Messung: Job "CI" dauert aktuell rund 1:40 bis 1:50 Minuten (A11y-Job separat rund 5 Minuten); ein Vergleichswert vor Epic 7 liegt nicht vor, daher nicht abgehakt.

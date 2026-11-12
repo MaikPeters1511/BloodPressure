@@ -64,6 +64,6 @@ _Entfällt._
 - [x] T8.4 (doc) README: Image-Nutzung und benötigte Umgebungsvariablen
 
 ## 6. Acceptance Criteria (DoD)
-- [ ] Alle Scenarios an echten Workflow-Läufen nachgewiesen.
+- [x] Alle Scenarios an echten Workflow-Läufen nachgewiesen: Merge auf `main` (CD-Lauf 43242083289: Scan und Push erfolgreich); CI nicht grün (CI-Lauf 42411557353 abgebrochen, der folgende CD-Lauf 42411829050 übersprungen, kein Push); kritische Lücke (CD-Lauf 42412153413: Trivy fand 2 HIGH, Scan fehlgeschlagen, Push übersprungen); Rechte in `cd.yml` (`contents: read`, `packages: write` nur im Veröffentlichungs-Job, Anmeldung nur mit `GITHUB_TOKEN`). Das Image im Registry-Verzeichnis selbst konnte ohne `read:packages` nicht abgefragt werden.
 - [x] Container startet mit gesetzten Umgebungsvariablen und ist erreichbar (lokal geprüft: Registrierung, Anlegen, CSV- und PDF-Export im Container gegen Postgres).
 - [x] Health-Endpunkt: Entscheidung umgesetzt. `/alive` (nur "self"-Check, keine Details) gibt es in allen Umgebungen für Container-Healthchecks, `/health` (mit Datenbank) nur in Development (`ServiceDefaults/Extensions.cs`); beide sind vom Rate Limiting ausgenommen.
