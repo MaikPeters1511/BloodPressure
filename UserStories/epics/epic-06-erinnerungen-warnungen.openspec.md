@@ -76,4 +76,4 @@ _Entfällt._
 ## 6. Acceptance Criteria (DoD)
 - [x] Alle Scenarios als Tests grün (Zeit über `TimeProvider` kontrollierbar).
 - [x] Kein Nachrichtenverlust bei Neustart: Messung und Hinweis teilen sich eine Transaktion; Erinnerungen werden über `LastFiredOn` höchstens einmal verarbeitet (Prozessortests). Ein verteilter Mehrinstanzbetrieb ist nicht abgedeckt (siehe ADR).
-- [ ] Texte i18n-fähig (DE/EN), Haftungshinweis vorhanden.
+- [x] Texte i18n-fähig (DE/EN), Haftungshinweis vorhanden: `Notification_CriticalText`, `Disclaimer_Medical` in `SharedResource(.en).resx` (Web) und `Strings(.en).resx` (MAUI); Hinweis auf den Seiten Hinweise (Web `Notifications.razor`, MAUI `NotificationsPage.xaml`).
