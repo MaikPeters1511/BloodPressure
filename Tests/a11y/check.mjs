@@ -2,16 +2,19 @@
 //
 // Erwartet eine laufende API und UI (lokal oder in der CI):
 //   API_URL (Standard http://localhost:5000), UI_URL (Standard http://localhost:5296)
+//   API_LOG (Standard ../../api.log): Logdatei der API. Die Anmeldung verlangt eine bestätigte E-Mail-Adresse; in Development
+//   schreibt die API den Bestätigungslink ins Log (ohne SMTP-Server), den dieses Skript von dort liest und aufruft.
 // Legt einen Testnutzer mit Testdaten an (Passwort wird zur Laufzeit erzeugt, nie gespeichert), meldet sich an und prüft
 // jede Seite bei 1280, 375 und 320 px Breite in heller und dunkler Darstellung.
 // Fehler: Verstöße der Schwere "serious"/"critical", horizontaler Seitenüberlauf, Bedienelemente unter 24 x 24 px.
 import { randomBytes } from 'node:crypto';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 
 const API = process.env.API_URL ?? 'http://localhost:5000';
 const UI = process.env.UI_URL ?? 'http://localhost:5296';
+const API_LOG = process.env.API_LOG ?? '../../api.log';
 const PAGES = ['measurements', 'statistics', 'export', 'reminders', 'notifications', 'profile'];
 const VIEWPORTS = [{ width: 1280, height: 800 }, { width: 375, height: 812 }, { width: 320, height: 568 }];
 // Systemschema; zusätzlich (nur bei 1280 px) die ausdrücklich gewählte Darstellung, die dem Systemschema widerspricht,
@@ -36,8 +39,26 @@ async function api(path, options = {}, token) {
   return response;
 }
 
+// Liest den Bestätigungslink aus dem API-Log und ruft ihn auf (wie der Klick in der Mail).
+async function confirmEmail() {
+  for (let attempt = 0; attempt < 30; attempt++) {
+    let log = '';
+    try { log = await readFile(API_LOG, 'utf8'); } catch { /* Logdatei noch nicht da */ }
+    const match = log.match(new RegExp(`Bestätigungslink für ${email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}: (\\S+)`));
+    if (match) {
+      const link = match[1].replaceAll('&amp;', '&');
+      const response = await fetch(link);
+      if (!response.ok) { throw new Error(`Bestätigung fehlgeschlagen: ${response.status}`); }
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  throw new Error(`Kein Bestätigungslink für ${email} in ${API_LOG} gefunden (läuft die API in Development ohne SMTP-Server?).`);
+}
+
 async function seed() {
   await api('/api/auth/register', { method: 'POST', body: JSON.stringify({ email, password: credential }) });
+  await confirmEmail();
   const { accessToken } = await (await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password: credential }) })).json();
   const day = 24 * 3600 * 1000;
   for (let i = 1; i <= 12; i++) {

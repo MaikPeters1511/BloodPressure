@@ -35,6 +35,8 @@ builder.Services
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
         options.Lockout.AllowedForNewUsers = true;
+        // Anmeldung erst nach Bestätigung der E-Mail-Adresse (ADR 0006); bestehende Konten setzt eine Migration auf bestätigt.
+        options.SignIn.RequireConfirmedEmail = true;
         options.Password.RequiredLength = builder.Configuration.GetValue("Auth:PasswordMinLength", 12);
     })
     .AddEntityFrameworkStores<AddPostgresSqlDbContext>();
@@ -203,17 +205,31 @@ app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>()
     .AddEndpointFilter(async (invocation, next) =>
     {
         var result = await next(invocation);
-
-        // Altdaten ohne Besitzer gehören dem ersten registrierten Nutzer.
         var http = invocation.HttpContext;
-        if (http.Request.Path.Value?.EndsWith("/register", StringComparison.OrdinalIgnoreCase) == true
-            && (result is INestedHttpResult { Result: var inner } ? inner : result) is IStatusCodeHttpResult { StatusCode: >= 200 and < 300 }
-            && invocation.Arguments.OfType<RegisterRequest>().FirstOrDefault() is { } registration
-            && await http.RequestServices.GetRequiredService<UserManager<IdentityUser>>()
-                .FindByEmailAsync(registration.Email) is { } user)
+        var path = http.Request.Path.Value ?? string.Empty;
+        var inner = result is INestedHttpResult { Result: var nested } ? nested : result;
+
+        // Login eines unbestätigten Kontos: "NotAllowed" nur zeigen, wenn das Passwort stimmt. Sonst wäre an der Antwort
+        // zu erkennen, dass die Adresse registriert ist (unbekannte Adresse und falsches Passwort ergeben "Failed").
+        if (path.EndsWith("/login", StringComparison.OrdinalIgnoreCase)
+            && inner is ProblemHttpResult { ProblemDetails.Detail: "NotAllowed" }
+            && invocation.Arguments.OfType<LoginRequest>().FirstOrDefault() is { } login)
+        {
+            var users = http.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
+            var user = await users.FindByEmailAsync(login.Email);
+            if (user is null || !await users.CheckPasswordAsync(user, login.Password))
+            {
+                return TypedResults.Problem("Failed", statusCode: StatusCodes.Status401Unauthorized);
+            }
+        }
+
+        // Altdaten ohne Besitzer gehören dem ersten Nutzer, der seine E-Mail-Adresse bestätigt (nicht schon bei der Registrierung).
+        if (path.EndsWith("/confirmEmail", StringComparison.OrdinalIgnoreCase)
+            && inner is IStatusCodeHttpResult { StatusCode: null or (>= 200 and < 300) } // ohne Angabe: 200
+            && http.Request.Query["userId"].ToString() is { Length: > 0 } confirmedUserId)
         {
             await http.RequestServices.GetRequiredService<ILegacyDataClaimer>()
-                .ClaimForFirstUserAsync(user.Id, http.RequestAborted);
+                .ClaimForFirstUserAsync(confirmedUserId, http.RequestAborted);
         }
 
         return result;

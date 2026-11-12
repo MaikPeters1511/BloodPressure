@@ -42,6 +42,8 @@ ASPNETCORE_URLS=http://localhost:5000 dotnet run --project CleanArchitecture.Pre
 dotnet run --project CleanArchitecture.Presentation.UI --no-launch-profile --urls http://localhost:5296
 ```
 
+Die Anmeldung verlangt eine **bestätigte E-Mail-Adresse**. Ohne SMTP-Server (wie oben) schreibt die API in `Development` den Bestätigungslink ins Log (`Bestätigungslink für <Adresse>: <Link>`); den Link im Browser öffnen oder in `GET /api/auth/confirmEmail` aufrufen. Über den Aspire-AppHost startet ein MailPit-Container, der die Mails abfängt (Weboberfläche `http://localhost:8025`).
+
 In `Development` werden die Migrationen automatisch angewendet. Die API-Adresse der Oberfläche steht in `CleanArchitecture.Presentation.UI/wwwroot/appsettings.json` (`Api:BaseUrl`, hier `http://127.0.0.1:5000`; ein Release-Build braucht HTTPS). Unter macOS belegt AirPlay den Port 5000 auf allen Adressen; die API an `localhost` zu binden (wie oben) setzt sich dagegen durch, ein Aufruf mit `curl localhost` kann trotzdem beim AirPlay-Dienst landen (Antwort 403) – dann `127.0.0.1` verwenden. Alternativ startet `CleanArchitecture.AppHost` (.NET Aspire) PostgreSQL (mit pgAdmin) und die API gemeinsam; die Oberfläche läuft weiterhin separat.
 
 ## Tests und CI
@@ -112,6 +114,12 @@ Konfiguration nur über Umgebungsvariablen:
 | `ConnectionStrings__bloodpressuredb` | PostgreSQL-Connection-String (erforderlich) |
 | `Cors__AllowedOrigins__0` | Erlaubte Browser-Herkunft für das Frontend (weitere mit `__1`, ...) |
 | `ASPNETCORE_ENVIRONMENT` | `Production` (Standard). Die Migrationen werden nur in `Development` automatisch angewendet. |
+| `Email__Smtp__Host` | SMTP-Server für Bestätigungsmails (**in Produktion erforderlich**, sonst startet die API nicht) |
+| `Email__Smtp__Port` | SMTP-Port (Standard 587) |
+| `Email__Smtp__User`, `Email__Smtp__Password` | Zugangsdaten des SMTP-Servers (nur über Secrets/Umgebung, nie im Repository) |
+| `Email__Smtp__Tls` | `Auto` (Standard), `StartTls`, `SslOnConnect` oder `None` (nur lokal) |
+| `Email__From`, `Email__FromName` | Absenderadresse (erforderlich) und Anzeigename |
+| `Email__ConfirmationBaseUrl` | Adresse der Seite `/confirm-email` des Blazor-UI (z. B. `https://app.example.org/confirm-email`); ohne Angabe zeigt der Link auf den API-Endpunkt |
 | `AllowedHosts` | Erlaubte Hostnamen, durch Semikolon getrennt (z. B. `api.example.org`). Im Image steht `*`; im Betrieb auf die echten Hostnamen setzen. |
 | `Auth__PasswordMinLength` | Mindestlänge neuer Passwörter (Standard 12) |
 | `Auth__AccessTokenMinutes` | Lebensdauer des Access-Tokens in Minuten (Standard 30) |

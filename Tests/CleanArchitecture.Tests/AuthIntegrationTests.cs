@@ -3,6 +3,10 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using CleanArchitecture.Contracts;
 using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -116,11 +120,30 @@ public class AuthIntegrationTests(PostgresFixture postgres)
                 "VALUES (118, 76, '2026-01-01T08:00:00Z', 60, 97)");
         }
 
-        var first = await SignInAsync(factory, "first@example.test");
-        var second = await SignInAsync(factory, "second@example.test");
+        // Die Altdaten gehen an den ersten Nutzer, der seine E-Mail-Adresse bestätigt (Link aus der Mail anklicken).
+        var mails = new CapturingEmailSender();
+        var withMails = factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+        {
+            services.RemoveAll<IEmailSender<IdentityUser>>();
+            services.AddSingleton<IEmailSender<IdentityUser>>(mails);
+        }));
+        var first = await SignInWithLinkAsync(withMails.CreateClient(), mails, "first@example.test");
+        var second = await SignInWithLinkAsync(withMails.CreateClient(), mails, "second@example.test");
 
         await Assert.That((await first.GetAllAsync()).Items.Single().Systolisch).IsEqualTo(118);
         await Assert.That((await second.GetAllAsync()).Items).IsEmpty();
+    }
+
+    private static async Task<IBloodPressureApi> SignInWithLinkAsync(HttpClient http, CapturingEmailSender mails, string email)
+    {
+        (await http.PostAsJsonAsync("/api/auth/register", new { email, password = Password })).EnsureSuccessStatusCode();
+        var link = new Uri(System.Net.WebUtility.HtmlDecode(mails.Confirmations.Last(c => c.Email == email).Link));
+        (await http.GetAsync(link.PathAndQuery)).EnsureSuccessStatusCode();
+        var login = await http.PostAsJsonAsync("/api/auth/login", new { email, password = Password });
+        login.EnsureSuccessStatusCode();
+        var tokens = await login.Content.ReadFromJsonAsync<LoginResponse>();
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens!.AccessToken);
+        return RestService.For<IBloodPressureApi>(http);
     }
 
     [Test]

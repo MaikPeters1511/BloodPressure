@@ -24,13 +24,72 @@ public sealed partial class LoginViewModel(
     private string? _errorMessage;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasNotice))]
+    private string? _noticeMessage;
+
+    /// <summary>Zeigt den Hinweis zur Bestätigung samt „Erneut senden“ (nach Registrierung oder bei unbestätigtem Konto).</summary>
+    [ObservableProperty]
+    private bool _confirmationPending;
+
+    [ObservableProperty]
     private bool _isBusy;
 
-    [RelayCommand]
-    private Task LoginAsync() => SubmitAsync(() => session.LoginAsync(Email.Trim(), Password), registering: false);
+    public bool HasNotice => NoticeMessage is not null;
+
+    private string _pendingEmail = "";
 
     [RelayCommand]
-    private Task RegisterAsync() => SubmitAsync(() => session.RegisterAsync(Email.Trim(), Password), registering: true);
+    private Task LoginAsync() => SubmitAsync(async () =>
+    {
+        await session.LoginAsync(Email.Trim(), Password);
+        Password = "";
+        await navigator.GoToMeasurementsAsync();
+    }, registering: false);
+
+    // Registrieren meldet nicht an: erst nach der Bestätigung der E-Mail-Adresse.
+    [RelayCommand]
+    private Task RegisterAsync() => SubmitAsync(async () =>
+    {
+        await session.RegisterAsync(Email.Trim(), Password);
+        Password = "";
+        ShowConfirmationNotice();
+    }, registering: true);
+
+    // Bewusst immer dieselbe Antwort, egal ob die Adresse existiert.
+    [RelayCommand]
+    private async Task ResendConfirmationAsync()
+    {
+        if (IsBusy || !ConfirmationPending)
+        {
+            return;
+        }
+
+        IsBusy = true;
+        ErrorMessage = null;
+        try
+        {
+            await session.ResendConfirmationAsync(_pendingEmail);
+            NoticeMessage = localizer["Login_Resent"];
+            dialogs.Announce(NoticeMessage);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Bestätigungsmail konnte nicht erneut gesendet werden");
+            Fail(localizer["Error_Generic"]);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private void ShowConfirmationNotice()
+    {
+        _pendingEmail = Email.Trim();
+        ConfirmationPending = true;
+        NoticeMessage = localizer.Format("Login_ConfirmSent", _pendingEmail);
+        dialogs.Announce(NoticeMessage);
+    }
 
     private async Task SubmitAsync(Func<Task> action, bool registering)
     {
@@ -47,11 +106,11 @@ public sealed partial class LoginViewModel(
 
         IsBusy = true;
         ErrorMessage = null;
+        NoticeMessage = null;
+        ConfirmationPending = false;
         try
         {
             await action();
-            Password = "";
-            await navigator.GoToMeasurementsAsync();
         }
         catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest && registering)
         {
@@ -60,7 +119,14 @@ public sealed partial class LoginViewModel(
         }
         catch (ApiException ex) when (ex.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.BadRequest)
         {
-            Fail(localizer["Login_Failed"]);
+            if (ex.StatusCode == HttpStatusCode.Unauthorized && await ApiErrors.IsEmailNotConfirmedAsync(ex))
+            {
+                ShowConfirmationNotice();
+            }
+            else
+            {
+                Fail(localizer["Login_Failed"]);
+            }
         }
         catch (Exception ex)
         {

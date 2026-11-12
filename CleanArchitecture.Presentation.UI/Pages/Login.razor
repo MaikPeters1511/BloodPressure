@@ -32,6 +32,14 @@
         </div>
     }
 
+    @if (_notice is not null)
+    {
+        <div role="status" id="login-notice" class="alert theme-warning">
+            <p class="mb-2">@_notice</p>
+            <button id="resend-button" type="button" class="btn btn-outline theme-secondary" disabled="@_busy" @onclick="ResendAsync">@L["Login_Resend"]</button>
+        </div>
+    }
+
     <button id="login-button" type="submit" class="btn btn-solid theme-primary" disabled="@_busy">@L["Login_Submit"]</button>
     <button id="register-button" type="button" class="btn btn-outline theme-secondary" disabled="@_busy" @onclick="RegisterAsync">@L["Login_Register"]</button>
 </form>
@@ -41,10 +49,36 @@
     private string _password = "";
     private bool _busy;
     private IReadOnlyList<string> _errors = [];
+    private string? _notice;
+    private string _pendingEmail = "";
 
-    private Task SignInAsync() => RunAsync(() => Session.LoginAsync(_email, _password));
+    private Task SignInAsync() => RunAsync(async () =>
+    {
+        _notice = null;
+        await Session.LoginAsync(_email, _password);
+        Navigation.NavigateTo("measurements");
+    });
 
-    private Task RegisterAsync() => RunAsync(() => Session.RegisterAsync(_email, _password));
+    // Registrieren meldet nicht an: erst nach der Bestätigung der E-Mail-Adresse.
+    private Task RegisterAsync() => RunAsync(async () =>
+    {
+        _notice = null;
+        await Session.RegisterAsync(_email, _password);
+        ShowConfirmationNotice();
+    });
+
+    // Bewusst immer dieselbe Antwort, egal ob die Adresse existiert.
+    private Task ResendAsync() => RunAsync(async () =>
+    {
+        await Session.ResendConfirmationAsync(_pendingEmail);
+        _notice = L["Login_Resent"].Value;
+    });
+
+    private void ShowConfirmationNotice()
+    {
+        _pendingEmail = _email.Trim();
+        _notice = L["Login_ConfirmSent", _pendingEmail].Value;
+    }
 
     private async Task RunAsync(Func<Task> action)
     {
@@ -53,11 +87,17 @@
         try
         {
             await action();
-            Navigation.NavigateTo("measurements");
         }
         catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
-            _errors = [L["Login_Invalid"].Value];
+            if (await ApiErrors.IsEmailNotConfirmedAsync(ex))
+            {
+                ShowConfirmationNotice();
+            }
+            else
+            {
+                _errors = [L["Login_Invalid"].Value];
+            }
         }
         catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
         {

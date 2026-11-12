@@ -33,6 +33,22 @@
                    TextColor="{AppThemeBinding Light=#B02A37, Dark=#EA868F}"
                    AutomationId="ErrorLabel" />
 
+            <VerticalStackLayout Spacing="8"
+                                 IsVisible="{Binding HasNotice}"
+                                 AutomationId="NoticePanel">
+                <Label Text="{Binding NoticeMessage}"
+                       AutomationId="NoticeLabel"
+                       SemanticProperties.Description="{Binding NoticeMessage}" />
+                <Button Text="{loc:Translate Login_Resend}"
+                        Command="{Binding ResendConfirmationCommand}"
+                        IsVisible="{Binding ConfirmationPending}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        AutomationId="ResendButton"
+                        MinimumHeightRequest="44"
+                        Style="{StaticResource OutlineButton}"
+                        SemanticProperties.Hint="{loc:Translate Login_ResendDescription}" />
+            </VerticalStackLayout>
+
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
             <Button Text="{loc:Translate Login_Submit}"
