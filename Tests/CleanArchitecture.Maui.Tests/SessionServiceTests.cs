@@ -25,6 +25,44 @@ public class SessionServiceTests
     }
 
     [Test]
+    public async Task Login_SendsLoginRequest_WithOptionalCodes()
+    {
+        var session = Create();
+
+        await session.LoginAsync("a@example.test", "pw");
+        await session.LoginAsync("a@example.test", "pw", twoFactorCode: "123456");
+        await session.LoginAsync("a@example.test", "pw", recoveryCode: "abcde-fghij");
+
+        await Assert.That(_auth.LoginRequests[0]).IsEqualTo(new CleanArchitecture.Contracts.LoginRequest("a@example.test", "pw"));
+        await Assert.That(_auth.LoginRequests[1].TwoFactorCode).IsEqualTo("123456");
+        await Assert.That(_auth.LoginRequests[2].TwoFactorRecoveryCode).IsEqualTo("abcde-fghij");
+        await Assert.That(_auth.LoginRequests[2].TwoFactorCode).IsNull();
+    }
+
+    [Test]
+    public async Task Login_RemembersTheEmailInMemoryOnly()
+    {
+        var session = Create();
+
+        await session.LoginAsync("a@example.test", "pw");
+
+        await Assert.That(session.Email).IsEqualTo("a@example.test");
+        await Assert.That(_store.Items.Values).DoesNotContain("a@example.test");
+        await Assert.That(_store.Items.Values).DoesNotContain("pw");
+    }
+
+    [Test]
+    public async Task ApiErrors_RecognizeTwoFactorAndLockout_ByExactDetail()
+    {
+        await Assert.That(await ApiErrors.IsTwoFactorRequiredAsync(ApiExceptions.RequiresTwoFactor())).IsTrue();
+        await Assert.That(await ApiErrors.IsTwoFactorRequiredAsync(ApiExceptions.LoginRejected("Failed"))).IsFalse();
+        await Assert.That(await ApiErrors.IsTwoFactorRequiredAsync(ApiExceptions.LoginRejected("requirestwofactor"))).IsFalse();
+        await Assert.That(await ApiErrors.IsTwoFactorRequiredAsync(ApiExceptions.Create(HttpStatusCode.Unauthorized))).IsFalse();
+        await Assert.That(await ApiErrors.IsLockedOutAsync(ApiExceptions.LoginRejected("LockedOut"))).IsTrue();
+        await Assert.That(await ApiErrors.IsLockedOutAsync(ApiExceptions.LoginRejected("Failed"))).IsFalse();
+    }
+
+    [Test]
     public async Task Login_Fails_StoresNothing()
     {
         _auth.OnLogin = _ => Task.FromException<CleanArchitecture.Contracts.TokenResponse>(ApiExceptions.Create(HttpStatusCode.Unauthorized));

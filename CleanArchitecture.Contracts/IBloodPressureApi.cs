@@ -5,6 +5,10 @@ namespace CleanArchitecture.Contracts;
 /// <summary>Erinnerungen des angemeldeten Nutzers.</summary>
 public interface IReminderApi
 {
+    /// <summary>Zwei-Faktor-Anmeldung (TOTP) abfragen und verwalten; siehe <see cref="TwoFactorRequest"/>.</summary>
+    [Post("/api/auth/manage/2fa")]
+    Task<TwoFactorResponse> ManageTwoFactorAsync([Body] TwoFactorRequest request, CancellationToken cancellationToken = default);
+
     [Get("/api/v1/reminders")]
     Task<ReminderSettingsDto> GetAsync(CancellationToken cancellationToken = default);
 

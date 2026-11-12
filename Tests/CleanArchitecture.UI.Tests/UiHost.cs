@@ -20,6 +20,7 @@ public sealed class UiHost : IDisposable
     public FakeNotificationApi Notifications { get; } = new();
     public FakeBrowser Browser { get; } = new();
     public FakeProfileApi Profile { get; } = new();
+    public FakeTwoFactorBackend TwoFactor => Reminders.TwoFactor;
     public FakeTheme Theme { get; } = new();
     public FakeLanguage Language { get; }
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 4, 12, 0, 0, TimeSpan.Zero));

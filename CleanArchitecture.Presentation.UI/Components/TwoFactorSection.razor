@@ -1,0 +1,295 @@
+@using System.Net
+@using CleanArchitecture.Contracts
+@using CleanArchitecture.Presentation.UI.Services
+@using Microsoft.Extensions.Localization
+@using Refit
+@inject IReminderApi Api
+@inject AuthSession Session
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+@inject ILogger<TwoFactorSection> Logger
+
+@* Schlüssel und Wiederherstellungscodes leben nur in diesem Zustand: nie loggen, nie ablegen, nach dem Schließen verwerfen. *@
+<section id="twofactor" class="mb-4" aria-labelledby="twofactor-title" aria-busy="@(_loading || _busy ? "true" : "false")">
+    <h2 id="twofactor-title" class="fs-5">@L["TwoFactor_Title"]</h2>
+    <p class="form-text">@L["TwoFactor_Hint"]</p>
+
+    @if (_loadError is not null)
+    {
+        <div id="twofactor-error" role="alert" class="alert theme-danger">@_loadError</div>
+    }
+
+    @if (!_loading && _loadError is null)
+    {
+        @if (_recoveryCodes is not null)
+        {
+            <div id="twofactor-recovery-region" class="mb-3">
+                <h3 class="fs-6" id="twofactor-recovery-title">@L["TwoFactor_RecoveryTitle"]</h3>
+                <p id="twofactor-recovery-hint" class="form-text">@L["TwoFactor_RecoveryHint"]</p>
+                <ul id="twofactor-recovery" aria-labelledby="twofactor-recovery-title" class="font-monospace">
+                    @foreach (var recoveryCode in _recoveryCodes)
+                    {
+                        <li @key="recoveryCode">@recoveryCode</li>
+                    }
+                </ul>
+                <p id="twofactor-relogin" class="form-text">@L["TwoFactor_Relogin"]</p>
+                <button id="twofactor-codes-done" type="button" class="btn btn-solid theme-primary" @onclick="AcknowledgeCodes">@L["TwoFactor_RecoveryDone"]</button>
+            </div>
+        }
+        else if (_setupKey is not null)
+        {
+            <form id="twofactor-form" @onsubmit="ConfirmSetupAsync" class="mb-3">
+                <p>@L["TwoFactor_SetupSteps"]</p>
+                <div id="twofactor-qr" class="twofactor-qr mb-3" aria-hidden="true">@((MarkupString)(_qrSvg ?? ""))</div>
+                <p class="mb-3">
+                    <span class="fw-semibold">@L["TwoFactor_Key"]:</span>
+                    <code id="twofactor-key" class="user-select-all">@TotpSetup.FormatKey(_setupKey)</code>
+                </p>
+                <div class="mb-3">
+                    <label for="twofactor-code" class="form-label">@L["TwoFactor_Code"]</label>
+                    <input id="twofactor-code" @ref="_codeInput" class="form-control" inputmode="numeric" autocomplete="one-time-code" maxlength="12"
+                           aria-invalid="@(_fieldError is null ? null : "true")" aria-describedby="@(_fieldError is null ? null : "twofactor-error")"
+                           @bind="_code" />
+                    @if (_fieldError is not null)
+                    {
+                        <div id="twofactor-error" role="alert" class="alert theme-danger mt-2">@_fieldError</div>
+                    }
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button id="twofactor-confirm" type="submit" class="btn btn-solid theme-primary" disabled="@_busy">@L["TwoFactor_Confirm"]</button>
+                    <button id="twofactor-cancel" type="button" class="btn btn-outline theme-secondary" disabled="@_busy" @onclick="CancelSetup">@L["Delete_Cancel"]</button>
+                </div>
+            </form>
+        }
+        else if (_action is not null)
+        {
+            <form id="twofactor-action-form" @onsubmit="RunActionAsync" class="mb-3">
+                <p id="twofactor-action-question">@(_action == TwoFactorAction.Disable ? L["TwoFactor_DisableConfirm"] : L["TwoFactor_ResetConfirm"])</p>
+                <div class="mb-3">
+                    <label for="twofactor-action-code" class="form-label">@L["TwoFactor_Code"]</label>
+                    <input id="twofactor-action-code" @ref="_codeInput" class="form-control" inputmode="numeric" autocomplete="one-time-code" maxlength="12"
+                           aria-describedby="@(_fieldError is null ? "twofactor-action-question" : "twofactor-action-error")"
+                           aria-invalid="@(_fieldError is null ? null : "true")"
+                           @bind="_code" />
+                    @if (_fieldError is not null)
+                    {
+                        <div id="twofactor-action-error" role="alert" class="alert theme-danger mt-2">@_fieldError</div>
+                    }
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button id="twofactor-action-confirm" type="submit" class="btn btn-solid @(_action == TwoFactorAction.Disable ? "theme-danger" : "theme-primary")" disabled="@_busy">@L["TwoFactor_Confirm"]</button>
+                    <button id="twofactor-action-cancel" type="button" class="btn btn-outline theme-secondary" disabled="@_busy" @onclick="CancelAction">@L["Delete_Cancel"]</button>
+                </div>
+            </form>
+        }
+        else if (_enabled)
+        {
+            <p id="twofactor-status">@L["TwoFactor_StatusOn", _codesLeft]</p>
+            <div class="d-flex flex-wrap gap-2">
+                <button id="twofactor-reset" type="button" class="btn btn-outline theme-secondary" @onclick="() => BeginAction(TwoFactorAction.Reset)">@L["TwoFactor_Reset"]</button>
+                <button id="twofactor-disable" type="button" class="btn btn-outline theme-danger" @onclick="() => BeginAction(TwoFactorAction.Disable)">@L["TwoFactor_Disable"]</button>
+            </div>
+        }
+        else
+        {
+            <p>@L["TwoFactor_Off"]</p>
+            <button id="twofactor-setup" type="button" class="btn btn-solid theme-primary" disabled="@_busy" @onclick="BeginSetupAsync">@L["TwoFactor_Setup"]</button>
+        }
+    }
+
+    <div aria-live="polite">
+        @if (_status is not null)
+        {
+            <p role="status" id="twofactor-status-message" class="mt-3 mb-0">@_status</p>
+        }
+    </div>
+</section>
+
+@code {
+    private enum TwoFactorAction { Reset, Disable }
+
+    private bool _loading = true, _busy, _enabled, _focusCode;
+    private int _codesLeft;
+    private string? _loadError, _fieldError, _status, _setupKey, _qrSvg, _code = "";
+    private string[]? _recoveryCodes;
+    private TwoFactorAction? _action;
+    private ElementReference _codeInput;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Apply(await Api.ManageTwoFactorAsync(new TwoFactorRequest()));
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await Session.SignOutToLoginAsync(Navigation);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Zwei-Faktor-Status konnte nicht geladen werden");
+            _loadError = L["Error_Generic"].Value;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusCode)
+        {
+            _focusCode = false;
+            await _codeInput.FocusAsync();
+        }
+    }
+
+    // Nur der Status wird übernommen; der Schlüssel bleibt außerhalb der Einrichtung nicht im Speicher.
+    private void Apply(TwoFactorResponse response)
+    {
+        _enabled = response.IsTwoFactorEnabled;
+        _codesLeft = response.RecoveryCodesLeft;
+    }
+
+    private async Task BeginSetupAsync()
+    {
+        _status = null;
+        await RunAsync(async () =>
+        {
+            var response = await Api.ManageTwoFactorAsync(new TwoFactorRequest());
+            Apply(response);
+            if (response.IsTwoFactorEnabled)
+            {
+                return;
+            }
+
+            _setupKey = response.SharedKey;
+            _qrSvg = TotpSetup.QrSvg(TotpSetup.BuildUri(TotpSetup.Issuer, Session.Email, response.SharedKey));
+            _code = "";
+            _fieldError = null;
+            _focusCode = true;
+        }, onValidation: null);
+    }
+
+    private async Task ConfirmSetupAsync()
+    {
+        var code = NormalizeCode(_code);
+        if (code is null)
+        {
+            Reject(L["TwoFactor_CodeFormat"].Value);
+            return;
+        }
+
+        await RunAsync(async () =>
+        {
+            var response = await Api.ManageTwoFactorAsync(new TwoFactorRequest(Enable: true, TwoFactorCode: code));
+            Apply(response);
+            ClearSecrets();
+            _recoveryCodes = response.RecoveryCodes ?? [];
+            _status = L["TwoFactor_On"].Value;
+        }, onValidation: () => Reject(L["TwoFactor_CodeInvalid"].Value));
+    }
+
+    private void BeginAction(TwoFactorAction action)
+    {
+        _status = null;
+        _action = action;
+        _code = "";
+        _fieldError = null;
+        _focusCode = true;
+    }
+
+    private async Task RunActionAsync()
+    {
+        var action = _action;
+        var code = NormalizeCode(_code);
+        if (action is null)
+        {
+            return;
+        }
+
+        if (code is null)
+        {
+            Reject(L["TwoFactor_CodeFormat"].Value);
+            return;
+        }
+
+        await RunAsync(async () =>
+        {
+            if (action == TwoFactorAction.Disable)
+            {
+                Apply(await Api.ManageTwoFactorAsync(new TwoFactorRequest(Enable: false, TwoFactorCode: code)));
+                ClearSecrets();
+                _status = $"{L["TwoFactor_Off"]} {L["TwoFactor_Relogin"]}";
+            }
+            else
+            {
+                var response = await Api.ManageTwoFactorAsync(new TwoFactorRequest(ResetRecoveryCodes: true, TwoFactorCode: code));
+                Apply(response);
+                ClearSecrets();
+                _recoveryCodes = response.RecoveryCodes ?? [];
+            }
+        }, onValidation: () => Reject(L["TwoFactor_CodeInvalid"].Value));
+    }
+
+    private void CancelSetup() => ClearSecrets();
+
+    private void CancelAction() => ClearSecrets();
+
+    private void AcknowledgeCodes() => ClearSecrets();
+
+    // Verwirft Schlüssel, QR-Code, eingegebenen Code und Wiederherstellungscodes aus dem Speicher.
+    private void ClearSecrets()
+    {
+        _setupKey = null;
+        _qrSvg = null;
+        _recoveryCodes = null;
+        _action = null;
+        _code = "";
+        _fieldError = null;
+    }
+
+    private void Reject(string message)
+    {
+        _fieldError = message;
+        _focusCode = true;
+    }
+
+    // Sechs Ziffern; Leerzeichen (z. B. "123 456") werden entfernt.
+    private static string? NormalizeCode(string? input)
+    {
+        var digits = new string((input ?? "").Where(c => !char.IsWhiteSpace(c)).ToArray());
+        return digits.Length == 6 && digits.All(char.IsAsciiDigit) ? digits : null;
+    }
+
+    private async Task RunAsync(Func<Task> action, System.Action? onValidation)
+    {
+        _busy = true;
+        _fieldError = null;
+        try
+        {
+            await action();
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            ClearSecrets();
+            await Session.SignOutToLoginAsync(Navigation);
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest && onValidation is not null)
+        {
+            onValidation();
+        }
+        catch (Exception ex)
+        {
+            // Nur die Ausnahme ins Log (ohne Anfrage/Antwort), dem Nutzer eine saubere Meldung.
+            Logger.LogError(ex, "Zwei-Faktor-Anfrage fehlgeschlagen");
+            ClearSecrets();
+            _loadError = L["Error_Generic"].Value;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

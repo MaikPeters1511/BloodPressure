@@ -27,6 +27,51 @@ public class AuthSessionTests
     }
 
     [Test]
+    public async Task Login_SendsLoginRequest_WithoutCodes_ByDefault()
+    {
+        await Session().LoginAsync("a@example.test", "pw");
+
+        await Assert.That(_api.LoginRequests.Single()).IsEqualTo(new LoginRequest("a@example.test", "pw"));
+    }
+
+    [Test]
+    public async Task Login_SendsTheAuthenticatorCode_OrTheRecoveryCode()
+    {
+        var session = Session();
+
+        await session.LoginAsync("a@example.test", "pw", twoFactorCode: "123456");
+        await session.LoginAsync("a@example.test", "pw", recoveryCode: "abcde-fghij");
+
+        await Assert.That(_api.LoginRequests[0].TwoFactorCode).IsEqualTo("123456");
+        await Assert.That(_api.LoginRequests[0].TwoFactorRecoveryCode).IsNull();
+        await Assert.That(_api.LoginRequests[1].TwoFactorRecoveryCode).IsEqualTo("abcde-fghij");
+        await Assert.That(_api.LoginRequests[1].TwoFactorCode).IsNull();
+    }
+
+    [Test]
+    public async Task Login_RemembersTheEmailInMemoryOnly()
+    {
+        var session = Session();
+
+        await session.LoginAsync("a@example.test", "pw");
+
+        await Assert.That(session.Email).IsEqualTo("a@example.test");
+        await Assert.That(_storage.Items.Values).DoesNotContain("a@example.test");
+        await Assert.That(_storage.Items.Values).DoesNotContain("pw");
+    }
+
+    [Test]
+    public async Task IsTwoFactorRequired_OnlyForTheExactDetail()
+    {
+        await Assert.That(await ApiErrors.IsTwoFactorRequiredAsync(ApiExceptions.RequiresTwoFactor())).IsTrue();
+        await Assert.That(await ApiErrors.IsTwoFactorRequiredAsync(ApiExceptions.LoginRejected("Failed"))).IsFalse();
+        await Assert.That(await ApiErrors.IsTwoFactorRequiredAsync(ApiExceptions.LoginRejected("requirestwofactor"))).IsFalse();
+        await Assert.That(await ApiErrors.IsTwoFactorRequiredAsync(ApiExceptions.Create(HttpStatusCode.Unauthorized))).IsFalse();
+        await Assert.That(await ApiErrors.IsLockedOutAsync(ApiExceptions.LoginRejected("LockedOut"))).IsTrue();
+        await Assert.That(await ApiErrors.IsLockedOutAsync(ApiExceptions.LoginRejected("Failed"))).IsFalse();
+    }
+
+    [Test]
     public async Task Login_Failure_LeavesUserSignedOut_AndRethrows()
     {
         _api.OnLogin = _ => throw ApiExceptions.Create(HttpStatusCode.Unauthorized);

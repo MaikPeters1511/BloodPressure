@@ -50,6 +50,7 @@ public static class MauiProgram
         services.AddSingleton<INavigator, ShellNavigator>();
         services.AddSingleton<IDialogService, MauiDialogService>();
         services.AddSingleton<IShareService, MauiShareService>();
+        services.AddSingleton<ILauncherService, MauiLauncherService>();
         services.AddSingleton<ISettingsStore, MauiSettingsStore>();
         services.AddSingleton<IThemeApplier, MauiThemeApplier>();
         services.AddSingleton<ThemeSettings>();
@@ -69,6 +70,7 @@ public static class MauiProgram
         services.AddTransient<RemindersViewModel>();
         services.AddTransient<NotificationsViewModel>();
         services.AddTransient<ProfileViewModel>();
+        services.AddTransient<TwoFactorViewModel>();
         services.AddTransient<LoginPage>();
         services.AddTransient<MeasurementsPage>();
         services.AddTransient<StatisticsPage>();

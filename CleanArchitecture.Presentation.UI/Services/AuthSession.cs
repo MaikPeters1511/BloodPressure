@@ -42,8 +42,18 @@ public sealed class AuthSession(ITokenStorage storage, IAuthApi authApi, TimePro
         Changed?.Invoke();
     }
 
-    public async Task LoginAsync(string email, string password, CancellationToken cancellationToken = default)
-        => await StoreAsync(await authApi.LoginAsync(new CredentialsRequest(email, password), cancellationToken));
+    /// <summary>E-Mail-Adresse der aktuellen Anmeldung; nur im Speicher (für die Beschriftung im Authenticator), nach einem Neuladen <c>null</c>.</summary>
+    public string? Email { get; private set; }
+
+    /// <summary>
+    /// Meldet an. Bei eingeschalteter Zwei-Faktor-Anmeldung wirft die API zunächst 401 "RequiresTwoFactor"; dann erneut mit
+    /// <paramref name="twoFactorCode"/> (Authenticator) oder <paramref name="recoveryCode"/> (einmalig) aufrufen.
+    /// </summary>
+    public async Task LoginAsync(string email, string password, string? twoFactorCode = null, string? recoveryCode = null, CancellationToken cancellationToken = default)
+    {
+        await StoreAsync(await authApi.LoginAsync(new LoginRequest(email, password, twoFactorCode, recoveryCode), cancellationToken));
+        Email = email;
+    }
 
     /// <summary>Registriert den Nutzer. Angemeldet wird nicht: erst nach der Bestätigung der E-Mail-Adresse.</summary>
     public Task RegisterAsync(string email, string password, CancellationToken cancellationToken = default)
@@ -147,6 +157,7 @@ public sealed class AuthSession(ITokenStorage storage, IAuthApi authApi, TimePro
         _access = null;
         _refresh = null;
         _expires = DateTimeOffset.MinValue;
+        Email = null;
         await storage.RemoveAsync(AccessKey);
         await storage.RemoveAsync(RefreshKey);
         await storage.RemoveAsync(ExpiresKey);

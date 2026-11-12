@@ -78,6 +78,92 @@
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
             <Label Text="{Binding StatusMessage}"
                    IsVisible="{Binding StatusMessage, Converter={StaticResource IsNotNullConverter}}" />
+
+            <!-- Zwei-Faktor-Anmeldung: eigener Zustand (TwoFactorViewModel), BindingContext wird in ProfilePage.xaml.cs gesetzt. -->
+            <VerticalStackLayout x:Name="TwoFactorPanel" x:DataType="vm:TwoFactorViewModel" Spacing="12" AutomationId="TwoFactorSection">
+                <Label Text="{Binding Title}" Style="{StaticResource SubHeadline}"
+                       SemanticProperties.HeadingLevel="Level2" />
+                <Label Text="{Binding Hint}" FontSize="13" />
+
+                <Label Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}"
+                       TextColor="{AppThemeBinding Light=#B02A37, Dark=#EA868F}" AutomationId="TwoFactorError" />
+
+                <!-- Ausgeschaltet -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowOff}">
+                    <Label Text="{Binding OffText}" />
+                    <Button Text="{Binding SetupText}" Command="{Binding StartSetupCommand}"
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                            MinimumHeightRequest="44" AutomationId="TwoFactorSetupButton" />
+                </VerticalStackLayout>
+
+                <!-- Einrichten: Schlüssel, Authenticator öffnen, Code bestätigen -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowSetup}">
+                    <Label Text="{Binding SetupSteps}" />
+                    <Label Text="{Binding KeyLabel}" FontAttributes="Bold" />
+                    <Label Text="{Binding SetupKey}" FontFamily="Courier" FontSize="18"
+                           AutomationId="TwoFactorKey" SemanticProperties.Description="{Binding SetupKey}" />
+                    <Button Text="{Binding OpenAppText}" Command="{Binding OpenAuthenticatorCommand}"
+                            MinimumHeightRequest="44" Style="{StaticResource OutlineButton}" AutomationId="TwoFactorOpenAppButton" />
+                </VerticalStackLayout>
+
+                <!-- Code-Feld für Einrichten, Ausschalten und Neuerzeugen -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowAction}">
+                    <Label Text="{Binding ActionQuestion}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowCodeField}">
+                    <Label Text="{Binding CodeLabel}" />
+                    <Entry x:Name="TwoFactorCodeEntry" Text="{Binding CodeText}" Keyboard="Numeric" MaxLength="12"
+                           MinimumHeightRequest="44" AutomationId="TwoFactorCodeEntry"
+                           SemanticProperties.Description="{Binding CodeLabel}" />
+                    <Label Text="{Binding FieldError}" IsVisible="{Binding HasFieldError}"
+                           TextColor="{AppThemeBinding Light=#B02A37, Dark=#EA868F}" AutomationId="TwoFactorFieldError" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Button Text="{Binding ConfirmText}" Command="{Binding ConfirmSetupCommand}"
+                                IsVisible="{Binding ShowSetup}"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                                MinimumHeightRequest="44" AutomationId="TwoFactorConfirmButton" />
+                        <Button Text="{Binding CancelText}" Command="{Binding CancelSetupCommand}"
+                                IsVisible="{Binding ShowSetup}"
+                                MinimumHeightRequest="44" Style="{StaticResource OutlineButton}" AutomationId="TwoFactorCancelButton" />
+                        <Button Text="{Binding ConfirmText}" Command="{Binding ConfirmActionCommand}"
+                                IsVisible="{Binding ShowAction}"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                                MinimumHeightRequest="44" AutomationId="TwoFactorActionConfirmButton" />
+                        <Button Text="{Binding CancelText}" Command="{Binding CancelActionCommand}"
+                                IsVisible="{Binding ShowAction}"
+                                MinimumHeightRequest="44" Style="{StaticResource OutlineButton}" AutomationId="TwoFactorActionCancelButton" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Eingeschaltet -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowOn}">
+                    <Label Text="{Binding StatusText}" AutomationId="TwoFactorStatus" />
+                    <Button Text="{Binding ResetText}" Command="{Binding BeginResetCommand}"
+                            MinimumHeightRequest="44" Style="{StaticResource OutlineButton}" AutomationId="TwoFactorResetButton" />
+                    <Button Text="{Binding DisableText}" Command="{Binding BeginDisableCommand}"
+                            MinimumHeightRequest="44" Style="{StaticResource OutlineButton}" AutomationId="TwoFactorDisableButton" />
+                </VerticalStackLayout>
+
+                <!-- Wiederherstellungscodes: einmalig -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowRecovery}">
+                    <Label Text="{Binding RecoveryTitle}" FontAttributes="Bold" SemanticProperties.HeadingLevel="Level3" />
+                    <Label Text="{Binding RecoveryHint}" AutomationId="TwoFactorRecoveryHint" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding RecoveryCodes}" AutomationId="TwoFactorRecoveryList">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Label Text="{Binding .}" FontFamily="Courier" FontSize="16" />
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                    <Label Text="{Binding ReloginHint}" FontSize="13" />
+                    <Button Text="{Binding RecoveryDoneText}" Command="{Binding AcknowledgeCodesCommand}"
+                            MinimumHeightRequest="44" AutomationId="TwoFactorCodesDoneButton" />
+                </VerticalStackLayout>
+
+                <Label Text="{Binding StatusMessage}" IsVisible="{Binding StatusMessage, Converter={StaticResource IsNotNullConverter}}"
+                       AutomationId="TwoFactorStatusMessage" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+            </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

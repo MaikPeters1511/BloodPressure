@@ -2,6 +2,7 @@
 @using System.Globalization
 @using System.Net
 @using CleanArchitecture.Contracts
+@using CleanArchitecture.Presentation.UI.Components
 @using CleanArchitecture.Presentation.UI.Services
 @using Microsoft.Extensions.Localization
 @using Refit
@@ -98,6 +99,10 @@
         }
     </div>
 </form>
+
+<hr />
+
+<TwoFactorSection />
 
 @if (_status is not null)
 {

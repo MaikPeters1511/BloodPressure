@@ -2,7 +2,28 @@ using Refit;
 
 namespace CleanArchitecture.Contracts;
 
+/// <summary>Zugangsdaten für die Registrierung.</summary>
 public sealed record CredentialsRequest(string Email, string Password);
+
+/// <summary>
+/// Anmeldung. Ist die Zwei-Faktor-Anmeldung eingeschaltet, antwortet die API ohne Code mit 401 und <c>detail</c> "RequiresTwoFactor";
+/// dann genau einen der beiden Codes mitsenden (<see cref="TwoFactorCode"/> aus der Authenticator-App oder einen einmaligen
+/// <see cref="TwoFactorRecoveryCode"/>).
+/// </summary>
+public sealed record LoginRequest(string Email, string Password, string? TwoFactorCode = null, string? TwoFactorRecoveryCode = null);
+
+/// <summary>
+/// Anfrage für <c>POST /api/auth/manage/2fa</c> (angemeldet). Leere Anfrage = Status abfragen. <c>Enable</c> mit
+/// <c>TwoFactorCode</c> schaltet ein bzw. (mit <c>false</c>) aus; <c>ResetSharedKey</c> erzeugt einen neuen Schlüssel,
+/// <c>ResetRecoveryCodes</c> neue Wiederherstellungscodes.
+/// </summary>
+public sealed record TwoFactorRequest(bool? Enable = null, string? TwoFactorCode = null, bool ResetSharedKey = false, bool ResetRecoveryCodes = false, bool ForgetMachine = false);
+
+/// <summary>
+/// Antwort von <c>manage/2fa</c>. <c>SharedKey</c> ist der Schlüssel für die Authenticator-App (Base32). <c>RecoveryCodes</c> ist nur
+/// beim Einschalten und beim Neuerzeugen gefüllt und wird nur dann angezeigt.
+/// </summary>
+public sealed record TwoFactorResponse(string SharedKey, int RecoveryCodesLeft, string[]? RecoveryCodes, bool IsTwoFactorEnabled, bool IsMachineRemembered);
 
 public sealed record RefreshRequest(string RefreshToken);
 
@@ -22,7 +43,7 @@ public interface IAuthApi
     Task RegisterAsync([Body] CredentialsRequest request, CancellationToken cancellationToken = default);
 
     [Post("/api/auth/login")]
-    Task<TokenResponse> LoginAsync([Body] CredentialsRequest request, CancellationToken cancellationToken = default);
+    Task<TokenResponse> LoginAsync([Body] LoginRequest request, CancellationToken cancellationToken = default);
 
     [Post("/api/auth/refresh")]
     Task<TokenResponse> RefreshAsync([Body] RefreshRequest request, CancellationToken cancellationToken = default);
