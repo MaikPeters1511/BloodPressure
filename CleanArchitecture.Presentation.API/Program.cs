@@ -218,6 +218,17 @@ app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>()
 
         return result;
     });
+// Abmelden: rotiert den SecurityStamp. Dadurch werden alle Refresh-Tokens des Nutzers ungültig
+// (die Identity-API prüft ihn beim Erneuern); ein bereits ausgestelltes Access-Token läuft erst nach seiner Lebensdauer ab.
+app.MapPost("/api/auth/logout", async (ClaimsPrincipal principal, UserManager<IdentityUser> users) =>
+{
+    if (await users.GetUserAsync(principal) is { } user)
+    {
+        await users.UpdateSecurityStampAsync(user);
+    }
+
+    return Results.NoContent();
+}).RequireAuthorization();
 app.MapControllers();
 
 app.Run();

@@ -50,6 +50,14 @@ public sealed class FakeAuthApi : IAuthApi
         return OnRefresh?.Invoke(request) ?? Task.FromResult(Tokens("access-2", "refresh-2"));
     }
 
+    public Func<string, Task>? OnLogout { get; set; }
+
+    public Task LogoutAsync(string authorization, CancellationToken cancellationToken = default)
+    {
+        Calls.Add("logout");
+        return OnLogout?.Invoke(authorization) ?? Task.CompletedTask;
+    }
+
     public static TokenResponse Tokens(string access, string refresh, int expiresIn = 3600) => new("Bearer", access, expiresIn, refresh);
 }
 

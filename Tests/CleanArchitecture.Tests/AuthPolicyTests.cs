@@ -66,4 +66,35 @@ public class AuthPolicyTests(PostgresFixture postgres)
         await Assert.That(locked.StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
         await Assert.That(await locked.Content.ReadAsStringAsync()).Contains("LockedOut");
     }
+
+    [Test]
+    public async Task Logout_InvalidatesTheRefreshToken()
+    {
+        await using var factory = await StartAsync();
+        var http = factory.CreateClient();
+        (await http.PostAsJsonAsync("/api/auth/register", new { email = "bye@example.test", password = Password })).EnsureSuccessStatusCode();
+        var login = await http.PostAsJsonAsync("/api/auth/login", new { email = "bye@example.test", password = Password });
+        var tokens = JsonDocument.Parse(await login.Content.ReadAsStringAsync()).RootElement;
+        var refreshToken = tokens.GetProperty("refreshToken").GetString();
+        var beforeLogout = await http.PostAsJsonAsync("/api/auth/refresh", new { refreshToken });
+        await Assert.That(beforeLogout.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/auth/logout");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", tokens.GetProperty("accessToken").GetString());
+        var logout = await http.SendAsync(request);
+        var afterLogout = await http.PostAsJsonAsync("/api/auth/refresh", new { refreshToken });
+
+        await Assert.That(logout.StatusCode).IsEqualTo(HttpStatusCode.NoContent);
+        await Assert.That(afterLogout.StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
+    }
+
+    [Test]
+    public async Task Logout_WithoutToken_Returns401()
+    {
+        await using var factory = await StartAsync();
+
+        var response = await factory.CreateClient().PostAsync("/api/auth/logout", content: null);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
+    }
 }

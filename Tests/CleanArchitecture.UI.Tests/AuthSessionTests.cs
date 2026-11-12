@@ -115,4 +115,37 @@ public class AuthSessionTests
         await Assert.That(_storage.Items).IsEmpty();
         await Assert.That(changed).IsEqualTo(1);
     }
+
+    [Test]
+    public async Task Logout_TellsTheApiToRevokeTokens()
+    {
+        var session = Session();
+        await session.LoginAsync("a@example.test", "pw");
+        string? header = null;
+        _api.OnLogout = authorization =>
+        {
+            header = authorization;
+            return Task.CompletedTask;
+        };
+
+        await session.LogoutAsync();
+
+        await Assert.That(header).IsEqualTo("Bearer access-1");
+        await Assert.That(session.LastLogoutRevokedOnServer).IsTrue();
+        await Assert.That(session.IsAuthenticated).IsFalse();
+    }
+
+    [Test]
+    public async Task Logout_WhenApiUnreachable_StillSignsOutLocally()
+    {
+        var session = Session();
+        await session.LoginAsync("a@example.test", "pw");
+        _api.OnLogout = _ => Task.FromException(new HttpRequestException("offline"));
+
+        await session.LogoutAsync();
+
+        await Assert.That(session.LastLogoutRevokedOnServer).IsFalse();
+        await Assert.That(session.IsAuthenticated).IsFalse();
+        await Assert.That(_storage.Items).IsEmpty();
+    }
 }

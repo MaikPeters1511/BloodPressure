@@ -226,7 +226,7 @@ Schweregrad: Mittel > Gering > Info. Kein Befund "Hoch" oder "Kritisch".
 
 | Nr. | Status | Umsetzung |
 |---|---|---|
-| R-01 | Behoben (teilweise) | Passwort-Mindestlänge 12 (`Auth:PasswordMinLength`), Access-Token 30 Minuten (`Auth:AccessTokenMinutes`), Refresh-Token 7 Tage (`Auth:RefreshTokenDays`) in `Program.cs`; Tests `AuthPolicyTests`. Serverseitiger Widerruf beim Logout bleibt offen. |
+| R-01 | Behoben | Passwort-Mindestlänge 12 (`Auth:PasswordMinLength`), Access-Token 30 Minuten (`Auth:AccessTokenMinutes`), Refresh-Token 7 Tage (`Auth:RefreshTokenDays`) in `Program.cs`; Tests `AuthPolicyTests`. Logout: `POST /api/auth/logout` (angemeldet) rotiert den SecurityStamp, dadurch sind alle Refresh-Tokens des Nutzers ungültig (Test `Logout_InvalidatesTheRefreshToken`); Blazor und MAUI rufen ihn beim Abmelden auf und melden ohne Netz lokal trotzdem ab. Ein bereits ausgestelltes Access-Token gilt bis zum Ablauf (30 Minuten). |
 | R-02 | Behoben | Eigenes Limit für `/api/auth/*` (`RateLimiting:AuthPermitLimitPerMinute`, Standard 10 je IP und Minute); `ForwardedHeaders` nur mit `ForwardedHeaders:Enabled` und `ForwardedHeaders:KnownProxies`; Test `AuthEndpoints_HaveStricterRateLimit`. |
 | R-03 | Behoben | Test `OnlyAllowedEndpoints_AreAnonymous` gleicht alle Endpunkte mit der Freigabeliste ab (die vier Identity-Zusatzendpunkte sind dort ausdrücklich aufgeführt, nicht entfernt); Lockout-Test `Login_AfterFiveFailedAttempts_LocksAccountEvenWithCorrectPassword`. |
 | R-04 | Teilweise behoben | Inline-Skripte aus `index.html` nach `wwwroot/js/` ausgelagert, strenge CSP lokal geprüft und in `docs/security/ui-csp.md` als Header für den Betreiber beschrieben. Die Tokens bleiben im `sessionStorage`; BFF mit HttpOnly-Cookie braucht ein ADR. |

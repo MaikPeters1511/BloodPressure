@@ -52,7 +52,30 @@ public sealed class AuthSession(ITokenStorage storage, IAuthApi authApi, TimePro
         await LoginAsync(email, password, cancellationToken);
     }
 
-    public async Task LogoutAsync() => await ClearAsync();
+    /// <summary>
+    /// <c>true</c>, wenn die API den Widerruf bestätigt hat. Ohne Netz oder bei einem Fehler wird nur lokal abgemeldet
+    /// (die Refresh-Token laufen dann erst nach ihrer Lebensdauer ab).
+    /// </summary>
+    public bool LastLogoutRevokedOnServer { get; private set; }
+
+    public async Task LogoutAsync()
+    {
+        LastLogoutRevokedOnServer = false;
+        try
+        {
+            if (await GetAccessTokenAsync(CancellationToken.None) is { } token)
+            {
+                await authApi.LogoutAsync($"Bearer {token}");
+                LastLogoutRevokedOnServer = true;
+            }
+        }
+        catch (Exception ex) when (ex is ApiException or HttpRequestException)
+        {
+            LastLogoutRevokedOnServer = false; // Abmelden darf nicht am Netz scheitern: lokal wird trotzdem gelöscht
+        }
+
+        await ClearAsync();
+    }
 
     public async Task<string?> GetAccessTokenAsync(CancellationToken cancellationToken)
     {

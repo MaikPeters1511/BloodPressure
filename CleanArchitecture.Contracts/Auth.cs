@@ -23,4 +23,8 @@ public interface IAuthApi
 
     [Post("/api/auth/refresh")]
     Task<TokenResponse> RefreshAsync([Body] RefreshRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>Macht alle Refresh-Tokens des Nutzers ungültig. Verlangt den Access-Token im Authorization-Header ("Bearer ...").</summary>
+    [Post("/api/auth/logout")]
+    Task LogoutAsync([Header("Authorization")] string authorization, CancellationToken cancellationToken = default);
 }
