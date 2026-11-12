@@ -229,7 +229,7 @@ Schweregrad: Mittel > Gering > Info. Kein Befund "Hoch" oder "Kritisch".
 | R-01 | Behoben (teilweise) | Passwort-Mindestlänge 12 (`Auth:PasswordMinLength`), Access-Token 30 Minuten (`Auth:AccessTokenMinutes`), Refresh-Token 7 Tage (`Auth:RefreshTokenDays`) in `Program.cs`; Tests `AuthPolicyTests`. Serverseitiger Widerruf beim Logout bleibt offen. |
 | R-02 | Behoben | Eigenes Limit für `/api/auth/*` (`RateLimiting:AuthPermitLimitPerMinute`, Standard 10 je IP und Minute); `ForwardedHeaders` nur mit `ForwardedHeaders:Enabled` und `ForwardedHeaders:KnownProxies`; Test `AuthEndpoints_HaveStricterRateLimit`. |
 | R-03 | Behoben | Test `OnlyAllowedEndpoints_AreAnonymous` gleicht alle Endpunkte mit der Freigabeliste ab (die vier Identity-Zusatzendpunkte sind dort ausdrücklich aufgeführt, nicht entfernt); Lockout-Test `Login_AfterFiveFailedAttempts_LocksAccountEvenWithCorrectPassword`. |
-| R-04 | Offen | Braucht CSP für das UI-Hosting und ggf. ein ADR (BFF mit HttpOnly-Cookie). |
+| R-04 | Teilweise behoben | Inline-Skripte aus `index.html` nach `wwwroot/js/` ausgelagert, strenge CSP lokal geprüft und in `docs/security/ui-csp.md` als Header für den Betreiber beschrieben. Die Tokens bleiben im `sessionStorage`; BFF mit HttpOnly-Cookie braucht ein ADR. |
 | R-05 | Behoben für die API | `SecurityHeadersMiddleware` (`nosniff`, `Referrer-Policy`, CSP `default-src 'none'; frame-ancestors 'none'` außerhalb Development) und `UseHsts()`; Test `Responses_CarrySecurityHeaders`. Das UI-Hosting ist nicht abgedeckt. |
 | R-06, R-07, R-08 | Offen | Entwurfsentscheidungen (Altdaten-Übernahme, E-Mail-Bestätigung/MFA, `AuthenticationStateProvider`). |
 | R-09 | Behoben | `android:allowBackup="false"`. Nicht auf einem Gerät geprüft. |
