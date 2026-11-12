@@ -29,7 +29,7 @@ public static class ProblemExamplesTransformer
             {
                 ["title"] = "One or more validation errors occurred.",
                 ["status"] = 400,
-                ["errors"] = new JsonObject { ["systolisch"] = new JsonArray("Systolisch muss zwischen 50 und 300 liegen.") }
+                ["errors"] = new JsonObject { ["systolisch"] = new JsonArray("Systolisch muss zwischen 0 und 500 liegen.") }
             });
         }
 
