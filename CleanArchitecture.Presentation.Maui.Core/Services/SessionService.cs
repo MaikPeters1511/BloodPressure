@@ -43,12 +43,17 @@ public sealed class SessionService(ISecureStore store, IAuthApi authApi, TimePro
     public async Task LoginAsync(string email, string password, CancellationToken cancellationToken = default)
         => await StoreAsync(await authApi.LoginAsync(new CredentialsRequest(email, password), cancellationToken));
 
-    /// <summary>Registriert den Nutzer und meldet ihn danach direkt an.</summary>
-    public async Task RegisterAsync(string email, string password, CancellationToken cancellationToken = default)
-    {
-        await authApi.RegisterAsync(new CredentialsRequest(email, password), cancellationToken);
-        await LoginAsync(email, password, cancellationToken);
-    }
+    /// <summary>Registriert den Nutzer. Angemeldet wird nicht: erst nach der Bestätigung der E-Mail-Adresse.</summary>
+    public Task RegisterAsync(string email, string password, CancellationToken cancellationToken = default)
+        => authApi.RegisterAsync(new CredentialsRequest(email, password), cancellationToken);
+
+    /// <summary>Bestätigt die E-Mail-Adresse mit den Werten aus dem Link der Bestätigungsmail.</summary>
+    public Task ConfirmEmailAsync(string userId, string code, CancellationToken cancellationToken = default)
+        => authApi.ConfirmEmailAsync(userId, code, cancellationToken);
+
+    /// <summary>Sendet die Bestätigungsmail erneut (die API antwortet für bekannte und unbekannte Adressen gleich).</summary>
+    public Task ResendConfirmationAsync(string email, CancellationToken cancellationToken = default)
+        => authApi.ResendConfirmationEmailAsync(new ResendConfirmationRequest(email), cancellationToken);
 
     /// <summary>
     /// <c>true</c>, wenn die API den Widerruf bestätigt hat. Ohne Netz oder bei einem Fehler wird nur lokal abgemeldet

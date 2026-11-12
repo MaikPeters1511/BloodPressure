@@ -2,6 +2,7 @@ using CleanArchitecture.Application;
 using CleanArchitecture.Domain.IRepository;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +40,13 @@ public sealed class ApiFactory(string? connectionString = null, IReadOnlyDiction
 
         if (connectionString is not null)
         {
+            // Echtmodus: Die Anmeldung verlangt eine bestätigte E-Mail-Adresse. Damit die übrigen Tests nicht jedes Mal den
+            // Link anklicken müssen, bestätigt dieser Sender die Adresse sofort. Die Bestätigungstests ersetzen ihn.
+            builder.ConfigureTestServices(services =>
+            {
+                services.RemoveAll<IEmailSender<IdentityUser>>();
+                services.AddSingleton<IEmailSender<IdentityUser>, AutoConfirmEmailSender>();
+            });
             return;
         }
 
@@ -70,5 +78,24 @@ public sealed class ApiFactory(string? connectionString = null, IReadOnlyDiction
     private sealed class NoOpClaimer : ILegacyDataClaimer
     {
         public Task ClaimForFirstUserAsync(string userId, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+
+    /// <summary>Bestätigt die E-Mail-Adresse beim Versand sofort, als hätte der Nutzer den Link angeklickt.</summary>
+    private sealed class AutoConfirmEmailSender(IServiceProvider services) : IEmailSender<IdentityUser>
+    {
+        public async Task SendConfirmationLinkAsync(IdentityUser user, string email, string confirmationLink)
+        {
+            using var scope = services.CreateScope();
+            var users = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            if (await users.FindByIdAsync(user.Id) is { } stored)
+            {
+                stored.EmailConfirmed = true;
+                await users.UpdateAsync(stored);
+            }
+        }
+
+        public Task SendPasswordResetLinkAsync(IdentityUser user, string email, string resetLink) => Task.CompletedTask;
+
+        public Task SendPasswordResetCodeAsync(IdentityUser user, string email, string resetCode) => Task.CompletedTask;
     }
 }

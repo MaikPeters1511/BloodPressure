@@ -1,5 +1,6 @@
 using CleanArchitecture.Application;
 using CleanArchitecture.Application.Export;
+using CleanArchitecture.Infrastructure.Email;
 using CleanArchitecture.Infrastructure.Export;
 using CleanArchitecture.Domain.IRepository;
 using CleanArchitecture.Infrastructure.Persistence.PostgreSql;
@@ -29,6 +30,7 @@ public static class DependencyInjection
         builder.Services.AddScoped<ILegacyDataClaimer, LegacyDataClaimer>();
         builder.Services.AddSingleton<IExportWriter, CsvExportWriter>();
         builder.Services.AddSingleton<IExportWriter, PdfExportWriter>();
+        builder.AddEmailSending();
 
         return builder;
     }

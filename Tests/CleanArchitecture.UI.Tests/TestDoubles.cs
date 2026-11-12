@@ -58,6 +58,25 @@ public sealed class FakeAuthApi : IAuthApi
         return OnLogout?.Invoke(authorization) ?? Task.CompletedTask;
     }
 
+    public Func<string, string, Task>? OnConfirmEmail { get; set; }
+    public Func<ResendConfirmationRequest, Task>? OnResend { get; set; }
+    public List<(string UserId, string Code)> Confirmed { get; } = [];
+    public List<string> Resent { get; } = [];
+
+    public Task ConfirmEmailAsync(string userId, string code, CancellationToken cancellationToken = default)
+    {
+        Calls.Add("confirmEmail");
+        Confirmed.Add((userId, code));
+        return OnConfirmEmail?.Invoke(userId, code) ?? Task.CompletedTask;
+    }
+
+    public Task ResendConfirmationEmailAsync(ResendConfirmationRequest request, CancellationToken cancellationToken = default)
+    {
+        Calls.Add("resendConfirmationEmail");
+        Resent.Add(request.Email);
+        return OnResend?.Invoke(request) ?? Task.CompletedTask;
+    }
+
     public static TokenResponse Tokens(string access, string refresh, int expiresIn = 3600) => new("Bearer", access, expiresIn, refresh);
 }
 
@@ -167,6 +186,10 @@ public static class ApiExceptions
         };
         return ApiException.Create(request, HttpMethod.Get, response, new RefitSettings()).GetAwaiter().GetResult();
     }
+
+    /// <summary>401 wie die Login-API: <c>detail</c> ist "NotAllowed" (E-Mail unbestätigt) oder "Failed" (Zugangsdaten falsch).</summary>
+    public static ApiException LoginRejected(string detail)
+        => Create(HttpStatusCode.Unauthorized, System.Text.Json.JsonSerializer.Serialize(new { title = "Unauthorized", status = 401, detail }));
 
     public static ApiException Validation(string field, string message)
         => Create(HttpStatusCode.BadRequest, System.Text.Json.JsonSerializer.Serialize(new

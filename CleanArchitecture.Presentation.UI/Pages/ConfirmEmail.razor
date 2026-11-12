@@ -1,0 +1,76 @@
+@page "/confirm-email"
+@using CleanArchitecture.Presentation.UI.Services
+@using Microsoft.Extensions.Localization
+@using Refit
+@inject AuthSession Session
+@inject IStringLocalizer<SharedResource> L
+@inject ILogger<ConfirmEmail> Logger
+
+<PageTitle>@L["ConfirmEmail_Title"]</PageTitle>
+
+<h1>@L["ConfirmEmail_Title"]</h1>
+
+<div aria-busy="@(_state == State.Confirming ? "true" : "false")">
+    @switch (_state)
+    {
+        case State.Confirming:
+            <p role="status" class="fg-3">@L["ConfirmEmail_Loading"]</p>
+            break;
+        case State.Confirmed:
+            <div role="status" class="alert theme-success">
+                <p class="mb-2">@L["ConfirmEmail_Success"]</p>
+                <a id="login-link" class="btn btn-solid theme-primary" href="login">@L["ConfirmEmail_ToLogin"]</a>
+            </div>
+            break;
+        case State.Invalid:
+            <div role="alert" class="alert theme-danger">
+                <p class="mb-2">@L["ConfirmEmail_Invalid"]</p>
+                <a id="login-link" class="btn btn-solid theme-primary" href="login">@L["ConfirmEmail_ToLogin"]</a>
+            </div>
+            break;
+        default:
+            <div role="alert" class="alert theme-danger">
+                <p class="mb-2">@L["Error_Generic"]</p>
+                <a id="login-link" class="btn btn-solid theme-primary" href="login">@L["ConfirmEmail_ToLogin"]</a>
+            </div>
+            break;
+    }
+</div>
+
+@code {
+    private enum State { Confirming, Confirmed, Invalid, Failed }
+
+    private State _state = State.Confirming;
+
+    [SupplyParameterFromQuery(Name = "userId")]
+    public string? UserId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "code")]
+    public string? Code { get; set; }
+
+    // Der Code ist einmalig: genau ein Aufruf beim Öffnen der Seite, ohne Parameter gar keiner.
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrWhiteSpace(UserId) || string.IsNullOrWhiteSpace(Code))
+        {
+            _state = State.Invalid;
+            return;
+        }
+
+        try
+        {
+            await Session.ConfirmEmailAsync(UserId, Code);
+            _state = State.Confirmed;
+        }
+        catch (ApiException ex) when (ex.StatusCode is System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.BadRequest)
+        {
+            _state = State.Invalid;
+        }
+        catch (Exception ex)
+        {
+            // Technische Details nur ins Log, dem Nutzer nur eine saubere Meldung zeigen.
+            Logger.LogError(ex, "E-Mail-Bestätigung fehlgeschlagen");
+            _state = State.Failed;
+        }
+    }
+}

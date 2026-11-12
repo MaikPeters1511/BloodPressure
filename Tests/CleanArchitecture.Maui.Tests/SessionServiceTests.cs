@@ -90,14 +90,35 @@ public class SessionServiceTests
     }
 
     [Test]
-    public async Task Register_LogsInAfterwards()
+    public async Task Register_OnlyRegisters_AndDoesNotSignIn()
     {
         var session = Create();
 
         await session.RegisterAsync("a@example.test", "pw");
 
-        await Assert.That(_auth.Calls).IsEquivalentTo(new[] { "register", "login" });
-        await Assert.That(session.IsAuthenticated).IsTrue();
+        await Assert.That(_auth.Calls).IsEquivalentTo(new[] { "register" });
+        await Assert.That(session.IsAuthenticated).IsFalse();
+        await Assert.That(_store.Items).IsEmpty();
+    }
+
+    [Test]
+    public async Task ConfirmEmail_DelegatesToTheApi()
+    {
+        var session = Create();
+
+        await session.ConfirmEmailAsync("u1", "code");
+
+        await Assert.That(_auth.Confirmed).IsEquivalentTo(new[] { ("u1", "code") });
+    }
+
+    [Test]
+    public async Task ResendConfirmation_DelegatesToTheApi()
+    {
+        var session = Create();
+
+        await session.ResendConfirmationAsync("a@example.test");
+
+        await Assert.That(_auth.Resent).IsEquivalentTo(new[] { "a@example.test" });
     }
 
     [Test]

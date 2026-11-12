@@ -11,6 +11,10 @@
   <data name="Login_Register" xml:space="preserve"><value>Register</value></data>
   <data name="Login_Missing" xml:space="preserve"><value>Please enter email and password.</value></data>
   <data name="Login_Failed" xml:space="preserve"><value>Email or password is incorrect.</value></data>
+  <data name="Login_ConfirmSent" xml:space="preserve"><value>We sent an email to {0}. Confirm it before you sign in.</value></data>
+  <data name="Login_Resend" xml:space="preserve"><value>Resend confirmation email</value></data>
+  <data name="Login_Resent" xml:space="preserve"><value>If the address is known, we have sent the email again.</value></data>
+  <data name="Login_ResendDescription" xml:space="preserve"><value>Send the confirmation email to the entered address again</value></data>
   <data name="Error_Generic" xml:space="preserve"><value>Something went wrong. Please try again later.</value></data>
   <data name="M_Title" xml:space="preserve"><value>Measurements</value></data>
   <data name="M_Empty" xml:space="preserve"><value>There are no measurements yet.</value></data>

@@ -19,6 +19,14 @@
   <data name="Login_Submit" xml:space="preserve"><value>Anmelden</value></data>
   <data name="Login_Register" xml:space="preserve"><value>Registrieren</value></data>
   <data name="Login_Invalid" xml:space="preserve"><value>E-Mail oder Passwort ist falsch.</value></data>
+  <data name="Login_ConfirmSent" xml:space="preserve"><value>Wir haben dir eine E-Mail an {0} geschickt. Bestätige sie, bevor du dich anmeldest.</value></data>
+  <data name="Login_Resend" xml:space="preserve"><value>Bestätigungsmail erneut senden</value></data>
+  <data name="Login_Resent" xml:space="preserve"><value>Falls die Adresse bekannt ist, haben wir die Mail erneut gesendet.</value></data>
+  <data name="ConfirmEmail_Title" xml:space="preserve"><value>E-Mail-Bestätigung</value></data>
+  <data name="ConfirmEmail_Loading" xml:space="preserve"><value>E-Mail wird bestätigt …</value></data>
+  <data name="ConfirmEmail_Success" xml:space="preserve"><value>E-Mail bestätigt. Du kannst dich jetzt anmelden.</value></data>
+  <data name="ConfirmEmail_Invalid" xml:space="preserve"><value>Der Link ist ungültig oder abgelaufen. Melde dich an, um die Bestätigungsmail erneut zu senden.</value></data>
+  <data name="ConfirmEmail_ToLogin" xml:space="preserve"><value>Zur Anmeldung</value></data>
   <data name="M_Title" xml:space="preserve"><value>Messwerte</value></data>
   <data name="M_Caption" xml:space="preserve"><value>Meine Blutdruckmesswerte</value></data>
   <data name="Col_Date" xml:space="preserve"><value>Datum</value></data>

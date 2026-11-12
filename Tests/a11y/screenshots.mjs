@@ -4,13 +4,15 @@
 // (Passwort wird zur Laufzeit erzeugt und nie gespeichert). Die Werte sind frei erfunden und keine Gesundheitsdaten.
 //   node screenshots.mjs            (nutzt A11Y_CHROMIUM wie check.mjs, falls gesetzt)
 import { randomBytes } from 'node:crypto';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const API = process.env.API_URL ?? 'http://127.0.0.1:5000';
 const UI = process.env.UI_URL ?? 'http://localhost:5296';
+// Logdatei der API: ohne SMTP-Server schreibt sie den Bestätigungslink dorthin (siehe check.mjs).
+const API_LOG = process.env.API_LOG ?? '../../api.log';
 const OUT = resolve(dirname(fileURLToPath(import.meta.url)), '../../docs/screenshots');
 
 const email = `demo-${randomBytes(4).toString('hex')}@example.test`;
@@ -25,8 +27,24 @@ async function api(path, options = {}, token) {
   return response;
 }
 
+async function confirmEmail() {
+  for (let attempt = 0; attempt < 30; attempt++) {
+    let log = '';
+    try { log = await readFile(API_LOG, 'utf8'); } catch { /* Logdatei noch nicht da */ }
+    const match = log.match(new RegExp(`Bestätigungslink für ${email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}: (\\S+)`));
+    if (match) {
+      const response = await fetch(match[1].replaceAll('&amp;', '&'));
+      if (!response.ok) throw new Error(`Bestätigung fehlgeschlagen: ${response.status}`);
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  throw new Error(`Kein Bestätigungslink für ${email} in ${API_LOG} gefunden.`);
+}
+
 async function seed() {
   await api('/api/auth/register', { method: 'POST', body: JSON.stringify({ email, password: credential }) });
+  await confirmEmail();
   const { accessToken } = await (await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password: credential }) })).json();
   const day = 24 * 3600 * 1000;
   // 28 Tage, morgens und abends, leicht schwankend, mit gemischten Kategorien und einigen höheren Werten.
