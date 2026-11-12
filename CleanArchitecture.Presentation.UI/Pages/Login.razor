@@ -13,14 +13,36 @@
 <h1>@L["Login_Title"]</h1>
 
 <form id="login-form" @onsubmit="SignInAsync" aria-busy="@(_busy ? "true" : "false")">
-    <div class="mb-3">
-        <label for="email" class="form-label">@L["Login_Email"]</label>
-        <input id="email" type="email" class="form-control" autocomplete="username" required @bind="_email" />
-    </div>
-    <div class="mb-3">
-        <label for="password" class="form-label">@L["Login_Password"]</label>
-        <input id="password" type="password" class="form-control" autocomplete="current-password" required @bind="_password" />
-    </div>
+    @if (!_twoFactor)
+    {
+        <div class="mb-3">
+            <label for="email" class="form-label">@L["Login_Email"]</label>
+            <input id="email" type="email" class="form-control" autocomplete="username" required @bind="_email" />
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">@L["Login_Password"]</label>
+            <input id="password" type="password" class="form-control" autocomplete="current-password" required @bind="_password" />
+        </div>
+    }
+    else
+    {
+        <div class="mb-3">
+            @if (!_useRecovery)
+            {
+                <label for="two-factor-code" class="form-label">@L["Login_TwoFactorCode"]</label>
+                <input id="two-factor-code" @ref="_codeInput" class="form-control" inputmode="numeric" autocomplete="one-time-code"
+                       maxlength="12" aria-describedby="two-factor-hint" required @bind="_code" />
+                <p id="two-factor-hint" class="form-text">@L["Login_TwoFactorHint"]</p>
+            }
+            else
+            {
+                <label for="recovery-code" class="form-label">@L["Login_RecoveryCode"]</label>
+                <input id="recovery-code" @ref="_codeInput" class="form-control" autocomplete="off" autocapitalize="none" spellcheck="false"
+                       aria-describedby="two-factor-hint" required @bind="_code" />
+                <p id="two-factor-hint" class="form-text">@L["Login_RecoveryHint"]</p>
+            }
+        </div>
+    }
 
     @if (_errors.Count > 0)
     {
@@ -40,8 +62,18 @@
         </div>
     }
 
-    <button id="login-button" type="submit" class="btn btn-solid theme-primary" disabled="@_busy">@L["Login_Submit"]</button>
-    <button id="register-button" type="button" class="btn btn-outline theme-secondary" disabled="@_busy" @onclick="RegisterAsync">@L["Login_Register"]</button>
+    <div class="d-flex flex-wrap gap-2">
+        <button id="login-button" type="submit" class="btn btn-solid theme-primary" disabled="@_busy">@L["Login_Submit"]</button>
+        @if (!_twoFactor)
+        {
+            <button id="register-button" type="button" class="btn btn-outline theme-secondary" disabled="@_busy" @onclick="RegisterAsync">@L["Login_Register"]</button>
+        }
+        else
+        {
+            <button id="two-factor-toggle" type="button" class="btn btn-outline theme-secondary" disabled="@_busy" @onclick="ToggleRecovery">@(_useRecovery ? L["Login_UseAuthenticator"] : L["Login_UseRecovery"])</button>
+            <button id="two-factor-back" type="button" class="btn btn-outline theme-secondary" disabled="@_busy" @onclick="BackToCredentials">@L["Login_Back"]</button>
+        }
+    </div>
 </form>
 
 @code {
@@ -51,13 +83,67 @@
     private IReadOnlyList<string> _errors = [];
     private string? _notice;
     private string _pendingEmail = "";
+    private bool _twoFactor, _useRecovery, _focusCode;
+    private string _code = "";
+    private ElementReference _codeInput;
 
+    // Das Passwort bleibt nur im Speicher dieser Seite, solange der zweite Schritt offen ist; es wird nie abgelegt.
     private Task SignInAsync() => RunAsync(async () =>
     {
         _notice = null;
+        if (_twoFactor)
+        {
+            var code = _useRecovery ? _code.Trim() : new string(_code.Where(char.IsLetterOrDigit).ToArray());
+            if (code.Length == 0)
+            {
+                _errors = [L["Login_CodeMissing"].Value];
+                _focusCode = true;
+                return;
+            }
+
+            await Session.LoginAsync(_email, _password,
+                twoFactorCode: _useRecovery ? null : code, recoveryCode: _useRecovery ? code : null);
+            ResetTwoFactor();
+            _password = "";
+            Navigation.NavigateTo("measurements");
+            return;
+        }
+
         await Session.LoginAsync(_email, _password);
+        _password = "";
         Navigation.NavigateTo("measurements");
     });
+
+    private void ToggleRecovery()
+    {
+        _useRecovery = !_useRecovery;
+        _code = "";
+        _errors = [];
+        _focusCode = true;
+    }
+
+    private void BackToCredentials()
+    {
+        ResetTwoFactor();
+        _password = "";
+        _errors = [];
+    }
+
+    private void ResetTwoFactor()
+    {
+        _twoFactor = false;
+        _useRecovery = false;
+        _code = "";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusCode)
+        {
+            _focusCode = false;
+            await _codeInput.FocusAsync();
+        }
+    }
 
     // Registrieren meldet nicht an: erst nach der Bestätigung der E-Mail-Adresse.
     private Task RegisterAsync() => RunAsync(async () =>
@@ -93,6 +179,26 @@
             if (await ApiErrors.IsEmailNotConfirmedAsync(ex))
             {
                 ShowConfirmationNotice();
+            }
+            else if (await ApiErrors.IsTwoFactorRequiredAsync(ex))
+            {
+                _twoFactor = true;
+                _useRecovery = false;
+                _code = "";
+                _focusCode = true;
+            }
+            else if (await ApiErrors.IsLockedOutAsync(ex))
+            {
+                ResetTwoFactor();
+                _password = "";
+                _errors = [L["Login_LockedOut"].Value];
+            }
+            else if (_twoFactor)
+            {
+                // Zugangsdaten stimmten schon: hier ist der Code falsch, nicht das Passwort.
+                _code = "";
+                _focusCode = true;
+                _errors = [L["Login_CodeInvalid"].Value];
             }
             else
             {

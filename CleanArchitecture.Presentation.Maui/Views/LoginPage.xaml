@@ -12,21 +12,54 @@
                    Style="{StaticResource Headline}"
                    SemanticProperties.HeadingLevel="Level1" />
 
-            <Label Text="{loc:Translate Login_Email}" x:Name="EmailLabel" />
-            <Entry x:Name="EmailEntry"
-                   Text="{Binding Email}"
-                   Keyboard="Email"
-                   AutomationId="EmailEntry"
-                   MinimumHeightRequest="44"
-                   SemanticProperties.Description="{loc:Translate Login_Email}" />
+            <VerticalStackLayout Spacing="16" IsVisible="{Binding IsCredentialsStep}" AutomationId="CredentialsPanel">
+                <Label Text="{loc:Translate Login_Email}" x:Name="EmailLabel" />
+                <Entry x:Name="EmailEntry"
+                       Text="{Binding Email}"
+                       Keyboard="Email"
+                       AutomationId="EmailEntry"
+                       MinimumHeightRequest="44"
+                       SemanticProperties.Description="{loc:Translate Login_Email}" />
 
-            <Label Text="{loc:Translate Login_Password}" />
-            <Entry Text="{Binding Password}"
-                   IsPassword="True"
-                   AutomationId="PasswordEntry"
-                   MinimumHeightRequest="44"
-                   SemanticProperties.Description="{loc:Translate Login_Password}"
-                   ReturnCommand="{Binding LoginCommand}" />
+                <Label Text="{loc:Translate Login_Password}" />
+                <Entry Text="{Binding Password}"
+                       IsPassword="True"
+                       AutomationId="PasswordEntry"
+                       MinimumHeightRequest="44"
+                       SemanticProperties.Description="{loc:Translate Login_Password}"
+                       ReturnCommand="{Binding LoginCommand}" />
+            </VerticalStackLayout>
+
+            <!-- Zweiter Schritt: Code aus der Authenticator-App oder Wiederherstellungscode -->
+            <VerticalStackLayout Spacing="8" IsVisible="{Binding RequiresTwoFactor}" AutomationId="TwoFactorPanel">
+                <Label Text="{Binding CodeLabel}" />
+                <Entry x:Name="AuthenticatorCodeEntry"
+                       Text="{Binding TwoFactorCode}"
+                       Keyboard="Numeric"
+                       MaxLength="12"
+                       IsVisible="{Binding ShowAuthenticatorCode}"
+                       AutomationId="TwoFactorCodeEntry"
+                       MinimumHeightRequest="44"
+                       SemanticProperties.Description="{Binding CodeLabel}"
+                       SemanticProperties.Hint="{Binding CodeHint}"
+                       ReturnCommand="{Binding LoginCommand}" />
+                <Entry x:Name="RecoveryCodeEntry"
+                       Text="{Binding TwoFactorCode}"
+                       Keyboard="Plain"
+                       IsVisible="{Binding ShowRecoveryCode}"
+                       AutomationId="RecoveryCodeEntry"
+                       MinimumHeightRequest="44"
+                       SemanticProperties.Description="{Binding CodeLabel}"
+                       SemanticProperties.Hint="{Binding CodeHint}"
+                       ReturnCommand="{Binding LoginCommand}" />
+                <Label Text="{Binding CodeHint}" FontSize="13" />
+                <Button Text="{Binding ToggleText}"
+                        Command="{Binding ToggleRecoveryCodeCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        AutomationId="ToggleRecoveryButton"
+                        MinimumHeightRequest="44"
+                        Style="{StaticResource OutlineButton}" />
+            </VerticalStackLayout>
 
             <Label Text="{Binding ErrorMessage}"
                    IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"
@@ -58,8 +91,16 @@
                     MinimumHeightRequest="44" />
             <Button Text="{loc:Translate Login_Register}"
                     Command="{Binding RegisterCommand}"
+                    IsVisible="{Binding IsCredentialsStep}"
                     IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
                     AutomationId="RegisterButton"
+                    MinimumHeightRequest="44"
+                    Style="{StaticResource OutlineButton}" />
+            <Button Text="{loc:Translate Login_Back}"
+                    Command="{Binding BackCommand}"
+                    IsVisible="{Binding RequiresTwoFactor}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    AutomationId="BackButton"
                     MinimumHeightRequest="44"
                     Style="{StaticResource OutlineButton}" />
         </VerticalStackLayout>

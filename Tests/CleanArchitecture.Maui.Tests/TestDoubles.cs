@@ -18,10 +18,11 @@ public sealed class FakeSecureStore : ISecureStore
 
 public sealed class FakeAuthApi : IAuthApi
 {
-    public Func<CredentialsRequest, Task<TokenResponse>>? OnLogin { get; set; }
+    public Func<LoginRequest, Task<TokenResponse>>? OnLogin { get; set; }
     public Func<CredentialsRequest, Task>? OnRegister { get; set; }
     public Func<RefreshRequest, Task<TokenResponse>>? OnRefresh { get; set; }
     public List<string> Calls { get; } = [];
+    public List<LoginRequest> LoginRequests { get; } = [];
 
     public Task RegisterAsync(CredentialsRequest request, CancellationToken cancellationToken = default)
     {
@@ -29,9 +30,10 @@ public sealed class FakeAuthApi : IAuthApi
         return OnRegister?.Invoke(request) ?? Task.CompletedTask;
     }
 
-    public Task<TokenResponse> LoginAsync(CredentialsRequest request, CancellationToken cancellationToken = default)
+    public Task<TokenResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
         Calls.Add("login");
+        LoginRequests.Add(request);
         return OnLogin?.Invoke(request) ?? Task.FromResult(Tokens("access-1", "refresh-1"));
     }
 
@@ -73,6 +75,10 @@ public sealed class FakeAuthApi : IAuthApi
 
 public sealed class FakeBloodPressureApi : IBloodPressureApi
 {
+    public FakeTwoFactorBackend TwoFactor { get; } = new();
+
+    public Task<TwoFactorResponse> ManageTwoFactorAsync(TwoFactorRequest request, CancellationToken cancellationToken = default) => TwoFactor.HandleAsync(request);
+
     public List<BloodPressureDto> Items { get; } = [];
     public Exception? ListFailWith { get; set; }
     public Exception? CreateFailWith { get; set; }
@@ -203,6 +209,10 @@ public sealed class FakeShare : IShareService
 
 public sealed class FakeReminderApi : IReminderApi
 {
+    public FakeTwoFactorBackend TwoFactor { get; } = new();
+
+    public Task<TwoFactorResponse> ManageTwoFactorAsync(TwoFactorRequest request, CancellationToken cancellationToken = default) => TwoFactor.HandleAsync(request);
+
     public ReminderSettingsDto Stored { get; set; } = new("UTC", []);
     public Exception? GetFailWith { get; set; }
     public Exception? PutFailWith { get; set; }
@@ -321,6 +331,9 @@ public static class ApiExceptions
     public static ApiException LoginRejected(string detail)
         => Create(HttpStatusCode.Unauthorized, System.Text.Json.JsonSerializer.Serialize(new { title = "Unauthorized", status = 401, detail }));
 
+    /// <summary>401 wie die Login-API bei eingeschalteter 2FA ohne Code: <c>detail</c> "RequiresTwoFactor".</summary>
+    public static ApiException RequiresTwoFactor() => LoginRejected("RequiresTwoFactor");
+
     public static ApiException Validation(string field, string message)
         => Create(HttpStatusCode.BadRequest, System.Text.Json.JsonSerializer.Serialize(new
         {
@@ -345,4 +358,78 @@ public sealed class FakeLanguageApplier : ILanguageApplier
 {
     public List<CultureInfo> Applied { get; } = [];
     public void Apply(CultureInfo culture) => Applied.Add(culture);
+}
+
+
+/// <summary>
+/// Verhält sich wie <c>POST /api/auth/manage/2fa</c>: leere Anfrage = Status, <c>Enable</c> mit gültigem Code schaltet ein (Codes einmalig),
+/// ein falscher Code ist ein 400 (ValidationProblem).
+/// </summary>
+public sealed class FakeTwoFactorBackend
+{
+    public const string Key = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
+    public const string ValidCode = "123456";
+
+    public bool Enabled { get; set; }
+    public int CodesLeft { get; set; }
+    public Exception? FailWith { get; set; }
+    public List<TwoFactorRequest> Requests { get; } = [];
+    public int Generation { get; private set; }
+
+    public string[] NewCodes() => Enumerable.Range(1, 10).Select(i => $"code{Generation}-{i:00}").ToArray();
+
+    public Task<TwoFactorResponse> HandleAsync(TwoFactorRequest request)
+    {
+        Requests.Add(request);
+        if (FailWith is not null)
+        {
+            return Task.FromException<TwoFactorResponse>(FailWith);
+        }
+
+        // Solange 2FA eingeschaltet ist, braucht jede Änderung (ausschalten, neue Codes, neuer Schlüssel) den aktuellen Code.
+        if (Enabled && request.Enable != true && (request.Enable == false || request.ResetRecoveryCodes || request.ResetSharedKey)
+            && request.TwoFactorCode != ValidCode)
+        {
+            return Task.FromException<TwoFactorResponse>(ApiExceptions.Validation("twoFactorCode", "Invalid authenticator code."));
+        }
+
+        string[]? codes = null;
+        if (request.Enable == true)
+        {
+            if (request.TwoFactorCode != ValidCode)
+            {
+                return Task.FromException<TwoFactorResponse>(ApiExceptions.Validation("InvalidTwoFactorCode", "Invalid authenticator code."));
+            }
+
+            Enabled = true;
+            Generation++;
+            codes = NewCodes();
+            CodesLeft = codes.Length;
+        }
+        else if (request.Enable == false)
+        {
+            Enabled = false;
+            CodesLeft = 0;
+        }
+        else if (request.ResetRecoveryCodes)
+        {
+            Generation++;
+            codes = NewCodes();
+            CodesLeft = codes.Length;
+        }
+
+        return Task.FromResult(new TwoFactorResponse(Key, CodesLeft, codes, Enabled, false));
+    }
+}
+
+public sealed class FakeLauncher : ILauncherService
+{
+    public List<Uri> Opened { get; } = [];
+    public bool Result { get; set; } = true;
+
+    public Task<bool> OpenAsync(Uri uri)
+    {
+        Opened.Add(uri);
+        return Task.FromResult(Result);
+    }
 }

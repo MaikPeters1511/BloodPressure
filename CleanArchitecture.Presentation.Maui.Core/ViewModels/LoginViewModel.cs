@@ -38,9 +38,90 @@ public sealed partial class LoginViewModel(
 
     private string _pendingEmail = "";
 
+    // --- Zweiter Schritt (Zwei-Faktor-Anmeldung) ---
+    // Das Passwort bleibt nur im Speicher dieses ViewModels, solange der zweite Schritt offen ist; es wird nie abgelegt.
+
+    /// <summary>Die API hat einen Code verlangt: statt E-Mail und Passwort wird der Code abgefragt.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsCredentialsStep), nameof(ShowAuthenticatorCode), nameof(ShowRecoveryCode), nameof(CodeLabel), nameof(CodeHint), nameof(ToggleText))]
+    private bool _requiresTwoFactor;
+
+    /// <summary><c>true</c>: Wiederherstellungscode statt Code aus der Authenticator-App.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowAuthenticatorCode), nameof(ShowRecoveryCode), nameof(CodeLabel), nameof(CodeHint), nameof(ToggleText))]
+    private bool _useRecoveryCode;
+
+    [ObservableProperty]
+    private string _twoFactorCode = "";
+
+    public bool IsCredentialsStep => !RequiresTwoFactor;
+
+    public bool ShowAuthenticatorCode => RequiresTwoFactor && !UseRecoveryCode;
+
+    public bool ShowRecoveryCode => RequiresTwoFactor && UseRecoveryCode;
+
+    public string CodeLabel => localizer[UseRecoveryCode ? "Login_RecoveryCode" : "Login_TwoFactorCode"];
+
+    public string CodeHint => localizer[UseRecoveryCode ? "Login_RecoveryHint" : "Login_TwoFactorHint"];
+
+    public string ToggleText => localizer[UseRecoveryCode ? "Login_UseAuthenticator" : "Login_UseRecovery"];
+
+    public string BackText => localizer["Login_Back"];
+
+    /// <summary>Die Seite soll den Fokus in das Code-Feld setzen (Eingabehilfe, Tastatur).</summary>
+    public event Action? FocusCodeRequested;
+
+    [RelayCommand]
+    private void ToggleRecoveryCode()
+    {
+        UseRecoveryCode = !UseRecoveryCode;
+        TwoFactorCode = "";
+        ErrorMessage = null;
+        dialogs.Announce(CodeHint);
+        FocusCodeRequested?.Invoke();
+    }
+
+    [RelayCommand]
+    private void Back()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        ResetTwoFactor();
+        Password = "";
+        ErrorMessage = null;
+    }
+
+    private void ResetTwoFactor()
+    {
+        RequiresTwoFactor = false;
+        UseRecoveryCode = false;
+        TwoFactorCode = "";
+    }
+
     [RelayCommand]
     private Task LoginAsync() => SubmitAsync(async () =>
     {
+        if (RequiresTwoFactor)
+        {
+            var code = UseRecoveryCode ? TwoFactorCode.Trim() : new string(TwoFactorCode.Where(char.IsLetterOrDigit).ToArray());
+            if (code.Length == 0)
+            {
+                Fail(localizer["Login_CodeMissing"]);
+                FocusCodeRequested?.Invoke();
+                return;
+            }
+
+            await session.LoginAsync(Email.Trim(), Password,
+                twoFactorCode: UseRecoveryCode ? null : code, recoveryCode: UseRecoveryCode ? code : null);
+            ResetTwoFactor();
+            Password = "";
+            await navigator.GoToMeasurementsAsync();
+            return;
+        }
+
         await session.LoginAsync(Email.Trim(), Password);
         Password = "";
         await navigator.GoToMeasurementsAsync();
@@ -98,7 +179,7 @@ public sealed partial class LoginViewModel(
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrEmpty(Password))
+        if (!RequiresTwoFactor && (string.IsNullOrWhiteSpace(Email) || string.IsNullOrEmpty(Password)))
         {
             Fail(localizer["Login_Missing"]);
             return;
@@ -122,6 +203,27 @@ public sealed partial class LoginViewModel(
             if (ex.StatusCode == HttpStatusCode.Unauthorized && await ApiErrors.IsEmailNotConfirmedAsync(ex))
             {
                 ShowConfirmationNotice();
+            }
+            else if (ex.StatusCode == HttpStatusCode.Unauthorized && await ApiErrors.IsTwoFactorRequiredAsync(ex))
+            {
+                UseRecoveryCode = false;
+                TwoFactorCode = "";
+                RequiresTwoFactor = true;
+                dialogs.Announce(CodeHint);
+                FocusCodeRequested?.Invoke();
+            }
+            else if (ex.StatusCode == HttpStatusCode.Unauthorized && await ApiErrors.IsLockedOutAsync(ex))
+            {
+                ResetTwoFactor();
+                Password = "";
+                Fail(localizer["Login_LockedOut"]);
+            }
+            else if (RequiresTwoFactor)
+            {
+                // Die Zugangsdaten stimmten schon: hier ist der Code falsch, nicht das Passwort.
+                TwoFactorCode = "";
+                Fail(localizer["Login_CodeInvalid"]);
+                FocusCodeRequested?.Invoke();
             }
             else
             {

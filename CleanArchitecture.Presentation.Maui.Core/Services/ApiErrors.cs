@@ -24,12 +24,24 @@ public static class ApiErrors
     /// <c>true</c>, wenn die Login-Antwort (401) sagt, dass die E-Mail-Adresse noch nicht bestätigt ist
     /// (ProblemDetails <c>detail</c> = "NotAllowed"). Alles andere ("Failed") heißt: Zugangsdaten falsch.
     /// </summary>
-    public static async Task<bool> IsEmailNotConfirmedAsync(ApiException exception)
+    public static Task<bool> IsEmailNotConfirmedAsync(ApiException exception) => HasDetailAsync(exception, "NotAllowed");
+
+    /// <summary>
+    /// <c>true</c>, wenn die Login-Antwort (401) einen Zwei-Faktor-Code verlangt (<c>detail</c> genau "RequiresTwoFactor").
+    /// </summary>
+    public static Task<bool> IsTwoFactorRequiredAsync(ApiException exception) => HasDetailAsync(exception, "RequiresTwoFactor");
+
+    /// <summary>
+    /// <c>true</c>, wenn das Konto nach zu vielen Fehlversuchen vorübergehend gesperrt ist (<c>detail</c> = "LockedOut").
+    /// </summary>
+    public static Task<bool> IsLockedOutAsync(ApiException exception) => HasDetailAsync(exception, "LockedOut");
+
+    private static async Task<bool> HasDetailAsync(ApiException exception, string detail)
     {
         try
         {
             var problem = await exception.GetContentAsAsync<Problem>();
-            return string.Equals(problem?.Detail, "NotAllowed", StringComparison.Ordinal);
+            return string.Equals(problem?.Detail, detail, StringComparison.Ordinal);
         }
         catch (Exception ex) when (ex is System.Text.Json.JsonException or ApiException or InvalidOperationException)
         {

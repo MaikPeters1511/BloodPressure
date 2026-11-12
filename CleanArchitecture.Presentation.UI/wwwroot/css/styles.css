@@ -301,3 +301,7 @@ fieldset legend { margin-bottom: 0.5rem; }
 .btn-solid.theme-danger, .badge.theme-danger { --bs-theme-bg: #b02a37; --bs-theme-contrast: #fff; }
 .btn-solid.theme-success, .badge.theme-success { --bs-theme-bg: #146c43; --bs-theme-contrast: #fff; }
 .btn-solid.theme-warning, .badge.theme-warning { --bs-theme-bg: #ffc107; --bs-theme-contrast: #000; }
+
+/* QR-Code der Zwei-Faktor-Einrichtung: das SVG hat nur ein viewBox, die Größe kommt von hier (keine Inline-Styles wegen der CSP). */
+.twofactor-qr { width: 12rem; max-width: 100%; }
+.twofactor-qr svg { display: block; width: 100%; height: auto; }

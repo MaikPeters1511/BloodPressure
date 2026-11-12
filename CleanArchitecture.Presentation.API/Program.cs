@@ -204,9 +204,29 @@ app.MapDefaultEndpoints();
 app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>()
     .AddEndpointFilter(async (invocation, next) =>
     {
-        var result = await next(invocation);
         var http = invocation.HttpContext;
         var path = http.Request.Path.Value ?? string.Empty;
+
+        // Zwei-Faktor-Anmeldung ändern: Solange sie eingeschaltet ist, verlangen Ausschalten, neuer Schlüssel und neue
+        // Wiederherstellungscodes einen gültigen Code aus der Authenticator-App. Sonst könnte jeder, der ein Access-Token
+        // in die Hände bekommt, den zweiten Faktor entfernen (Identity prüft das selbst nicht).
+        if (path.EndsWith("/manage/2fa", StringComparison.OrdinalIgnoreCase)
+            && invocation.Arguments.OfType<TwoFactorRequest>().FirstOrDefault() is { } change
+            && (change.Enable == false || change.ResetSharedKey || change.ResetRecoveryCodes))
+        {
+            var users = http.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
+            if (await users.GetUserAsync(http.User) is { TwoFactorEnabled: true } account
+                && (string.IsNullOrWhiteSpace(change.TwoFactorCode)
+                    || !await users.VerifyTwoFactorTokenAsync(account, users.Options.Tokens.AuthenticatorTokenProvider, change.TwoFactorCode)))
+            {
+                return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    ["twoFactorCode"] = ["Ein gültiger Code aus der Authenticator-App ist erforderlich."]
+                });
+            }
+        }
+
+        var result = await next(invocation);
         var inner = result is INestedHttpResult { Result: var nested } ? nested : result;
 
         // Login eines unbestätigten Kontos: "NotAllowed" nur zeigen, wenn das Passwort stimmt. Sonst wäre an der Antwort

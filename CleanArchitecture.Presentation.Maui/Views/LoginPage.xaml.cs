@@ -8,5 +8,10 @@ public partial class LoginPage : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
+        viewModel.FocusCodeRequested += () => Dispatcher.Dispatch(() =>
+        {
+            // Nur das sichtbare Code-Feld bekommt den Fokus (Bildschirmleser liest Beschriftung und Hinweis vor).
+            (viewModel.ShowRecoveryCode ? RecoveryCodeEntry : AuthenticatorCodeEntry).Focus();
+        });
     }
 }

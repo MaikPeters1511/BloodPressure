@@ -122,4 +122,36 @@
   <data name="Profile_Delete" xml:space="preserve"><value>Profildaten löschen</value></data>
   <data name="Profile_DeleteConfirm" xml:space="preserve"><value>Alle Profilangaben wirklich löschen?</value></data>
   <data name="Profile_Deleted" xml:space="preserve"><value>Die Profilangaben wurden gelöscht.</value></data>
+  <data name="Login_TwoFactorCode" xml:space="preserve"><value>Code aus der Authenticator-App</value></data>
+  <data name="Login_TwoFactorHint" xml:space="preserve"><value>Öffne deine Authenticator-App und gib den aktuellen 6-stelligen Code ein.</value></data>
+  <data name="Login_RecoveryCode" xml:space="preserve"><value>Wiederherstellungscode</value></data>
+  <data name="Login_RecoveryHint" xml:space="preserve"><value>Gib einen deiner gespeicherten Wiederherstellungscodes ein. Jeder Code funktioniert nur einmal.</value></data>
+  <data name="Login_UseRecovery" xml:space="preserve"><value>Wiederherstellungscode verwenden</value></data>
+  <data name="Login_UseAuthenticator" xml:space="preserve"><value>Code aus der Authenticator-App verwenden</value></data>
+  <data name="Login_Back" xml:space="preserve"><value>Zurück</value></data>
+  <data name="Login_CodeInvalid" xml:space="preserve"><value>Der Code ist ungültig oder abgelaufen. Bitte versuche es erneut.</value></data>
+  <data name="Login_CodeMissing" xml:space="preserve"><value>Bitte gib den Code ein.</value></data>
+  <data name="Login_LockedOut" xml:space="preserve"><value>Zu viele Fehlversuche. Das Konto ist vorübergehend gesperrt. Bitte versuche es später erneut.</value></data>
+  <data name="TwoFactor_Title" xml:space="preserve"><value>Zwei-Faktor-Anmeldung</value></data>
+  <data name="TwoFactor_Hint" xml:space="preserve"><value>Zusätzlich zum Passwort fragt die Anmeldung einen Code aus einer Authenticator-App ab. Das ist freiwillig.</value></data>
+  <data name="TwoFactor_Off" xml:space="preserve"><value>Die Zwei-Faktor-Anmeldung ist ausgeschaltet.</value></data>
+  <data name="TwoFactor_On" xml:space="preserve"><value>Die Zwei-Faktor-Anmeldung ist eingeschaltet.</value></data>
+  <data name="TwoFactor_Setup" xml:space="preserve"><value>Einrichten</value></data>
+  <data name="TwoFactor_SetupSteps" xml:space="preserve"><value>Scanne den QR-Code mit deiner Authenticator-App oder gib den Schlüssel ein. Gib danach den angezeigten 6-stelligen Code ein.</value></data>
+  <data name="TwoFactor_Key" xml:space="preserve"><value>Schlüssel</value></data>
+  <data name="TwoFactor_Code" xml:space="preserve"><value>Code aus der Authenticator-App</value></data>
+  <data name="TwoFactor_Confirm" xml:space="preserve"><value>Bestätigen</value></data>
+  <data name="TwoFactor_CodeFormat" xml:space="preserve"><value>Bitte gib den 6-stelligen Code ein.</value></data>
+  <data name="TwoFactor_CodeInvalid" xml:space="preserve"><value>Der Code ist ungültig. Prüfe die Uhrzeit deines Geräts und versuche es erneut.</value></data>
+  <data name="TwoFactor_Relogin" xml:space="preserve"><value>Aus Sicherheitsgründen musst du dich nach Ablauf der aktuellen Sitzung neu anmelden.</value></data>
+  <data name="TwoFactor_StatusOn" xml:space="preserve"><value>Eingeschaltet. Verbleibende Wiederherstellungscodes: {0}</value></data>
+  <data name="TwoFactor_Reset" xml:space="preserve"><value>Neue Wiederherstellungscodes erzeugen</value></data>
+  <data name="TwoFactor_Disable" xml:space="preserve"><value>Ausschalten</value></data>
+  <data name="TwoFactor_ResetConfirm" xml:space="preserve"><value>Die bisherigen Wiederherstellungscodes werden ungültig. Gib zur Bestätigung den aktuellen Code ein.</value></data>
+  <data name="TwoFactor_DisableConfirm" xml:space="preserve"><value>Die Zwei-Faktor-Anmeldung wirklich ausschalten? Gib zur Bestätigung den aktuellen Code ein.</value></data>
+  <data name="TwoFactor_RecoveryTitle" xml:space="preserve"><value>Wiederherstellungscodes</value></data>
+  <data name="TwoFactor_RecoveryHint" xml:space="preserve"><value>Speichere sie jetzt; sie werden nicht erneut angezeigt. Jeder Code funktioniert nur einmal und hilft, falls du keinen Zugriff auf die Authenticator-App hast.</value></data>
+  <data name="TwoFactor_RecoveryDone" xml:space="preserve"><value>Ich habe die Codes gespeichert</value></data>
+  <data name="TwoFactor_OpenApp" xml:space="preserve"><value>In Authenticator-App öffnen</value></data>
+  <data name="TwoFactor_OpenAppFailed" xml:space="preserve"><value>Es wurde keine Authenticator-App gefunden. Gib den Schlüssel dort von Hand ein.</value></data>
 </root>
