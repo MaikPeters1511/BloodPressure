@@ -99,4 +99,37 @@ public class SessionServiceTests
         await Assert.That(_auth.Calls).IsEquivalentTo(new[] { "register", "login" });
         await Assert.That(session.IsAuthenticated).IsTrue();
     }
+
+    [Test]
+    public async Task Logout_TellsTheApiToRevokeTokens()
+    {
+        var session = Create();
+        await session.LoginAsync("a@example.test", "pw");
+        string? header = null;
+        _auth.OnLogout = authorization =>
+        {
+            header = authorization;
+            return Task.CompletedTask;
+        };
+
+        await session.LogoutAsync();
+
+        await Assert.That(header).IsEqualTo("Bearer access-1");
+        await Assert.That(session.LastLogoutRevokedOnServer).IsTrue();
+        await Assert.That(session.IsAuthenticated).IsFalse();
+    }
+
+    [Test]
+    public async Task Logout_WhenApiUnreachable_StillSignsOutLocally()
+    {
+        var session = Create();
+        await session.LoginAsync("a@example.test", "pw");
+        _auth.OnLogout = _ => Task.FromException(new HttpRequestException("offline"));
+
+        await session.LogoutAsync();
+
+        await Assert.That(session.LastLogoutRevokedOnServer).IsFalse();
+        await Assert.That(session.IsAuthenticated).IsFalse();
+        await Assert.That(_store.Items).IsEmpty();
+    }
 }
