@@ -65,5 +65,5 @@ _Entfällt._
 
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Scenarios als Tests grün.
-- [ ] Keine Stacktraces in Antworten.
-- [ ] Grenzwerte stehen nur an einer Stelle.
+- [x] Keine Stacktraces in Antworten (Tests `AcceptanceEvidenceTests.UnhandledException_ReturnsProblemWithoutInternals` und `ValidationError_ReturnsNoStackTrace`).
+- [x] Grenzwerte stehen nur an einer Stelle: `BloodPressureLimits` (Tests `AcceptanceEvidenceTests.Pressure_ValidatorAndDomain_AgreeOnBoundaries`, `Limits_AreDefinedInOnePlaceOnly`).
