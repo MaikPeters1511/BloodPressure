@@ -2,7 +2,10 @@
 (function () {
     try {
         var theme = localStorage.getItem('bp.theme');
-        if (theme === 'light' || theme === 'dark') { document.documentElement.setAttribute('data-theme', theme); }
+        if (theme === 'light' || theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        }
     } catch (e) { /* Speicher blockiert: es gilt das Systemschema */ }
 })();
 // Sprache: Wahl je Gerät lokal speichern ("system" entfernt sie) und das lang-Attribut setzen.
@@ -18,8 +21,14 @@ window.bpLang = {
 window.bpTheme = {
     get: function () { try { return localStorage.getItem('bp.theme'); } catch (e) { return null; } },
     set: function (theme) {
-        if (theme === 'light' || theme === 'dark') { document.documentElement.setAttribute('data-theme', theme); }
-        else { document.documentElement.removeAttribute('data-theme'); }
+        // data-bs-theme steuert Bootstrap 6, data-theme die eigenen Regeln in styles.css.
+        if (theme === 'light' || theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            document.documentElement.removeAttribute('data-bs-theme');
+        }
         try {
             if (theme === 'light' || theme === 'dark') { localStorage.setItem('bp.theme', theme); } else { localStorage.removeItem('bp.theme'); }
         } catch (e) { /* Speicher blockiert: gilt bis zum Neuladen */ }

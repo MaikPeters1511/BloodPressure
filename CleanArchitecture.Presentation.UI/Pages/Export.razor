@@ -16,7 +16,7 @@
 <PageTitle>@L["Export_Title"]</PageTitle>
 
 <h1>@L["Export_Title"]</h1>
-<p class="text-muted">@L["Export_Hint", ExportQuery.MaxMeasurements]</p>
+<p class="fg-3">@L["Export_Hint", ExportQuery.MaxMeasurements]</p>
 
 <form id="export-form" @onsubmit="DownloadAsync" aria-label="@L["Export_Title"]" aria-busy="@(_busy ? "true" : "false")">
     <div class="mb-3">
@@ -34,7 +34,7 @@
             <option value="pdf">PDF</option>
         </select>
     </div>
-    <button id="export-button" type="submit" class="btn btn-primary" disabled="@_busy">@L["Export_Download"]</button>
+    <button id="export-button" type="submit" class="btn btn-solid theme-primary" disabled="@_busy">@L["Export_Download"]</button>
 </form>
 
 @if (_busy)
@@ -43,7 +43,7 @@
 }
 @if (_error is not null)
 {
-    <div role="alert" class="alert alert-warning mt-3">@_error</div>
+    <div role="alert" class="alert theme-warning mt-3">@_error</div>
 }
 @if (_done is not null)
 {

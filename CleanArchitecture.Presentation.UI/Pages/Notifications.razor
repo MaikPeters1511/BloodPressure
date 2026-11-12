@@ -17,11 +17,11 @@
 <PageTitle>@L["Notifications_Title"]</PageTitle>
 
 <h1>@L["Notifications_Title"]</h1>
-<p class="text-muted">@L["Disclaimer_Medical"]</p>
+<p class="fg-3">@L["Disclaimer_Medical"]</p>
 
 @if (_message is not null)
 {
-    <div role="alert" class="alert alert-warning">@_message</div>
+    <div role="alert" class="alert theme-warning">@_message</div>
 }
 
 <section aria-busy="@(_loading ? "true" : "false")">
@@ -45,14 +45,14 @@
                         }
                         @if (!n.IsRead)
                         {
-                            <span class="badge text-bg-primary ms-2">@L["Notifications_New"]</span>
+                            <span class="badge theme-primary ms-2">@L["Notifications_New"]</span>
                         }
                     </p>
                     <p class="mb-1">@MessageText(n)</p>
-                    <p class="mb-2 text-muted small">@time</p>
+                    <p class="mb-2 fg-3 small">@time</p>
                     @if (!n.IsRead)
                     {
-                        <button type="button" class="btn btn-outline-secondary btn-sm mark-read"
+                        <button type="button" class="btn btn-outline theme-secondary btn-sm mark-read"
                                 aria-label="@L["Notifications_MarkReadAria", time]" @onclick="() => MarkReadAsync(n)">@L["Notifications_MarkRead"]</button>
                     }
                 </div>

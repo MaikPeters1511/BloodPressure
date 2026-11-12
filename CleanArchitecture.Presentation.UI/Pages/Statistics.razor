@@ -16,7 +16,7 @@
 <PageTitle>@L["Stats_Title"]</PageTitle>
 
 <h1>@L["Stats_Title"]</h1>
-<p class="text-muted">@L["Disclaimer_Medical"]</p>
+<p class="fg-3">@L["Disclaimer_Medical"]</p>
 
 <form id="stats-form" class="row g-3 mb-3" @onsubmit="LoadAsync" aria-label="@L["Stats_Filter"]">
     <div class="col-auto">
@@ -36,13 +36,13 @@
         </select>
     </div>
     <div class="col-auto align-self-end">
-        <button id="stats-apply" type="submit" class="btn btn-primary" disabled="@_loading">@L["Range_Apply"]</button>
+        <button id="stats-apply" type="submit" class="btn btn-solid theme-primary" disabled="@_loading">@L["Range_Apply"]</button>
     </div>
 </form>
 
 @if (_message is not null)
 {
-    <div role="alert" class="alert alert-warning">@_message</div>
+    <div role="alert" class="alert theme-warning">@_message</div>
 }
 
 <section aria-busy="@(_loading ? "true" : "false")">
@@ -55,7 +55,7 @@
         <LineChart AriaLabel="@L["Stats_ChartLabel"].Value" Series="_series" Labels="_labels" />
 
         <div class="overflow-x-auto" tabindex="0" role="region" aria-label="@L["Stats_Caption"]">
-            <table class="table table-zebra" id="stats-table">
+            <table class="table table-striped" id="stats-table">
                 <caption>@L["Stats_Caption"]</caption>
                 <thead>
                     <tr>
@@ -80,7 +80,7 @@
                 </tbody>
             </table>
         </div>
-        <p class="text-muted small">@L["Stats_Legend"]</p>
+        <p class="fg-3 small">@L["Stats_Legend"]</p>
     }
 </section>
 

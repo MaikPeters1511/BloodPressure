@@ -1,0 +1,2 @@
+Bootstrap 6.0.0-alpha.1 (https://getbootstrap.com), MIT-Lizenz, siehe LICENSE.
+Quelle: npm-Paket bootstrap@6.0.0-alpha.1, Datei dist/css/bootstrap.min.css.
