@@ -63,5 +63,5 @@ _Entfällt._
 - [ ] T5.4 (qa) PDF-Smoke (Öffnen, Seitenzahl), CSV in Excel/LibreOffice (offen: nur automatisierte Prüfung `%PDF`/Zeilen, keine manuelle Sichtprüfung)
 
 ## 6. Acceptance Criteria (DoD)
-- [ ] Alle Scenarios als Tests grün.
+- [x] Alle Scenarios als Tests grün (Gesamtsuite inkl. PostgreSQL-Tests).
 - [x] Export von 10 000 Zeilen ohne nennenswerten Speicheranstieg (Dateien unter 1 MB, Laufzeit unter 1 s).
