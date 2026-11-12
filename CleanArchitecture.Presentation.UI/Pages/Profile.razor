@@ -68,14 +68,14 @@
     <div class="mb-3 bmi-row" aria-live="polite">
         @if (Bmi is { } bmi)
         {
-            <p id="profile-bmi" class="mb-0"><strong>@L["Profile_Bmi", bmi.ToString("0.0", UiCulture)]</strong> <span class="text-muted">@L["Profile_BmiNote"]</span></p>
+            <p id="profile-bmi" class="mb-0"><strong>@L["Profile_Bmi", bmi.ToString("0.0", UiCulture)]</strong> <span class="fg-3">@L["Profile_BmiNote"]</span></p>
         }
     </div>
 
     <div @ref="_errorRegion" tabindex="-1" id="profile-errors">
         @if (_errors.Count > 0)
         {
-            <div role="alert" class="alert alert-danger">
+            <div role="alert" class="alert theme-danger">
                 @foreach (var error in _errors)
                 {
                     <p class="mb-0">@error</p>
@@ -85,16 +85,16 @@
     </div>
 
     <div class="d-flex flex-wrap gap-2">
-        <button id="profile-save" type="submit" class="btn btn-primary" disabled="@(_loading || _saving)">@L["Form_Save"]</button>
+        <button id="profile-save" type="submit" class="btn btn-solid theme-primary" disabled="@(_loading || _saving)">@L["Form_Save"]</button>
         @if (!_confirmDelete)
         {
-            <button id="profile-delete" type="button" class="btn btn-outline-danger" @onclick="() => _confirmDelete = true">@L["Profile_Delete"]</button>
+            <button id="profile-delete" type="button" class="btn btn-outline theme-danger" @onclick="() => _confirmDelete = true">@L["Profile_Delete"]</button>
         }
         else
         {
             <span id="profile-delete-question">@L["Profile_DeleteConfirm"]</span>
-            <button id="profile-delete-confirm" type="button" class="btn btn-danger" @onclick="DeleteAsync">@L["Delete_Yes"]</button>
-            <button id="profile-delete-cancel" type="button" class="btn btn-secondary" @onclick="() => _confirmDelete = false">@L["Delete_Cancel"]</button>
+            <button id="profile-delete-confirm" type="button" class="btn btn-solid theme-danger" @onclick="DeleteAsync">@L["Delete_Yes"]</button>
+            <button id="profile-delete-cancel" type="button" class="btn btn-solid theme-secondary" @onclick="() => _confirmDelete = false">@L["Delete_Cancel"]</button>
         }
     </div>
 </form>

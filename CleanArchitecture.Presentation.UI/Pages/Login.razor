@@ -24,7 +24,7 @@
 
     @if (_errors.Count > 0)
     {
-        <div role="alert" class="alert alert-danger">
+        <div role="alert" class="alert theme-danger">
             @foreach (var error in _errors)
             {
                 <p class="mb-0">@error</p>
@@ -32,8 +32,8 @@
         </div>
     }
 
-    <button id="login-button" type="submit" class="btn btn-primary" disabled="@_busy">@L["Login_Submit"]</button>
-    <button id="register-button" type="button" class="btn btn-outline-secondary" disabled="@_busy" @onclick="RegisterAsync">@L["Login_Register"]</button>
+    <button id="login-button" type="submit" class="btn btn-solid theme-primary" disabled="@_busy">@L["Login_Submit"]</button>
+    <button id="register-button" type="button" class="btn btn-outline theme-secondary" disabled="@_busy" @onclick="RegisterAsync">@L["Login_Register"]</button>
 </form>
 
 @code {

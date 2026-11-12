@@ -263,6 +263,6 @@ public class MeasurementsCategoryTests
 
         var badge = cut.Find(".category-badge");
         await Assert.That(badge.TextContent).IsEqualTo("Bluthochdruck");
-        await Assert.That(badge.ClassList).Contains("text-bg-danger");
+        await Assert.That(badge.ClassList).Contains("theme-danger");
     }
 }

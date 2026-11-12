@@ -17,11 +17,11 @@
 
 <h1>@L["M_Title"]</h1>
 
-<p id="disclaimer" class="text-muted">@L["M_Disclaimer"]</p>
+<p id="disclaimer" class="fg-3">@L["M_Disclaimer"]</p>
 
 @if (_message is not null)
 {
-    <div role="alert" class="alert alert-warning">@_message</div>
+    <div role="alert" class="alert theme-warning">@_message</div>
 }
 
 <section aria-busy="@(_loading ? "true" : "false")">
@@ -32,7 +32,7 @@
     else if (_items.Count > 0)
     {
         <div class="overflow-x-auto" tabindex="0" role="region" aria-label="@L["M_Caption"]">
-            <table class="table table-zebra">
+            <table class="table table-striped">
                 <caption>@L["M_Caption"]</caption>
                 <thead>
                     <tr>
@@ -60,12 +60,12 @@
                                 @if (_pendingDelete == item.Id)
                                 {
                                     <span>@L["Delete_Confirm"]</span>
-                                    <button type="button" class="btn btn-danger btn-sm confirm-delete" @onclick="() => DeleteAsync(item)">@L["Delete_Yes"]</button>
-                                    <button type="button" class="btn btn-secondary btn-sm cancel-delete" @onclick="() => _pendingDelete = null">@L["Delete_Cancel"]</button>
+                                    <button type="button" class="btn btn-solid theme-danger btn-sm confirm-delete" @onclick="() => DeleteAsync(item)">@L["Delete_Yes"]</button>
+                                    <button type="button" class="btn btn-solid theme-secondary btn-sm cancel-delete" @onclick="() => _pendingDelete = null">@L["Delete_Cancel"]</button>
                                 }
                                 else
                                 {
-                                    <button type="button" class="btn btn-outline-danger btn-sm delete-button"
+                                    <button type="button" class="btn btn-outline theme-danger btn-sm delete-button"
                                             aria-label="@L["Delete_Aria", date]" @onclick="() => _pendingDelete = item.Id">@L["Delete"]</button>
                                 }
                             </td>
@@ -76,9 +76,9 @@
         </div>
 
         <nav class="d-flex flex-wrap gap-2 align-items-center" aria-label="@L["M_Pagination"]">
-            <button id="prev-page" type="button" class="btn btn-outline-secondary" disabled="@(_page <= 1)" @onclick="() => GoToAsync(_page - 1)">@L["M_Prev"]</button>
+            <button id="prev-page" type="button" class="btn btn-outline theme-secondary" disabled="@(_page <= 1)" @onclick="() => GoToAsync(_page - 1)">@L["M_Prev"]</button>
             <span id="page-indicator" aria-live="polite">@L["M_PageOf", _page, TotalPages]</span>
-            <button id="next-page" type="button" class="btn btn-outline-secondary" disabled="@(_page >= TotalPages)" @onclick="() => GoToAsync(_page + 1)">@L["M_Next"]</button>
+            <button id="next-page" type="button" class="btn btn-outline theme-secondary" disabled="@(_page >= TotalPages)" @onclick="() => GoToAsync(_page + 1)">@L["M_Next"]</button>
         </nav>
     }
 </section>
@@ -108,7 +108,7 @@
 
     @if (_formErrors.Count > 0)
     {
-        <div role="alert" class="alert alert-danger">
+        <div role="alert" class="alert theme-danger">
             @foreach (var error in _formErrors)
             {
                 <p class="mb-0">@error</p>
@@ -116,7 +116,7 @@
         </div>
     }
 
-    <button id="save-button" type="submit" class="btn btn-primary" disabled="@_saving">@L["Form_Save"]</button>
+    <button id="save-button" type="submit" class="btn btn-solid theme-primary" disabled="@_saving">@L["Form_Save"]</button>
 </form>
 
 @code {

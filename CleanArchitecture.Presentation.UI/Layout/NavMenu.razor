@@ -6,7 +6,7 @@
 @inject NavigationManager Navigation
 @inject IStringLocalizer<SharedResource> L
 
-<div class="top-row ps-3 navbar navbar-dark">
+<div class="top-row ps-3 navbar">
     <div class="container-fluid">
         <a class="navbar-brand" href="">@L["App_Title"]</a>
         <button type="button" class="navbar-toggler" aria-label="@L["Nav_Menu"]" aria-expanded="@(!collapseNavMenu ? "true" : "false")" aria-controls="main-nav" @onclick="ToggleNavMenu">
@@ -18,42 +18,42 @@
 <div id="main-nav" class="@NavMenuCssClass nav-scrollable" @onclick="CollapseNavMenu">
     <nav class="flex-column" aria-label="@L["Nav_Menu"]">
         <div class="nav-item px-3">
-            <NavLink class="btn btn-ghost text-xl" href="" Match="NavLinkMatch.All">@L["Nav_Home"]</NavLink>
+            <NavLink class="btn btn-text fs-5" href="" Match="NavLinkMatch.All">@L["Nav_Home"]</NavLink>
         </div>
         @if (Session.IsAuthenticated)
         {
             <div class="nav-item px-3">
-                <NavLink class="btn btn-ghost text-xl" href="measurements">@L["Nav_Measurements"]</NavLink>
+                <NavLink class="btn btn-text fs-5" href="measurements">@L["Nav_Measurements"]</NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="btn btn-ghost text-xl" href="statistics">@L["Nav_Statistics"]</NavLink>
+                <NavLink class="btn btn-text fs-5" href="statistics">@L["Nav_Statistics"]</NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="btn btn-ghost text-xl" href="export">@L["Nav_Export"]</NavLink>
+                <NavLink class="btn btn-text fs-5" href="export">@L["Nav_Export"]</NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="btn btn-ghost text-xl" href="reminders">@L["Nav_Reminders"]</NavLink>
+                <NavLink class="btn btn-text fs-5" href="reminders">@L["Nav_Reminders"]</NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="btn btn-ghost text-xl" href="notifications">
+                <NavLink class="btn btn-text fs-5" href="notifications">
                     @L["Nav_Notifications"]
                     @if (Counter.Unread > 0)
                     {
-                        <span class="badge text-bg-danger unread-count" aria-label="@(Counter.Unread == 1 ? L["Nav_UnreadAriaOne"].Value : L["Nav_UnreadAria", Counter.Unread].Value)">@Counter.Unread</span>
+                        <span class="badge theme-danger unread-count" aria-label="@(Counter.Unread == 1 ? L["Nav_UnreadAriaOne"].Value : L["Nav_UnreadAria", Counter.Unread].Value)">@Counter.Unread</span>
                     }
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="btn btn-ghost text-xl" href="profile">@L["Nav_Profile"]</NavLink>
+                <NavLink class="btn btn-text fs-5" href="profile">@L["Nav_Profile"]</NavLink>
             </div>
             <div class="nav-item px-3">
-                <button type="button" class="btn btn-ghost text-xl" @onclick="SignOutAsync">@L["Nav_Logout"]</button>
+                <button type="button" class="btn btn-text fs-5" @onclick="SignOutAsync">@L["Nav_Logout"]</button>
             </div>
         }
         else
         {
             <div class="nav-item px-3">
-                <NavLink class="btn btn-ghost text-xl" href="login">@L["Nav_Login"]</NavLink>
+                <NavLink class="btn btn-text fs-5" href="login">@L["Nav_Login"]</NavLink>
             </div>
         }
     </nav>

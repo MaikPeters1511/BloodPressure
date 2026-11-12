@@ -15,7 +15,7 @@
 <PageTitle>@L["Reminders_Title"]</PageTitle>
 
 <h1>@L["Reminders_Title"]</h1>
-<p class="text-muted">@L["Reminders_Hint", MaxTimes]</p>
+<p class="fg-3">@L["Reminders_Hint", MaxTimes]</p>
 
 <form id="reminders-form" @onsubmit="SaveAsync" aria-label="@L["Reminders_Title"]" aria-busy="@(_loading ? "true" : "false")">
     <div class="mb-3">
@@ -39,21 +39,21 @@
                 <label for="reminder-time-@index" class="visually-hidden">@L["Reminders_TimeN", index + 1]</label>
                 <input id="reminder-time-@index" type="time" class="form-control w-auto" value="@_times[index]"
                        @onchange="e => _times[index] = e.Value?.ToString() ?? string.Empty" />
-                <button type="button" class="btn btn-outline-danger btn-sm remove-time" aria-label="@L["Reminders_Remove", index + 1]"
+                <button type="button" class="btn btn-outline theme-danger btn-sm remove-time" aria-label="@L["Reminders_Remove", index + 1]"
                         @onclick="() => RemoveTime(index)">@L["Delete"]</button>
             </div>
         }
         @if (_times.Count == 0)
         {
-            <p class="text-muted">@L["Reminders_None"]</p>
+            <p class="fg-3">@L["Reminders_None"]</p>
         }
-        <button id="add-time" type="button" @ref="_addButton" class="btn btn-outline-secondary" disabled="@(_times.Count >= MaxTimes)" @onclick="AddTime">@L["Reminders_Add"]</button>
+        <button id="add-time" type="button" @ref="_addButton" class="btn btn-outline theme-secondary" disabled="@(_times.Count >= MaxTimes)" @onclick="AddTime">@L["Reminders_Add"]</button>
     </fieldset>
 
     <div @ref="_errorRegion" tabindex="-1" id="reminders-errors">
         @if (_errors.Count > 0)
         {
-            <div role="alert" class="alert alert-danger">
+            <div role="alert" class="alert theme-danger">
                 @foreach (var error in _errors)
                 {
                     <p class="mb-0">@error</p>
@@ -62,7 +62,7 @@
         }
     </div>
 
-    <button id="save-reminders" type="submit" class="btn btn-primary" disabled="@(_loading || _saving)">@L["Form_Save"]</button>
+    <button id="save-reminders" type="submit" class="btn btn-solid theme-primary" disabled="@(_loading || _saving)">@L["Form_Save"]</button>
 </form>
 
 @if (_saved)
