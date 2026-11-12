@@ -110,6 +110,15 @@ Konfiguration nur über Umgebungsvariablen:
 | `ConnectionStrings__bloodpressuredb` | PostgreSQL-Connection-String (erforderlich) |
 | `Cors__AllowedOrigins__0` | Erlaubte Browser-Herkunft für das Frontend (weitere mit `__1`, ...) |
 | `ASPNETCORE_ENVIRONMENT` | `Production` (Standard). Die Migrationen werden nur in `Development` automatisch angewendet. |
+| `AllowedHosts` | Erlaubte Hostnamen, durch Semikolon getrennt (z. B. `api.example.org`). Im Image steht `*`; im Betrieb auf die echten Hostnamen setzen. |
+| `Auth__PasswordMinLength` | Mindestlänge neuer Passwörter (Standard 12) |
+| `Auth__AccessTokenMinutes` | Lebensdauer des Access-Tokens in Minuten (Standard 30) |
+| `Auth__RefreshTokenDays` | Lebensdauer des Refresh-Tokens in Tagen (Standard 7) |
+| `RateLimiting__PermitLimitPerMinute` | Anfragen je Minute und Nutzer bzw. IP (Standard 100) |
+| `RateLimiting__AuthPermitLimitPerMinute` | Anfragen je Minute und IP für `/api/auth/*` (Standard 10) |
+| `ForwardedHeaders__Enabled` | `true`, wenn die API hinter einem Reverse Proxy läuft; dann die Proxy-IPs in `ForwardedHeaders__KnownProxies__0` (weitere mit `__1`, ...) angeben, sonst zählt das Rate Limiting die IP des Proxys. Standard `false`. |
+
+Sicherheit im Betrieb: Die API setzt Sicherheits-Header und HSTS. Für das Blazor-UI muss der Betreiber die CSP als Header setzen (siehe [docs/security/ui-csp.md](docs/security/ui-csp.md)). Der Prüfbericht mit offenen Risiken steht in [docs/security/owasp-epic-01.md](docs/security/owasp-epic-01.md).
 
 Liveness: `GET /alive` (nur "self"-Check, in allen Umgebungen). Der vollständige Health-Check `/health` ist nur in `Development` erreichbar.
 
