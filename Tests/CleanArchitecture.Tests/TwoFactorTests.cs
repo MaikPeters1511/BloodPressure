@@ -295,4 +295,17 @@ public class TwoFactorTests(PostgresFixture postgres)
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
     }
+
+    [Test]
+    public async Task RefitContract_ITwoFactorApi_TalksToTheRealEndpoint()
+    {
+        await using var factory = await StartAsync();
+        var api = Refit.RestService.For<CleanArchitecture.Contracts.ITwoFactorApi>(await RealApiHarness.SignInAsync(factory, "refit@example.test"));
+
+        var status = await api.ManageTwoFactorAsync(new CleanArchitecture.Contracts.TwoFactorRequest());
+
+        await Assert.That(status.IsTwoFactorEnabled).IsFalse();
+        await Assert.That(status.SharedKey).IsNotNull().And.IsNotEmpty();
+        await Assert.That(status.RecoveryCodes).IsNull();
+    }
 }

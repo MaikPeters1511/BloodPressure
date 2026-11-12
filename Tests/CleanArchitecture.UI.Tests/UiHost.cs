@@ -20,7 +20,7 @@ public sealed class UiHost : IDisposable
     public FakeNotificationApi Notifications { get; } = new();
     public FakeBrowser Browser { get; } = new();
     public FakeProfileApi Profile { get; } = new();
-    public FakeTwoFactorBackend TwoFactor => Reminders.TwoFactor;
+    public FakeTwoFactorBackend TwoFactor { get; } = new();
     public FakeTheme Theme { get; } = new();
     public FakeLanguage Language { get; }
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 4, 12, 0, 0, TimeSpan.Zero));
@@ -36,6 +36,7 @@ public sealed class UiHost : IDisposable
         Context.Services.AddSingleton<IAuthApi>(Auth);
         Context.Services.AddSingleton<IBloodPressureApi>(Api);
         Context.Services.AddSingleton<IReminderApi>(Reminders);
+        Context.Services.AddSingleton<ITwoFactorApi>(TwoFactor);
         Context.Services.AddSingleton<INotificationApi>(Notifications);
         Context.Services.AddSingleton<IBrowserInterop>(Browser);
         Context.Services.AddSingleton<IProfileApi>(Profile);

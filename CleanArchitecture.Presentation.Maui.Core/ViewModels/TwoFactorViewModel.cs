@@ -18,7 +18,7 @@ public sealed partial class TwoFactorViewModel : ObservableObject
 {
     private enum PendingKind { None, Reset, Disable }
 
-    private readonly IReminderApi _api;
+    private readonly ITwoFactorApi _api;
     private readonly SessionService _session;
     private readonly INavigator _navigator;
     private readonly IDialogService _dialogs;
@@ -30,7 +30,7 @@ public sealed partial class TwoFactorViewModel : ObservableObject
     private PendingKind _pending;
 
     public TwoFactorViewModel(
-        IReminderApi api, SessionService session, INavigator navigator, IDialogService dialogs,
+        ITwoFactorApi api, SessionService session, INavigator navigator, IDialogService dialogs,
         ILocalizer localizer, ILauncherService launcher, ILogger<TwoFactorViewModel>? logger = null)
     {
         _api = api;
