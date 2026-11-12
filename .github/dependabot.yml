@@ -1,0 +1,18 @@
+version: 2
+updates:
+  # Gepinnte GitHub Actions (Commit-SHA) aktuell halten.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "chore(deps)"
+
+  # NuGet-Pakete der Lösung; Sicherheitsupdates kommen unabhängig vom Zeitplan.
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "chore(deps)"
+    open-pull-requests-limit: 5

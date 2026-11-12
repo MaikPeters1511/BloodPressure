@@ -234,7 +234,7 @@ Schweregrad: Mittel > Gering > Info. Kein Befund "Hoch" oder "Kritisch".
 | R-06, R-07, R-08 | Offen | Entwurfsentscheidungen (Altdaten-Übernahme, E-Mail-Bestätigung/MFA, `AuthenticationStateProvider`). |
 | R-09 | Behoben | `android:allowBackup="false"`. Nicht auf einem Gerät geprüft. |
 | R-10 | Offen | Hostnamen sind Betriebskonfiguration (`AllowedHosts` per Umgebungsvariable). |
-| R-11 | Offen | Actions auf Commit-SHA pinnen, Image-Tag und Signatur/SBOM. |
+| R-11 | Teilweise behoben | Alle Actions sind auf Commit-SHA gepinnt (Versionskommentar dahinter). Das Image trägt neben `latest` auch einen SHA-Tag; Signatur und SBOM fehlen weiter. |
 | R-12 | Behoben (teilweise) | `SecurityEventLoggingMiddleware` protokolliert 401/403, das Rate-Limit protokolliert 429, jeweils ohne Token oder Nutzerdaten; Test `AccessDenied_IsLogged_WithoutCredentials`. Alarmierung bei Häufung bleibt offen. |
-| R-13 | Offen | Dependabot/Renovate. |
+| R-13 | Behoben | `.github/dependabot.yml` für GitHub Actions und NuGet (wöchentlich). |
 
