@@ -79,5 +79,5 @@ _`IBloodPressureApi` (Refit) SHALL ein Token über einen `DelegatingHandler` mit
 
 ## 6. Acceptance Criteria (DoD)
 - [ ] Alle Scenarios als Tests grün; kein Endpunkt außer den ausdrücklich freigegebenen ist anonym erreichbar.
-- [ ] Keine Secrets im Repository; OWASP-Prüfung durch `sec-agent` dokumentiert.
+- [x] Keine Secrets im Repository; OWASP-Prüfung durch `sec-agent` dokumentiert: [docs/security/owasp-epic-01.md](../../docs/security/owasp-epic-01.md) (statische Prüfung, keine Funde mit hohem Schweregrad; offene mittlere Risiken R-01 bis R-05 dort beschrieben).
 - [ ] Spec archiviert und in `UserStories/specs/` übernommen.
