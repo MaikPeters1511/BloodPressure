@@ -67,6 +67,6 @@ _Entfällt._
 - [x] T4.5 (doc) OpenAPI-Beschreibung mit Haftungshinweis an den Endpunkten
 
 ## 6. Acceptance Criteria (DoD)
-- [ ] Alle Grenzwerte (je ±1) sind durch Tests abgedeckt und grün.
-- [ ] Statistik stimmt mit manueller Berechnung überein (Teststichprobe).
+- [x] Alle Grenzwerte (je ±1) sind durch Tests abgedeckt und grün (`ClassifierTests`, 21 Fälle).
+- [x] Statistik stimmt mit manueller Berechnung überein (Teststichprobe: `StatisticsTests`, Mittel, Min, Max von Hand nachgerechnet).
 - [x] Haftungshinweis in der API-Doku (Test `OpenApiProblemExamplesTests.ClassifyingOperation_HasDisclaimer`).
