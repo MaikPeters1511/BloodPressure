@@ -78,6 +78,26 @@ public class SecurityHardeningTests
     }
 
     [Test]
+    public async Task AuthenticatedAuthRequests_AreNotCountedAgainstTheStrictAnonymousLimit()
+    {
+        await using var factory = new ApiFactory(settings: new Dictionary<string, string>
+        {
+            ["RateLimiting:AuthPermitLimitPerMinute"] = "2",
+            ["RateLimiting:PermitLimitPerMinute"] = "1000"
+        });
+        // Angemeldet (z. B. Zwei-Faktor-Verwaltung unter /api/auth/manage): gilt das normale Limit je Nutzer, nicht das strenge je IP.
+        var client = factory.CreateClientFor("user-a");
+
+        var statuses = new List<HttpStatusCode>();
+        for (var i = 0; i < 5; i++)
+        {
+            statuses.Add((await client.GetAsync("/api/auth/manage/unknown")).StatusCode);
+        }
+
+        await Assert.That(statuses).DoesNotContain(HttpStatusCode.TooManyRequests);
+    }
+
+    [Test]
     public async Task AccessDenied_IsLogged_WithoutCredentials()
     {
         await using var factory = new ApiFactory();

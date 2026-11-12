@@ -86,8 +86,9 @@ builder.Services.AddRateLimiter(options =>
             return RateLimitPartition.GetNoLimiter("probe");
         }
 
-        // Anmeldung, Registrierung und Token-Erneuerung: strengeres Limit je IP gegen Passwort-Raten.
-        if (context.Request.Path.StartsWithSegments("/api/auth"))
+        // Anmeldung, Registrierung und Token-Erneuerung (nicht angemeldet): strengeres Limit je IP gegen Passwort-Raten.
+        // Angemeldete Aufrufe unter /api/auth (Zwei-Faktor-Verwaltung, Abmelden) zählen zum normalen Limit je Nutzer.
+        if (context.Request.Path.StartsWithSegments("/api/auth") && context.User.Identity?.IsAuthenticated != true)
         {
             return RateLimitPartition.GetFixedWindowLimiter($"auth:{context.Connection.RemoteIpAddress}", _ => new FixedWindowRateLimiterOptions
             {
